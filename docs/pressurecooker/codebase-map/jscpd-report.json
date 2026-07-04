@@ -1,0 +1,2853 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 5,
+          "line": 19,
+          "position": 871
+        },
+        "name": "AppSupport/Sources/AppSupport/AppColorHex.swift",
+        "start": 13,
+        "startLoc": {
+          "column": 89,
+          "line": 13,
+          "position": 679
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 22,
+        "endLoc": {
+          "column": 5,
+          "line": 22,
+          "position": 922
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/ColorHex.swift",
+        "start": 16,
+        "startLoc": {
+          "column": 8,
+          "line": 16,
+          "position": 730
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 14,
+          "line": 26,
+          "position": 703
+        },
+        "name": "AppSupport/Tests/AppSupportTests/SpreadPairingTests.swift",
+        "start": 19,
+        "startLoc": {
+          "column": 55,
+          "line": 19,
+          "position": 518
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 81,
+        "endLoc": {
+          "column": 14,
+          "line": 81,
+          "position": 2880
+        },
+        "name": "AppSupport/Tests/AppSupportTests/SpreadPairingTests.swift",
+        "start": 74,
+        "startLoc": {
+          "column": 21,
+          "line": 74,
+          "position": 2695
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 88,
+        "endLoc": {
+          "column": 9,
+          "line": 88,
+          "position": 3179
+        },
+        "name": "AppSupport/Tests/AppSupportTests/SpreadPairingTests.swift",
+        "start": 83,
+        "startLoc": {
+          "column": 8,
+          "line": 83,
+          "position": 2972
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 124,
+        "endLoc": {
+          "column": 11,
+          "line": 124,
+          "position": 4591
+        },
+        "name": "AppSupport/Tests/AppSupportTests/SpreadPairingTests.swift",
+        "start": 119,
+        "startLoc": {
+          "column": 8,
+          "line": 119,
+          "position": 4382
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 25,
+          "line": 92,
+          "position": 3399
+        },
+        "name": "AppSupport/Tests/AppSupportTests/SpreadPairingTests.swift",
+        "start": 86,
+        "startLoc": {
+          "column": 29,
+          "line": 86,
+          "position": 3096
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 111,
+        "endLoc": {
+          "column": 14,
+          "line": 111,
+          "position": 4056
+        },
+        "name": "AppSupport/Tests/AppSupportTests/SpreadPairingTests.swift",
+        "start": 102,
+        "startLoc": {
+          "column": 28,
+          "line": 102,
+          "position": 3776
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 45,
+          "line": 19,
+          "position": 841
+        },
+        "name": "DocumentUI/Tests/DocumentUITests/DebugFixtureBookTests.swift",
+        "start": 12,
+        "startLoc": {
+          "column": 8,
+          "line": 12,
+          "position": 272
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 45,
+          "line": 23,
+          "position": 1057
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/AppImageStoreTests.swift",
+        "start": 16,
+        "startLoc": {
+          "column": 8,
+          "line": 16,
+          "position": 488
+        }
+      },
+      "tokens": 89
+    },
+    {
+      "firstFile": {
+        "end": 24,
+        "endLoc": {
+          "column": 5,
+          "line": 24,
+          "position": 1207
+        },
+        "name": "DocumentUI/Tests/DocumentUITests/DebugFixtureBookTests.swift",
+        "start": 19,
+        "startLoc": {
+          "column": 72,
+          "line": 19,
+          "position": 868
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 28,
+        "endLoc": {
+          "column": 14,
+          "line": 28,
+          "position": 1432
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/AppImageStoreTests.swift",
+        "start": 23,
+        "startLoc": {
+          "column": 72,
+          "line": 23,
+          "position": 1084
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 68,
+        "endLoc": {
+          "column": 5,
+          "line": 68,
+          "position": 3482
+        },
+        "name": "EditCore/Tests/EditCoreTests/EditMutationsTests.swift",
+        "start": 6,
+        "startLoc": {
+          "column": 14,
+          "line": 6,
+          "position": 95
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 63,
+      "secondFile": {
+        "end": 72,
+        "endLoc": {
+          "column": 5,
+          "line": 72,
+          "position": 3850
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/EditMutationsFixture.swift",
+        "start": 10,
+        "startLoc": {
+          "column": 5,
+          "line": 10,
+          "position": 463
+        }
+      },
+      "tokens": 612
+    },
+    {
+      "firstFile": {
+        "end": 214,
+        "endLoc": {
+          "column": 85,
+          "line": 214,
+          "position": 10109
+        },
+        "name": "EditCore/Tests/EditCoreTests/EditMutationsTests.swift",
+        "start": 208,
+        "startLoc": {
+          "column": 8,
+          "line": 208,
+          "position": 9672
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 270,
+        "endLoc": {
+          "column": 85,
+          "line": 270,
+          "position": 13320
+        },
+        "name": "EditCore/Tests/EditCoreTests/EditMutationsTests.swift",
+        "start": 264,
+        "startLoc": {
+          "column": 8,
+          "line": 264,
+          "position": 12883
+        }
+      },
+      "tokens": 87
+    },
+    {
+      "firstFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 18,
+          "line": 311,
+          "position": 13679
+        },
+        "name": "EditorFeature/Sources/EditorFeature/BookBrowserView.swift",
+        "start": 305,
+        "startLoc": {
+          "column": 8,
+          "line": 305,
+          "position": 13264
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 723,
+        "endLoc": {
+          "column": 22,
+          "line": 723,
+          "position": 32375
+        },
+        "name": "EditorFeature/Sources/EditorFeature/BookBrowserView.swift",
+        "start": 717,
+        "startLoc": {
+          "column": 12,
+          "line": 717,
+          "position": 31936
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 831,
+        "endLoc": {
+          "column": 49,
+          "line": 831,
+          "position": 36848
+        },
+        "name": "EditorFeature/Sources/EditorFeature/BookBrowserView.swift",
+        "start": 825,
+        "startLoc": {
+          "column": 39,
+          "line": 825,
+          "position": 36447
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 74,
+        "endLoc": {
+          "column": 49,
+          "line": 74,
+          "position": 3156
+        },
+        "name": "EditorFeature/Sources/EditorFeature/TextActionsPopover.swift",
+        "start": 68,
+        "startLoc": {
+          "column": 38,
+          "line": 68,
+          "position": 2755
+        }
+      },
+      "tokens": 67
+    },
+    {
+      "firstFile": {
+        "end": 83,
+        "endLoc": {
+          "column": 1,
+          "line": 83,
+          "position": 3974
+        },
+        "name": "EditorFeature/Sources/EditorFeature/PhotoActionsPopover.swift",
+        "start": 65,
+        "startLoc": {
+          "column": 8,
+          "line": 65,
+          "position": 3410
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 19,
+      "secondFile": {
+        "end": 51,
+        "endLoc": {
+          "column": 1,
+          "line": 51,
+          "position": 1854
+        },
+        "name": "EditorFeature/Sources/EditorFeature/TextActionsPopover.swift",
+        "start": 33,
+        "startLoc": {
+          "column": 8,
+          "line": 33,
+          "position": 1290
+        }
+      },
+      "tokens": 105
+    },
+    {
+      "firstFile": {
+        "end": 543,
+        "endLoc": {
+          "column": 79,
+          "line": 543,
+          "position": 23453
+        },
+        "name": "ModelLayer/Sources/ModelLayer/BookEditorModel.swift",
+        "start": 538,
+        "startLoc": {
+          "column": 45,
+          "line": 538,
+          "position": 23106
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 572,
+        "endLoc": {
+          "column": 79,
+          "line": 572,
+          "position": 24950
+        },
+        "name": "ModelLayer/Sources/ModelLayer/BookEditorModel.swift",
+        "start": 567,
+        "startLoc": {
+          "column": 45,
+          "line": 567,
+          "position": 24603
+        }
+      },
+      "tokens": 84
+    },
+    {
+      "firstFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 43,
+          "line": 20,
+          "position": 730
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorEngineTests.swift",
+        "start": 14,
+        "startLoc": {
+          "column": 54,
+          "line": 14,
+          "position": 367
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 43,
+          "line": 23,
+          "position": 920
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorPresetTests.swift",
+        "start": 17,
+        "startLoc": {
+          "column": 54,
+          "line": 17,
+          "position": 557
+        }
+      },
+      "tokens": 74
+    },
+    {
+      "firstFile": {
+        "end": 32,
+        "endLoc": {
+          "column": 14,
+          "line": 32,
+          "position": 1256
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorEngineTests.swift",
+        "start": 21,
+        "startLoc": {
+          "column": 56,
+          "line": 21,
+          "position": 821
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 35,
+        "endLoc": {
+          "column": 14,
+          "line": 35,
+          "position": 1452
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorPresetTests.swift",
+        "start": 24,
+        "startLoc": {
+          "column": 62,
+          "line": 24,
+          "position": 1017
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 5,
+          "line": 17,
+          "position": 574
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorModelTests.swift",
+        "start": 11,
+        "startLoc": {
+          "column": 4,
+          "line": 11,
+          "position": 175
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 21,
+        "endLoc": {
+          "column": 5,
+          "line": 21,
+          "position": 686
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/EdgeStyleModelTests.swift",
+        "start": 15,
+        "startLoc": {
+          "column": 4,
+          "line": 15,
+          "position": 287
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 118,
+        "endLoc": {
+          "column": 14,
+          "line": 118,
+          "position": 5853
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorPresetTests.swift",
+        "start": 112,
+        "startLoc": {
+          "column": 53,
+          "line": 112,
+          "position": 5574
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 129,
+        "endLoc": {
+          "column": 14,
+          "line": 129,
+          "position": 6377
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/BookEditorPresetTests.swift",
+        "start": 123,
+        "startLoc": {
+          "column": 53,
+          "line": 123,
+          "position": 6098
+        }
+      },
+      "tokens": 62
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 30,
+          "line": 23,
+          "position": 897
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/DensityStepperTests.swift",
+        "start": 16,
+        "startLoc": {
+          "column": 4,
+          "line": 16,
+          "position": 514
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 17,
+        "endLoc": {
+          "column": 26,
+          "line": 17,
+          "position": 598
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/LayoutOptionsModelTests.swift",
+        "start": 11,
+        "startLoc": {
+          "column": 4,
+          "line": 11,
+          "position": 240
+        }
+      },
+      "tokens": 74
+    },
+    {
+      "firstFile": {
+        "end": 24,
+        "endLoc": {
+          "column": 16,
+          "line": 24,
+          "position": 918
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/DensityStepperTests.swift",
+        "start": 16,
+        "startLoc": {
+          "column": 4,
+          "line": 16,
+          "position": 514
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 25,
+        "endLoc": {
+          "column": 16,
+          "line": 25,
+          "position": 899
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/SpreadEditingTests.swift",
+        "start": 17,
+        "startLoc": {
+          "column": 4,
+          "line": 17,
+          "position": 495
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 23,
+        "endLoc": {
+          "column": 18,
+          "line": 23,
+          "position": 885
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/DensityStepperTests.swift",
+        "start": 17,
+        "startLoc": {
+          "column": 8,
+          "line": 17,
+          "position": 559
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 184,
+        "endLoc": {
+          "column": 18,
+          "line": 184,
+          "position": 8421
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/EdgeStyleModelTests.swift",
+        "start": 179,
+        "startLoc": {
+          "column": 8,
+          "line": 179,
+          "position": 8116
+        }
+      },
+      "tokens": 61
+    },
+    {
+      "firstFile": {
+        "end": 22,
+        "endLoc": {
+          "column": 9,
+          "line": 22,
+          "position": 866
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/DensityStepperTests.swift",
+        "start": 17,
+        "startLoc": {
+          "column": 8,
+          "line": 17,
+          "position": 559
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 717
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/BackgroundPreservationTests.swift",
+        "start": 12,
+        "startLoc": {
+          "column": 12,
+          "line": 12,
+          "position": 447
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 40,
+        "endLoc": {
+          "column": 5,
+          "line": 40,
+          "position": 1861
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/DensityStepperTests.swift",
+        "start": 30,
+        "startLoc": {
+          "column": 61,
+          "line": 30,
+          "position": 1367
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 42,
+        "endLoc": {
+          "column": 5,
+          "line": 42,
+          "position": 1809
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/SpreadEditingTests.swift",
+        "start": 32,
+        "startLoc": {
+          "column": 60,
+          "line": 32,
+          "position": 1315
+        }
+      },
+      "tokens": 88
+    },
+    {
+      "firstFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 62,
+          "line": 19,
+          "position": 630
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/ManualPlacementTests.swift",
+        "start": 8,
+        "startLoc": {
+          "column": 46,
+          "line": 8,
+          "position": 168
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 62,
+          "line": 20,
+          "position": 628
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/PhotoEmphasisTests.swift",
+        "start": 9,
+        "startLoc": {
+          "column": 33,
+          "line": 9,
+          "position": 166
+        }
+      },
+      "tokens": 72
+    },
+    {
+      "firstFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 506
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/ManualPlacementTests.swift",
+        "start": 8,
+        "startLoc": {
+          "column": 46,
+          "line": 8,
+          "position": 168
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 5,
+          "line": 16,
+          "position": 504
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/TextPlacementTests.swift",
+        "start": 8,
+        "startLoc": {
+          "column": 44,
+          "line": 8,
+          "position": 166
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 56,
+        "endLoc": {
+          "column": 14,
+          "line": 56,
+          "position": 2184
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/ReplaceModeTests.swift",
+        "start": 50,
+        "startLoc": {
+          "column": 49,
+          "line": 50,
+          "position": 1929
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 81,
+        "endLoc": {
+          "column": 14,
+          "line": 81,
+          "position": 3083
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/ReplaceModeTests.swift",
+        "start": 75,
+        "startLoc": {
+          "column": 49,
+          "line": 75,
+          "position": 2828
+        }
+      },
+      "tokens": 61
+    },
+    {
+      "firstFile": {
+        "end": 258,
+        "endLoc": {
+          "column": 41,
+          "line": 258,
+          "position": 10848
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/SpreadEditingTests.swift",
+        "start": 251,
+        "startLoc": {
+          "column": 55,
+          "line": 251,
+          "position": 10548
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 275,
+        "endLoc": {
+          "column": 41,
+          "line": 275,
+          "position": 11626
+        },
+        "name": "ModelLayer/Tests/ModelLayerTests/SpreadEditingTests.swift",
+        "start": 268,
+        "startLoc": {
+          "column": 67,
+          "line": 268,
+          "position": 11326
+        }
+      },
+      "tokens": 63
+    },
+    {
+      "firstFile": {
+        "end": 158,
+        "endLoc": {
+          "column": 29,
+          "line": 158,
+          "position": 7837
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/BookEngine.swift",
+        "start": 152,
+        "startLoc": {
+          "column": 47,
+          "line": 152,
+          "position": 7409
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 44,
+        "endLoc": {
+          "column": 33,
+          "line": 44,
+          "position": 2327
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/ExportFixtures.swift",
+        "start": 38,
+        "startLoc": {
+          "column": 51,
+          "line": 38,
+          "position": 1875
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 312,
+        "endLoc": {
+          "column": 9,
+          "line": 312,
+          "position": 15552
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/BookEngine.swift",
+        "start": 306,
+        "startLoc": {
+          "column": 8,
+          "line": 306,
+          "position": 15325
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 459,
+        "endLoc": {
+          "column": 9,
+          "line": 459,
+          "position": 22641
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/BookEngine.swift",
+        "start": 453,
+        "startLoc": {
+          "column": 8,
+          "line": 453,
+          "position": 22414
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 320,
+        "endLoc": {
+          "column": 9,
+          "line": 320,
+          "position": 15869
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/BookEngine.swift",
+        "start": 315,
+        "startLoc": {
+          "column": 8,
+          "line": 315,
+          "position": 15613
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 463,
+        "endLoc": {
+          "column": 9,
+          "line": 463,
+          "position": 22878
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/BookEngine.swift",
+        "start": 460,
+        "startLoc": {
+          "column": 8,
+          "line": 460,
+          "position": 22650
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 753,
+        "endLoc": {
+          "column": 1,
+          "line": 753,
+          "position": 37675
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/BookEngine.swift",
+        "start": 744,
+        "startLoc": {
+          "column": 12,
+          "line": 744,
+          "position": 37370
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 164,
+        "endLoc": {
+          "column": 1,
+          "line": 164,
+          "position": 7212
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Model/Spread.swift",
+        "start": 155,
+        "startLoc": {
+          "column": 4,
+          "line": 155,
+          "position": 6907
+        }
+      },
+      "tokens": 80
+    },
+    {
+      "firstFile": {
+        "end": 55,
+        "endLoc": {
+          "column": 19,
+          "line": 55,
+          "position": 2843
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/GenerativeProvider.swift",
+        "start": 48,
+        "startLoc": {
+          "column": 61,
+          "line": 48,
+          "position": 2488
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 30,
+        "endLoc": {
+          "column": 19,
+          "line": 30,
+          "position": 1387
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/GridProvider.swift",
+        "start": 23,
+        "startLoc": {
+          "column": 52,
+          "line": 23,
+          "position": 1066
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 34,
+        "endLoc": {
+          "column": 55,
+          "line": 34,
+          "position": 1601
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/GridProvider.swift",
+        "start": 12,
+        "startLoc": {
+          "column": 4,
+          "line": 12,
+          "position": 466
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 23,
+      "secondFile": {
+        "end": 36,
+        "endLoc": {
+          "column": 51,
+          "line": 36,
+          "position": 1737
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/MasonryProvider.swift",
+        "start": 14,
+        "startLoc": {
+          "column": 4,
+          "line": 14,
+          "position": 606
+        }
+      },
+      "tokens": 234
+    },
+    {
+      "firstFile": {
+        "end": 32,
+        "endLoc": {
+          "column": 9,
+          "line": 32,
+          "position": 1544
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/GridProvider.swift",
+        "start": 23,
+        "startLoc": {
+          "column": 8,
+          "line": 23,
+          "position": 1022
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 9,
+          "line": 43,
+          "position": 2177
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/JustifiedProvider.swift",
+        "start": 32,
+        "startLoc": {
+          "column": 8,
+          "line": 32,
+          "position": 1589
+        }
+      },
+      "tokens": 100
+    },
+    {
+      "firstFile": {
+        "end": 49,
+        "endLoc": {
+          "column": 15,
+          "line": 49,
+          "position": 2550
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/JustifiedLayout.swift",
+        "start": 44,
+        "startLoc": {
+          "column": 12,
+          "line": 44,
+          "position": 2270
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 14,
+          "line": 43,
+          "position": 2380
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/MasonryLayout.swift",
+        "start": 38,
+        "startLoc": {
+          "column": 8,
+          "line": 38,
+          "position": 2117
+        }
+      },
+      "tokens": 67
+    },
+    {
+      "firstFile": {
+        "end": 54,
+        "endLoc": {
+          "column": 18,
+          "line": 54,
+          "position": 2800
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/JustifiedLayout.swift",
+        "start": 49,
+        "startLoc": {
+          "column": 51,
+          "line": 49,
+          "position": 2586
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 48,
+        "endLoc": {
+          "column": 5,
+          "line": 48,
+          "position": 2580
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/MasonryLayout.swift",
+        "start": 43,
+        "startLoc": {
+          "column": 29,
+          "line": 43,
+          "position": 2395
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 46,
+        "endLoc": {
+          "column": 11,
+          "line": 46,
+          "position": 2242
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/JustifiedProvider.swift",
+        "start": 37,
+        "startLoc": {
+          "column": 86,
+          "line": 37,
+          "position": 1846
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 37,
+        "endLoc": {
+          "column": 14,
+          "line": 37,
+          "position": 1752
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Engine/MasonryProvider.swift",
+        "start": 30,
+        "startLoc": {
+          "column": 86,
+          "line": 30,
+          "position": 1419
+        }
+      },
+      "tokens": 62
+    },
+    {
+      "firstFile": {
+        "end": 39,
+        "endLoc": {
+          "column": 64,
+          "line": 39,
+          "position": 1914
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Model/SlotManipulation.swift",
+        "start": 33,
+        "startLoc": {
+          "column": 8,
+          "line": 33,
+          "position": 1555
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 83,
+        "endLoc": {
+          "column": 64,
+          "line": 83,
+          "position": 3866
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Model/SlotManipulation.swift",
+        "start": 77,
+        "startLoc": {
+          "column": 8,
+          "line": 77,
+          "position": 3507
+        }
+      },
+      "tokens": 66
+    },
+    {
+      "firstFile": {
+        "end": 113,
+        "endLoc": {
+          "column": 39,
+          "line": 113,
+          "position": 4142
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 104,
+        "startLoc": {
+          "column": 28,
+          "line": 104,
+          "position": 3778
+        }
+      },
+      "format": "json",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 312,
+        "endLoc": {
+          "column": 39,
+          "line": 312,
+          "position": 12093
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 303,
+        "startLoc": {
+          "column": 33,
+          "line": 303,
+          "position": 11729
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 175,
+        "endLoc": {
+          "column": 27,
+          "line": 175,
+          "position": 6471
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 169,
+        "startLoc": {
+          "column": 45,
+          "line": 169,
+          "position": 6197
+        }
+      },
+      "format": "json",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 326,
+        "endLoc": {
+          "column": 27,
+          "line": 326,
+          "position": 12636
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 320,
+        "startLoc": {
+          "column": 47,
+          "line": 320,
+          "position": 12362
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 243,
+        "endLoc": {
+          "column": 27,
+          "line": 243,
+          "position": 9237
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 237,
+        "startLoc": {
+          "column": 45,
+          "line": 237,
+          "position": 8956
+        }
+      },
+      "format": "json",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 258,
+        "endLoc": {
+          "column": 27,
+          "line": 258,
+          "position": 9876
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 252,
+        "startLoc": {
+          "column": 45,
+          "line": 252,
+          "position": 9595
+        }
+      },
+      "tokens": 69
+    },
+    {
+      "firstFile": {
+        "end": 253,
+        "endLoc": {
+          "column": 41,
+          "line": 253,
+          "position": 9657
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 247,
+        "startLoc": {
+          "column": 21,
+          "line": 247,
+          "position": 9345
+        }
+      },
+      "format": "json",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 351,
+        "endLoc": {
+          "column": 41,
+          "line": 351,
+          "position": 13711
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 345,
+        "startLoc": {
+          "column": 21,
+          "line": 345,
+          "position": 13399
+        }
+      },
+      "tokens": 77
+    },
+    {
+      "firstFile": {
+        "end": 357,
+        "endLoc": {
+          "column": 74,
+          "line": 357,
+          "position": 14057
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 350,
+        "startLoc": {
+          "column": 45,
+          "line": 350,
+          "position": 13649
+        }
+      },
+      "format": "json",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 390,
+        "endLoc": {
+          "column": 74,
+          "line": 390,
+          "position": 15574
+        },
+        "name": "PhotoBookCore/Sources/PhotoBookCore/Resources/templates.json",
+        "start": 383,
+        "startLoc": {
+          "column": 49,
+          "line": 383,
+          "position": 15166
+        }
+      },
+      "tokens": 100
+    },
+    {
+      "firstFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 39,
+          "line": 18,
+          "position": 791
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/BackgroundPreservationTests.swift",
+        "start": 9,
+        "startLoc": {
+          "column": 42,
+          "line": 9,
+          "position": 354
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 14,
+        "endLoc": {
+          "column": 39,
+          "line": 14,
+          "position": 535
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/LayoutOptionsTests.swift",
+        "start": 5,
+        "startLoc": {
+          "column": 33,
+          "line": 5,
+          "position": 98
+        }
+      },
+      "tokens": 96
+    },
+    {
+      "firstFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 14,
+          "line": 15,
+          "position": 619
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/BookEngineTests.swift",
+        "start": 10,
+        "startLoc": {
+          "column": 8,
+          "line": 10,
+          "position": 278
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 175,
+        "endLoc": {
+          "column": 82,
+          "line": 175,
+          "position": 7549
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 169,
+        "startLoc": {
+          "column": 12,
+          "line": 169,
+          "position": 7155
+        }
+      },
+      "tokens": 74
+    },
+    {
+      "firstFile": {
+        "end": 15,
+        "endLoc": {
+          "column": 5,
+          "line": 15,
+          "position": 569
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/ColumnProviderTests.swift",
+        "start": 9,
+        "startLoc": {
+          "column": 14,
+          "line": 9,
+          "position": 250
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 9,
+          "line": 43,
+          "position": 1593
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/EdgeStyleTests.swift",
+        "start": 37,
+        "startLoc": {
+          "column": 18,
+          "line": 37,
+          "position": 1250
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 56,
+        "endLoc": {
+          "column": 34,
+          "line": 56,
+          "position": 2592
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/GenerativeProviderTests.swift",
+        "start": 51,
+        "startLoc": {
+          "column": 69,
+          "line": 51,
+          "position": 2294
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 69,
+        "endLoc": {
+          "column": 34,
+          "line": 69,
+          "position": 3235
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/GenerativeProviderTests.swift",
+        "start": 64,
+        "startLoc": {
+          "column": 71,
+          "line": 64,
+          "position": 2937
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 41,
+        "endLoc": {
+          "column": 14,
+          "line": 41,
+          "position": 1527
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/GridLayoutTests.swift",
+        "start": 32,
+        "startLoc": {
+          "column": 32,
+          "line": 32,
+          "position": 1277
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 35,
+        "endLoc": {
+          "column": 14,
+          "line": 35,
+          "position": 1445
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/JustifiedLayoutTests.swift",
+        "start": 26,
+        "startLoc": {
+          "column": 80,
+          "line": 26,
+          "position": 1195
+        }
+      },
+      "tokens": 79
+    },
+    {
+      "firstFile": {
+        "end": 39,
+        "endLoc": {
+          "column": 5,
+          "line": 39,
+          "position": 1511
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/GridLayoutTests.swift",
+        "start": 32,
+        "startLoc": {
+          "column": 32,
+          "line": 32,
+          "position": 1277
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 32,
+        "endLoc": {
+          "column": 5,
+          "line": 32,
+          "position": 1334
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/MasonryLayoutTests.swift",
+        "start": 25,
+        "startLoc": {
+          "column": 90,
+          "line": 25,
+          "position": 1100
+        }
+      },
+      "tokens": 76
+    },
+    {
+      "firstFile": {
+        "end": 33,
+        "endLoc": {
+          "column": 5,
+          "line": 33,
+          "position": 1429
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/JustifiedLayoutTests.swift",
+        "start": 26,
+        "startLoc": {
+          "column": 64,
+          "line": 26,
+          "position": 1179
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 37,
+        "endLoc": {
+          "column": 5,
+          "line": 37,
+          "position": 1570
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/JustifiedSpreadLayoutTests.swift",
+        "start": 30,
+        "startLoc": {
+          "column": 38,
+          "line": 30,
+          "position": 1320
+        }
+      },
+      "tokens": 80
+    },
+    {
+      "firstFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 5,
+          "line": 12,
+          "position": 405
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/PaginatorTests.swift",
+        "start": 5,
+        "startLoc": {
+          "column": 29,
+          "line": 5,
+          "position": 94
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 12,
+        "endLoc": {
+          "column": 5,
+          "line": 12,
+          "position": 405
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SequencerTests.swift",
+        "start": 5,
+        "startLoc": {
+          "column": 29,
+          "line": 5,
+          "position": 94
+        }
+      },
+      "tokens": 64
+    },
+    {
+      "firstFile": {
+        "end": 34,
+        "endLoc": {
+          "column": 48,
+          "line": 34,
+          "position": 1139
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/PrintPresetTests.swift",
+        "start": 28,
+        "startLoc": {
+          "column": 8,
+          "line": 28,
+          "position": 828
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 18,
+        "endLoc": {
+          "column": 48,
+          "line": 18,
+          "position": 627
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 12,
+        "startLoc": {
+          "column": 8,
+          "line": 12,
+          "position": 316
+        }
+      },
+      "tokens": 79
+    },
+    {
+      "firstFile": {
+        "end": 258,
+        "endLoc": {
+          "column": 11,
+          "line": 258,
+          "position": 11612
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 250,
+        "startLoc": {
+          "column": 8,
+          "line": 250,
+          "position": 11198
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 312,
+        "endLoc": {
+          "column": 11,
+          "line": 312,
+          "position": 14549
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 305,
+        "startLoc": {
+          "column": 8,
+          "line": 305,
+          "position": 14136
+        }
+      },
+      "tokens": 106
+    },
+    {
+      "firstFile": {
+        "end": 290,
+        "endLoc": {
+          "column": 11,
+          "line": 290,
+          "position": 13419
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 285,
+        "startLoc": {
+          "column": 67,
+          "line": 285,
+          "position": 13157
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 437,
+        "endLoc": {
+          "column": 11,
+          "line": 437,
+          "position": 21608
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 432,
+        "startLoc": {
+          "column": 44,
+          "line": 432,
+          "position": 21346
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 312,
+        "endLoc": {
+          "column": 11,
+          "line": 312,
+          "position": 14549
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 304,
+        "startLoc": {
+          "column": 76,
+          "line": 304,
+          "position": 14126
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 361,
+        "endLoc": {
+          "column": 11,
+          "line": 361,
+          "position": 17357
+        },
+        "name": "PhotoBookCore/Tests/PhotoBookCoreTests/SpreadTests.swift",
+        "start": 352,
+        "startLoc": {
+          "column": 60,
+          "line": 352,
+          "position": 16933
+        }
+      },
+      "tokens": 107
+    },
+    {
+      "firstFile": {
+        "end": 118,
+        "endLoc": {
+          "column": 76,
+          "line": 118,
+          "position": 5104
+        },
+        "name": "PhotoBookImport/Sources/PhotoBookImport/FileSystemProvider.swift",
+        "start": 113,
+        "startLoc": {
+          "column": 62,
+          "line": 113,
+          "position": 4790
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 143,
+        "endLoc": {
+          "column": 76,
+          "line": 143,
+          "position": 6410
+        },
+        "name": "PhotoBookImport/Sources/PhotoBookImport/FileSystemProvider.swift",
+        "start": 138,
+        "startLoc": {
+          "column": 43,
+          "line": 138,
+          "position": 6096
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 116,
+        "endLoc": {
+          "column": 14,
+          "line": 116,
+          "position": 4232
+        },
+        "name": "PhotoBookImport/Sources/PhotoBookImportTestSupport/MockPhotoProvider.swift",
+        "start": 105,
+        "startLoc": {
+          "column": 58,
+          "line": 105,
+          "position": 3801
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 62,
+        "endLoc": {
+          "column": 14,
+          "line": 62,
+          "position": 2252
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/Support/SolidColorImageStore.swift",
+        "start": 51,
+        "startLoc": {
+          "column": 69,
+          "line": 51,
+          "position": 1821
+        }
+      },
+      "tokens": 56
+    },
+    {
+      "firstFile": {
+        "end": 200,
+        "endLoc": {
+          "column": 82,
+          "line": 200,
+          "position": 10021
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/FileSystemProviderTests.swift",
+        "start": 195,
+        "startLoc": {
+          "column": 55,
+          "line": 195,
+          "position": 9756
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 276,
+        "endLoc": {
+          "column": 82,
+          "line": 276,
+          "position": 13411
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/FileSystemProviderTests.swift",
+        "start": 271,
+        "startLoc": {
+          "column": 56,
+          "line": 271,
+          "position": 13146
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 260,
+        "endLoc": {
+          "column": 30,
+          "line": 260,
+          "position": 12608
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/FileSystemProviderTests.swift",
+        "start": 253,
+        "startLoc": {
+          "column": 92,
+          "line": 253,
+          "position": 12315
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 279,
+        "endLoc": {
+          "column": 30,
+          "line": 279,
+          "position": 13502
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/FileSystemProviderTests.swift",
+        "start": 272,
+        "startLoc": {
+          "column": 60,
+          "line": 272,
+          "position": 13209
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 68,
+        "endLoc": {
+          "column": 14,
+          "line": 68,
+          "position": 2931
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/MetadataReaderTests.swift",
+        "start": 62,
+        "startLoc": {
+          "column": 55,
+          "line": 62,
+          "position": 2719
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 80,
+        "endLoc": {
+          "column": 14,
+          "line": 80,
+          "position": 3546
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/MetadataReaderTests.swift",
+        "start": 74,
+        "startLoc": {
+          "column": 47,
+          "line": 74,
+          "position": 3334
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 89,
+        "endLoc": {
+          "column": 5,
+          "line": 89,
+          "position": 4092
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/MetadataReaderTests.swift",
+        "start": 84,
+        "startLoc": {
+          "column": 92,
+          "line": 84,
+          "position": 3850
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 118,
+        "endLoc": {
+          "column": 5,
+          "line": 118,
+          "position": 5651
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/MetadataReaderTests.swift",
+        "start": 113,
+        "startLoc": {
+          "column": 46,
+          "line": 113,
+          "position": 5409
+        }
+      },
+      "tokens": 59
+    },
+    {
+      "firstFile": {
+        "end": 129,
+        "endLoc": {
+          "column": 5,
+          "line": 129,
+          "position": 5263
+        },
+        "name": "PhotoBookImport/Tests/PhotoBookImportTests/Support/FixtureFactory.swift",
+        "start": 110,
+        "startLoc": {
+          "column": 25,
+          "line": 110,
+          "position": 4424
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 20,
+      "secondFile": {
+        "end": 139,
+        "endLoc": {
+          "column": 5,
+          "line": 139,
+          "position": 5964
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/Support/GoldenImage.swift",
+        "start": 120,
+        "startLoc": {
+          "column": 26,
+          "line": 120,
+          "position": 5125
+        }
+      },
+      "tokens": 138
+    },
+    {
+      "firstFile": {
+        "end": 91,
+        "endLoc": {
+          "column": 61,
+          "line": 91,
+          "position": 4178
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/EditingSupport.swift",
+        "start": 86,
+        "startLoc": {
+          "column": 78,
+          "line": 86,
+          "position": 3930
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 48,
+        "endLoc": {
+          "column": 65,
+          "line": 48,
+          "position": 1753
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/PageView.swift",
+        "start": 43,
+        "startLoc": {
+          "column": 33,
+          "line": 43,
+          "position": 1485
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 322,
+        "endLoc": {
+          "column": 13,
+          "line": 322,
+          "position": 13185
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/PageView.swift",
+        "start": 314,
+        "startLoc": {
+          "column": 42,
+          "line": 314,
+          "position": 12709
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 339,
+        "endLoc": {
+          "column": 13,
+          "line": 339,
+          "position": 14327
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/PageView.swift",
+        "start": 331,
+        "startLoc": {
+          "column": 45,
+          "line": 331,
+          "position": 13823
+        }
+      },
+      "tokens": 91
+    },
+    {
+      "firstFile": {
+        "end": 349,
+        "endLoc": {
+          "column": 58,
+          "line": 349,
+          "position": 14981
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/PageView.swift",
+        "start": 342,
+        "startLoc": {
+          "column": 45,
+          "line": 342,
+          "position": 14433
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 377,
+        "endLoc": {
+          "column": 58,
+          "line": 377,
+          "position": 16460
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/PageView.swift",
+        "start": 370,
+        "startLoc": {
+          "column": 44,
+          "line": 370,
+          "position": 15912
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 51,
+        "endLoc": {
+          "column": 41,
+          "line": 51,
+          "position": 2043
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/SlotManipulationHandles.swift",
+        "start": 32,
+        "startLoc": {
+          "column": 12,
+          "line": 32,
+          "position": 1188
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 20,
+      "secondFile": {
+        "end": 46,
+        "endLoc": {
+          "column": 41,
+          "line": 46,
+          "position": 1758
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/TextSlotManipulationHandles.swift",
+        "start": 27,
+        "startLoc": {
+          "column": 12,
+          "line": 27,
+          "position": 903
+        }
+      },
+      "tokens": 180
+    },
+    {
+      "firstFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 43,
+          "line": 92,
+          "position": 3816
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/SlotManipulationHandles.swift",
+        "start": 52,
+        "startLoc": {
+          "column": 12,
+          "line": 52,
+          "position": 2095
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 41,
+      "secondFile": {
+        "end": 87,
+        "endLoc": {
+          "column": 43,
+          "line": 87,
+          "position": 3492
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/TextSlotManipulationHandles.swift",
+        "start": 47,
+        "startLoc": {
+          "column": 12,
+          "line": 47,
+          "position": 1771
+        }
+      },
+      "tokens": 314
+    },
+    {
+      "firstFile": {
+        "end": 100,
+        "endLoc": {
+          "column": 43,
+          "line": 100,
+          "position": 4216
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/SlotManipulationHandles.swift",
+        "start": 92,
+        "startLoc": {
+          "column": 49,
+          "line": 92,
+          "position": 3822
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 95,
+        "endLoc": {
+          "column": 43,
+          "line": 95,
+          "position": 3896
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/TextSlotManipulationHandles.swift",
+        "start": 87,
+        "startLoc": {
+          "column": 53,
+          "line": 87,
+          "position": 3502
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 114,
+        "endLoc": {
+          "column": 1,
+          "line": 114,
+          "position": 4774
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/SlotManipulationHandles.swift",
+        "start": 100,
+        "startLoc": {
+          "column": 49,
+          "line": 100,
+          "position": 4222
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 15,
+      "secondFile": {
+        "end": 109,
+        "endLoc": {
+          "column": 1,
+          "line": 109,
+          "position": 4458
+        },
+        "name": "PhotoBookRender/Sources/PhotoBookRender/TextSlotManipulationHandles.swift",
+        "start": 95,
+        "startLoc": {
+          "column": 53,
+          "line": 95,
+          "position": 3906
+        }
+      },
+      "tokens": 86
+    },
+    {
+      "firstFile": {
+        "end": 27,
+        "endLoc": {
+          "column": 11,
+          "line": 27,
+          "position": 1393
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/BackCoverExportTests.swift",
+        "start": 21,
+        "startLoc": {
+          "column": 8,
+          "line": 21,
+          "position": 973
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 50,
+        "endLoc": {
+          "column": 83,
+          "line": 50,
+          "position": 3034
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/BackCoverExportTests.swift",
+        "start": 45,
+        "startLoc": {
+          "column": 8,
+          "line": 45,
+          "position": 2543
+        }
+      },
+      "tokens": 72
+    },
+    {
+      "firstFile": {
+        "end": 78,
+        "endLoc": {
+          "column": 89,
+          "line": 78,
+          "position": 4831
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/BackCoverExportTests.swift",
+        "start": 73,
+        "startLoc": {
+          "column": 8,
+          "line": 73,
+          "position": 4506
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 188,
+        "endLoc": {
+          "column": 73,
+          "line": 188,
+          "position": 9585
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PDFExporterTests.swift",
+        "start": 183,
+        "startLoc": {
+          "column": 8,
+          "line": 183,
+          "position": 9276
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 65,
+        "endLoc": {
+          "column": 15,
+          "line": 65,
+          "position": 3382
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/ExportFixtures.swift",
+        "start": 60,
+        "startLoc": {
+          "column": 88,
+          "line": 60,
+          "position": 3047
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 150,
+        "endLoc": {
+          "column": 65,
+          "line": 150,
+          "position": 7940
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PDFPageRendererTests.swift",
+        "start": 145,
+        "startLoc": {
+          "column": 52,
+          "line": 145,
+          "position": 7555
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 60,
+        "endLoc": {
+          "column": 58,
+          "line": 60,
+          "position": 2967
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PageEditingTests.swift",
+        "start": 55,
+        "startLoc": {
+          "column": 47,
+          "line": 55,
+          "position": 2604
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 58,
+          "line": 20,
+          "position": 891
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PublicSurfaceTests.swift",
+        "start": 15,
+        "startLoc": {
+          "column": 28,
+          "line": 15,
+          "position": 528
+        }
+      },
+      "tokens": 76
+    },
+    {
+      "firstFile": {
+        "end": 68,
+        "endLoc": {
+          "column": 15,
+          "line": 68,
+          "position": 3310
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PageEditingTests.swift",
+        "start": 60,
+        "startLoc": {
+          "column": 83,
+          "line": 60,
+          "position": 2992
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 28,
+        "endLoc": {
+          "column": 15,
+          "line": 28,
+          "position": 1209
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PublicSurfaceTests.swift",
+        "start": 20,
+        "startLoc": {
+          "column": 58,
+          "line": 20,
+          "position": 891
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 82,
+        "endLoc": {
+          "column": 80,
+          "line": 82,
+          "position": 4159
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PageEditingTests.swift",
+        "start": 77,
+        "startLoc": {
+          "column": 66,
+          "line": 77,
+          "position": 3798
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 92,
+        "endLoc": {
+          "column": 80,
+          "line": 92,
+          "position": 4697
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PageEditingTests.swift",
+        "start": 87,
+        "startLoc": {
+          "column": 65,
+          "line": 87,
+          "position": 4336
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 62,
+        "endLoc": {
+          "column": 61,
+          "line": 62,
+          "position": 2845
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 56,
+        "startLoc": {
+          "column": 77,
+          "line": 56,
+          "position": 2359
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 61,
+          "line": 96,
+          "position": 4916
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 90,
+        "startLoc": {
+          "column": 60,
+          "line": 90,
+          "position": 4430
+        }
+      },
+      "tokens": 80
+    },
+    {
+      "firstFile": {
+        "end": 63,
+        "endLoc": {
+          "column": 11,
+          "line": 63,
+          "position": 2857
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 57,
+        "startLoc": {
+          "column": 30,
+          "line": 57,
+          "position": 2392
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 97,
+        "endLoc": {
+          "column": 9,
+          "line": 97,
+          "position": 4926
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 91,
+        "startLoc": {
+          "column": 30,
+          "line": 91,
+          "position": 4463
+        }
+      },
+      "tokens": 72
+    },
+    {
+      "firstFile": {
+        "end": 130,
+        "endLoc": {
+          "column": 22,
+          "line": 130,
+          "position": 6680
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 124,
+        "startLoc": {
+          "column": 80,
+          "line": 124,
+          "position": 6286
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 141,
+        "endLoc": {
+          "column": 22,
+          "line": 141,
+          "position": 7293
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 135,
+        "startLoc": {
+          "column": 78,
+          "line": 135,
+          "position": 6899
+        }
+      },
+      "tokens": 85
+    },
+    {
+      "firstFile": {
+        "end": 204,
+        "endLoc": {
+          "column": 5,
+          "line": 204,
+          "position": 10557
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 199,
+        "startLoc": {
+          "column": 44,
+          "line": 199,
+          "position": 10294
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 216,
+        "endLoc": {
+          "column": 5,
+          "line": 216,
+          "position": 11108
+        },
+        "name": "PhotoBookRender/Tests/PhotoBookRenderTests/PreflightTests.swift",
+        "start": 211,
+        "startLoc": {
+          "column": 39,
+          "line": 211,
+          "position": 10845
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 340,
+        "endLoc": {
+          "column": 44,
+          "line": 340,
+          "position": 13646
+        },
+        "name": "SetupFeature/Sources/SetupFeature/NewBookSetupView.swift",
+        "start": 326,
+        "startLoc": {
+          "column": 53,
+          "line": 326,
+          "position": 12834
+        }
+      },
+      "format": "swift",
+      "fragment": "",
+      "lines": 15,
+      "secondFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 44,
+          "line": 43,
+          "position": 2134
+        },
+        "name": "SetupFeature/Sources/SetupFeature/PresetPickerView.swift",
+        "start": 29,
+        "startLoc": {
+          "column": 43,
+          "line": 29,
+          "position": 1322
+        }
+      },
+      "tokens": 116
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-07-04T18:53:00.320Z",
+    "formats": {
+      "json": {
+        "clones": 5,
+        "duplicatedLines": 34,
+        "duplicatedTokens": 396,
+        "lines": 682,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 4.9853372434017595,
+        "percentageTokens": 7.290132547864507,
+        "sources": 3,
+        "tokens": 5432
+      },
+      "swift": {
+        "clones": 73,
+        "duplicatedLines": 637,
+        "duplicatedTokens": 6266,
+        "lines": 20976,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 3.0368039664378337,
+        "percentageTokens": 4.321021708548258,
+        "sources": 193,
+        "tokens": 145012
+      }
+    },
+    "total": {
+      "clones": 78,
+      "duplicatedLines": 671,
+      "duplicatedTokens": 6662,
+      "lines": 21658,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 3.0981623418598208,
+      "percentageTokens": 4.428225785009705,
+      "sources": 196,
+      "tokens": 150444
+    }
+  }
+}
