@@ -1,0 +1,150 @@
+# PhotoBooks Xcode project definition (XcodeGen).
+#
+# The .xcodeproj is GENERATED and git-ignored — after cloning (or after
+# editing this file) run:
+#
+#   brew install xcodegen   # once
+#   xcodegen generate
+#
+# Decision: ONE multiplatform app target with iOS + macOS destinations
+# (XcodeGen `supportedDestinations`) instead of two per-platform targets.
+# The app is a single SwiftUI codebase with #if os(...) branches; two
+# targets would duplicate every build setting, plist entry, and package
+# dependency for zero benefit. Platform-specific bits that genuinely differ
+# are expressed with sdk-scoped settings (entitlements below).
+name: PhotoBooks
+options:
+  bundleIdPrefix: com.graphicMeat
+  deploymentTarget:
+    iOS: "18.0"
+    macOS: "15.0"
+  createIntermediateGroups: true
+
+packages:
+  PhotoBookCore:
+    path: Packages/PhotoBookCore
+  PhotoBookImport:
+    path: Packages/PhotoBookImport
+  PhotoBookRender:
+    path: Packages/PhotoBookRender
+  EditCore:
+    path: Packages/EditCore
+  AppSupport:
+    path: Packages/AppSupport
+  ModelLayer:
+    path: Packages/ModelLayer
+  SetupFeature:
+    path: Packages/SetupFeature
+  ExportFeature:
+    path: Packages/ExportFeature
+  EditorFeature:
+    path: Packages/EditorFeature
+  DocumentUI:
+    path: Packages/DocumentUI
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  PhotoBooks:
+    type: application
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - App
+    dependencies:
+      - package: DocumentUI
+      - package: ExportFeature
+      - package: ModelLayer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.graphicMeat.PhotoBooks
+        PRODUCT_NAME: PhotoBooks
+        ASSETCATALOG_COMPILER_APPICON_NAME: Icon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: false
+      configs:
+        Debug:
+          # Ad-hoc ("Sign to Run Locally") signing for local macOS runs: no
+          # team required; sandbox + entitlements still apply. iOS builds in
+          # this plan use CODE_SIGNING_ALLOWED=NO on the command line.
+          "CODE_SIGN_IDENTITY[sdk=macosx*]": "-"
+          # Debug adds a temporary sandbox read exception for UITest fixture
+          # folders — see App/PhotoBooks-Debug.entitlements.
+          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks-Debug.entitlements
+        Release:
+          # App Store distribution: Xcode-managed automatic signing against
+          # the Apple Distribution cert + hardened runtime (macOS). Set
+          # DEVELOPMENT_TEAM to your 10-char Apple Developer Team ID.
+          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks.entitlements
+          CODE_SIGN_STYLE: Automatic
+          DEVELOPMENT_TEAM: YXDJG24NWG
+          # Same "Apple Distribution" cert covers both platforms; Xcode-managed
+          # automatic signing mints per-platform App Store provisioning profiles.
+          "CODE_SIGN_IDENTITY[sdk=macosx*]": Apple Distribution
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Distribution
+          # Hardened runtime is a macOS-only concept; iOS apps are inherently
+          # sandboxed and use no entitlements file here (PhotoKit + document
+          # picker need none).
+          "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleName: PhotoBooks
+        CFBundleDisplayName: PhotoBooks
+        # App Store metadata.
+        LSApplicationCategoryType: public.app-category.photography
+        NSHumanReadableCopyright: © 2026 Rokas Ambrazevicius. All rights reserved.
+        # No non-exempt encryption — suppresses the export-compliance prompt
+        # on every App Store Connect upload.
+        ITSAppUsesNonExemptEncryption: false
+        NSPhotoLibraryUsageDescription: >-
+          PhotoBooks lays out books from photos you choose in your library.
+          Originals stay in Photos; the app only reads them to arrange pages
+          and export your book.
+        # Document-based app: the .photobookGraphicMeat package type, exported by us.
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: PhotoBooks Book
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Owner
+            LSTypeIsPackage: true
+            LSItemContentTypes:
+              - com.graphicMeat.PhotoBooks.book
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.graphicMeat.PhotoBooks.book
+            UTTypeDescription: PhotoBooks Book
+            UTTypeConformsTo:
+              - com.apple.package
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - photobookGraphicMeat
+        # iOS document-app affordances (ignored on macOS).
+        UILaunchScreen: {}
+        UISupportsDocumentBrowser: true
+        LSSupportsOpeningDocumentsInPlace: true
+
+  PhotoBooksUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - Tests/PhotoBooksUITests
+    dependencies:
+      - target: PhotoBooks
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  PhotoBooks:
+    build:
+      targets:
+        PhotoBooks: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - PhotoBooksUITests

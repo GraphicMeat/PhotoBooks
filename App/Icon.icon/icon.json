@@ -1,0 +1,38 @@
+{
+  "fill" : "automatic",
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "fashion_magazine_photo_book_icon_1024.png",
+          "name" : "fashion_magazine_photo_book_icon_1024",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -31,
+              -2
+            ]
+          }
+        },
+        {
+          "image-name" : "ios_icon_bg_dark_gradient_1024.png",
+          "name" : "ios_icon_bg_dark_gradient_1024"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.6
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.2
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

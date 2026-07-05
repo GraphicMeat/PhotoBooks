@@ -1,0 +1,516 @@
+{
+  "comment": "Starter template library. Frames are normalized 0-1 page space with margins/gutters baked in (margin 0.05, gutter 0.03, except full-bleed designs). orientationHints[i] is the photo shape slot i was designed for ('any' = shape-neutral); TemplateProvider ranks matching templates by hint agreement.",
+  "templates": [
+    {
+      "id": "one-full-bleed",
+      "photoCount": 1,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [{ "x": 0, "y": 0, "width": 1, "height": 1 }],
+      "textFrames": [],
+      "orientationHints": ["any"]
+    },
+    {
+      "id": "one-inset",
+      "photoCount": 1,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [{ "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 }],
+      "textFrames": [],
+      "orientationHints": ["any"]
+    },
+    {
+      "id": "one-inset-caption",
+      "photoCount": 1,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [{ "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.70 }],
+      "textFrames": [{ "x": 0.08, "y": 0.82, "width": 0.84, "height": 0.10 }],
+      "orientationHints": ["any"]
+    },
+    {
+      "id": "one-panorama-band",
+      "photoCount": 1,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [{ "x": 0, "y": 0.30, "width": 1, "height": 0.40 }],
+      "textFrames": [],
+      "orientationHints": ["landscape"]
+    },
+    {
+      "id": "two-side-by-side",
+      "photoCount": 2,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.90 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.90 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "portrait"]
+    },
+    {
+      "id": "two-stacked",
+      "photoCount": 2,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.90, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "landscape"]
+    },
+    {
+      "id": "two-side-by-side-caption",
+      "photoCount": 2,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.78 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.78 }
+      ],
+      "textFrames": [{ "x": 0.05, "y": 0.86, "width": 0.90, "height": 0.09 }],
+      "orientationHints": ["portrait", "portrait"]
+    },
+    {
+      "id": "two-stacked-caption",
+      "photoCount": 2,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.38 },
+        { "x": 0.05, "y": 0.46, "width": 0.90, "height": 0.38 }
+      ],
+      "textFrames": [{ "x": 0.05, "y": 0.87, "width": 0.90, "height": 0.08 }],
+      "orientationHints": ["landscape", "landscape"]
+    },
+    {
+      "id": "two-panorama-stack",
+      "photoCount": 2,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0, "y": 0.04, "width": 1, "height": 0.44 },
+        { "x": 0, "y": 0.52, "width": 1, "height": 0.44 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "landscape"]
+    },
+    {
+      "id": "three-hero-left",
+      "photoCount": 3,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.56, "height": 0.90 },
+        { "x": 0.64, "y": 0.05, "width": 0.31, "height": 0.435 },
+        { "x": 0.64, "y": 0.515, "width": 0.31, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "landscape", "landscape"]
+    },
+    {
+      "id": "three-hero-top",
+      "photoCount": 3,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.56 },
+        { "x": 0.05, "y": 0.64, "width": 0.435, "height": 0.31 },
+        { "x": 0.515, "y": 0.64, "width": 0.435, "height": 0.31 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "portrait", "portrait"]
+    },
+    {
+      "id": "three-columns",
+      "photoCount": 3,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.28, "height": 0.90 },
+        { "x": 0.36, "y": 0.05, "width": 0.28, "height": 0.90 },
+        { "x": 0.67, "y": 0.05, "width": 0.28, "height": 0.90 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "portrait", "portrait"]
+    },
+    {
+      "id": "three-rows",
+      "photoCount": 3,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.28 },
+        { "x": 0.05, "y": 0.36, "width": 0.90, "height": 0.28 },
+        { "x": 0.05, "y": 0.67, "width": 0.90, "height": 0.28 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "landscape", "landscape"]
+    },
+    {
+      "id": "three-hero-left-caption",
+      "photoCount": 3,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.56, "height": 0.78 },
+        { "x": 0.64, "y": 0.05, "width": 0.31, "height": 0.375 },
+        { "x": 0.64, "y": 0.455, "width": 0.31, "height": 0.375 }
+      ],
+      "textFrames": [{ "x": 0.05, "y": 0.86, "width": 0.90, "height": 0.09 }],
+      "orientationHints": ["portrait", "landscape", "landscape"]
+    },
+    {
+      "id": "four-grid",
+      "photoCount": 4,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.435 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.435, "height": 0.435 },
+        { "x": 0.515, "y": 0.515, "width": 0.435, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any"]
+    },
+    {
+      "id": "four-hero-top",
+      "photoCount": 4,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.55 },
+        { "x": 0.05, "y": 0.63, "width": 0.28, "height": 0.32 },
+        { "x": 0.36, "y": 0.63, "width": 0.28, "height": 0.32 },
+        { "x": 0.67, "y": 0.63, "width": 0.28, "height": 0.32 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "any", "any", "any"]
+    },
+    {
+      "id": "four-hero-left",
+      "photoCount": 4,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.55, "height": 0.90 },
+        { "x": 0.63, "y": 0.05, "width": 0.32, "height": 0.28 },
+        { "x": 0.63, "y": 0.36, "width": 0.32, "height": 0.28 },
+        { "x": 0.63, "y": 0.67, "width": 0.32, "height": 0.28 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "any", "any", "any"]
+    },
+    {
+      "id": "four-grid-caption",
+      "photoCount": 4,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.38 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.38 },
+        { "x": 0.05, "y": 0.46, "width": 0.435, "height": 0.38 },
+        { "x": 0.515, "y": 0.46, "width": 0.435, "height": 0.38 }
+      ],
+      "textFrames": [{ "x": 0.05, "y": 0.87, "width": 0.90, "height": 0.08 }],
+      "orientationHints": ["any", "any", "any", "any"]
+    },
+    {
+      "id": "five-hero-left",
+      "photoCount": 5,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.55, "height": 0.90 },
+        { "x": 0.63, "y": 0.05, "width": 0.145, "height": 0.435 },
+        { "x": 0.805, "y": 0.05, "width": 0.145, "height": 0.435 },
+        { "x": 0.63, "y": 0.515, "width": 0.145, "height": 0.435 },
+        { "x": 0.805, "y": 0.515, "width": 0.145, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "any", "any", "any", "any"]
+    },
+    {
+      "id": "five-hero-top",
+      "photoCount": 5,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.55 },
+        { "x": 0.05, "y": 0.63, "width": 0.2025, "height": 0.32 },
+        { "x": 0.2825, "y": 0.63, "width": 0.2025, "height": 0.32 },
+        { "x": 0.515, "y": 0.63, "width": 0.2025, "height": 0.32 },
+        { "x": 0.7475, "y": 0.63, "width": 0.2025, "height": 0.32 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "any", "any", "any", "any"]
+    },
+    {
+      "id": "five-quilt",
+      "photoCount": 5,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.55, "height": 0.435 },
+        { "x": 0.63, "y": 0.05, "width": 0.32, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.28, "height": 0.435 },
+        { "x": 0.36, "y": 0.515, "width": 0.28, "height": 0.435 },
+        { "x": 0.67, "y": 0.515, "width": 0.28, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "portrait", "any", "any", "any"]
+    },
+    {
+      "id": "six-grid-3x2",
+      "photoCount": 6,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.36, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.67, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.28, "height": 0.435 },
+        { "x": 0.36, "y": 0.515, "width": 0.28, "height": 0.435 },
+        { "x": 0.67, "y": 0.515, "width": 0.28, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "six-grid-2x3",
+      "photoCount": 6,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.28 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.28 },
+        { "x": 0.05, "y": 0.36, "width": 0.435, "height": 0.28 },
+        { "x": 0.515, "y": 0.36, "width": 0.435, "height": 0.28 },
+        { "x": 0.05, "y": 0.67, "width": 0.435, "height": 0.28 },
+        { "x": 0.515, "y": 0.67, "width": 0.435, "height": 0.28 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "six-grid-caption",
+      "photoCount": 6,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.28, "height": 0.38 },
+        { "x": 0.36, "y": 0.05, "width": 0.28, "height": 0.38 },
+        { "x": 0.67, "y": 0.05, "width": 0.28, "height": 0.38 },
+        { "x": 0.05, "y": 0.46, "width": 0.28, "height": 0.38 },
+        { "x": 0.36, "y": 0.46, "width": 0.28, "height": 0.38 },
+        { "x": 0.67, "y": 0.46, "width": 0.28, "height": 0.38 }
+      ],
+      "textFrames": [{ "x": 0.05, "y": 0.87, "width": 0.90, "height": 0.08 }],
+      "orientationHints": ["any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "three-hero-right",
+      "photoCount": 3,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.36, "y": 0.05, "width": 0.59, "height": 0.90 },
+        { "x": 0.05, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.28, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "landscape", "landscape"]
+    },
+    {
+      "id": "three-feature-strip",
+      "photoCount": 3,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.56 },
+        { "x": 0.05, "y": 0.64, "width": 0.435, "height": 0.31 },
+        { "x": 0.515, "y": 0.64, "width": 0.435, "height": 0.31 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "any", "any"]
+    },
+    {
+      "id": "five-quilt-portrait",
+      "photoCount": 5,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.55 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.55 },
+        { "x": 0.05, "y": 0.63, "width": 0.28, "height": 0.32 },
+        { "x": 0.36, "y": 0.63, "width": 0.28, "height": 0.32 },
+        { "x": 0.67, "y": 0.63, "width": 0.28, "height": 0.32 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["portrait", "portrait", "any", "any", "any"]
+    },
+    {
+      "id": "six-hero-top",
+      "photoCount": 6,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.55 },
+        { "x": 0.05, "y": 0.63, "width": 0.156, "height": 0.32 },
+        { "x": 0.236, "y": 0.63, "width": 0.156, "height": 0.32 },
+        { "x": 0.422, "y": 0.63, "width": 0.156, "height": 0.32 },
+        { "x": 0.608, "y": 0.63, "width": 0.156, "height": 0.32 },
+        { "x": 0.794, "y": 0.63, "width": 0.156, "height": 0.32 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "seven-mixed-3-4",
+      "photoCount": 7,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.36, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.67, "y": 0.05, "width": 0.28, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.2025, "height": 0.435 },
+        { "x": 0.2825, "y": 0.515, "width": 0.2025, "height": 0.435 },
+        { "x": 0.515, "y": 0.515, "width": 0.2025, "height": 0.435 },
+        { "x": 0.7475, "y": 0.515, "width": 0.2025, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "seven-hero-top",
+      "photoCount": 7,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.45 },
+        { "x": 0.05, "y": 0.53, "width": 0.28, "height": 0.195 },
+        { "x": 0.36, "y": 0.53, "width": 0.28, "height": 0.195 },
+        { "x": 0.67, "y": 0.53, "width": 0.28, "height": 0.195 },
+        { "x": 0.05, "y": 0.755, "width": 0.28, "height": 0.195 },
+        { "x": 0.36, "y": 0.755, "width": 0.28, "height": 0.195 },
+        { "x": 0.67, "y": 0.755, "width": 0.28, "height": 0.195 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "eight-grid-4x2",
+      "photoCount": 8,
+      "aspectClasses": ["square", "landscape"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.2025, "height": 0.435 },
+        { "x": 0.2825, "y": 0.05, "width": 0.2025, "height": 0.435 },
+        { "x": 0.515, "y": 0.05, "width": 0.2025, "height": 0.435 },
+        { "x": 0.7475, "y": 0.05, "width": 0.2025, "height": 0.435 },
+        { "x": 0.05, "y": 0.515, "width": 0.2025, "height": 0.435 },
+        { "x": 0.2825, "y": 0.515, "width": 0.2025, "height": 0.435 },
+        { "x": 0.515, "y": 0.515, "width": 0.2025, "height": 0.435 },
+        { "x": 0.7475, "y": 0.515, "width": 0.2025, "height": 0.435 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "eight-grid-2x4",
+      "photoCount": 8,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.435, "height": 0.2025 },
+        { "x": 0.515, "y": 0.05, "width": 0.435, "height": 0.2025 },
+        { "x": 0.05, "y": 0.2825, "width": 0.435, "height": 0.2025 },
+        { "x": 0.515, "y": 0.2825, "width": 0.435, "height": 0.2025 },
+        { "x": 0.05, "y": 0.515, "width": 0.435, "height": 0.2025 },
+        { "x": 0.515, "y": 0.515, "width": 0.435, "height": 0.2025 },
+        { "x": 0.05, "y": 0.7475, "width": 0.435, "height": 0.2025 },
+        { "x": 0.515, "y": 0.7475, "width": 0.435, "height": 0.2025 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "nine-grid-3x3",
+      "photoCount": 9,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.28, "height": 0.28 },
+        { "x": 0.36, "y": 0.05, "width": 0.28, "height": 0.28 },
+        { "x": 0.67, "y": 0.05, "width": 0.28, "height": 0.28 },
+        { "x": 0.05, "y": 0.36, "width": 0.28, "height": 0.28 },
+        { "x": 0.36, "y": 0.36, "width": 0.28, "height": 0.28 },
+        { "x": 0.67, "y": 0.36, "width": 0.28, "height": 0.28 },
+        { "x": 0.05, "y": 0.67, "width": 0.28, "height": 0.28 },
+        { "x": 0.36, "y": 0.67, "width": 0.28, "height": 0.28 },
+        { "x": 0.67, "y": 0.67, "width": 0.28, "height": 0.28 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "nine-hero-top",
+      "photoCount": 9,
+      "aspectClasses": ["square", "portrait"],
+      "photoFrames": [
+        { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.38 },
+        { "x": 0.05, "y": 0.46, "width": 0.2025, "height": 0.23 },
+        { "x": 0.2825, "y": 0.46, "width": 0.2025, "height": 0.23 },
+        { "x": 0.515, "y": 0.46, "width": 0.2025, "height": 0.23 },
+        { "x": 0.7475, "y": 0.46, "width": 0.2025, "height": 0.23 },
+        { "x": 0.05, "y": 0.72, "width": 0.2025, "height": 0.23 },
+        { "x": 0.2825, "y": 0.72, "width": 0.2025, "height": 0.23 },
+        { "x": 0.515, "y": 0.72, "width": 0.2025, "height": 0.23 },
+        { "x": 0.7475, "y": 0.72, "width": 0.2025, "height": 0.23 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["landscape", "any", "any", "any", "any", "any", "any", "any", "any"]
+    },
+    {
+      "id": "one-borderless",
+      "photoCount": 1,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [{ "x": 0, "y": 0, "width": 1, "height": 1 }],
+      "textFrames": [],
+      "orientationHints": ["any"],
+      "borderless": true
+    },
+    {
+      "id": "two-split-borderless",
+      "photoCount": 2,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0, "y": 0, "width": 0.5, "height": 1 },
+        { "x": 0.5, "y": 0, "width": 0.5, "height": 1 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any"],
+      "borderless": true
+    },
+    {
+      "id": "four-grid-borderless",
+      "photoCount": 4,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0,   "y": 0,   "width": 0.5, "height": 0.5 },
+        { "x": 0.5, "y": 0,   "width": 0.5, "height": 0.5 },
+        { "x": 0,   "y": 0.5, "width": 0.5, "height": 0.5 },
+        { "x": 0.5, "y": 0.5, "width": 0.5, "height": 0.5 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any"],
+      "borderless": true
+    },
+    {
+      "id": "six-grid-borderless",
+      "photoCount": 6,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0,                  "y": 0,   "width": 0.3333333333, "height": 0.5 },
+        { "x": 0.3333333333, "y": 0,   "width": 0.3333333333, "height": 0.5 },
+        { "x": 0.6666666667, "y": 0,   "width": 0.3333333333, "height": 0.5 },
+        { "x": 0,                  "y": 0.5, "width": 0.3333333333, "height": 0.5 },
+        { "x": 0.3333333333, "y": 0.5, "width": 0.3333333333, "height": 0.5 },
+        { "x": 0.6666666667, "y": 0.5, "width": 0.3333333333, "height": 0.5 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any"],
+      "borderless": true
+    },
+    {
+      "id": "nine-grid-borderless",
+      "photoCount": 9,
+      "aspectClasses": ["square", "landscape", "portrait"],
+      "photoFrames": [
+        { "x": 0,                  "y": 0,                  "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0.3333333333, "y": 0,                  "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0.6666666667, "y": 0,                  "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0,                  "y": 0.3333333333, "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0.3333333333, "y": 0.3333333333, "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0.6666666667, "y": 0.3333333333, "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0,                  "y": 0.6666666667, "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0.3333333333, "y": 0.6666666667, "width": 0.3333333333, "height": 0.3333333333 },
+        { "x": 0.6666666667, "y": 0.6666666667, "width": 0.3333333333, "height": 0.3333333333 }
+      ],
+      "textFrames": [],
+      "orientationHints": ["any", "any", "any", "any", "any", "any", "any", "any", "any"],
+      "borderless": true
+    }
+  ]
+}
