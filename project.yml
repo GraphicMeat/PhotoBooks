@@ -82,13 +82,13 @@ targets:
           "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks.entitlements
           CODE_SIGN_STYLE: Automatic
           DEVELOPMENT_TEAM: YXDJG24NWG
-          # Same "Apple Distribution" cert covers both platforms; Xcode-managed
-          # automatic signing mints per-platform App Store provisioning profiles.
-          "CODE_SIGN_IDENTITY[sdk=macosx*]": Apple Distribution
-          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Distribution
-          # Hardened runtime is a macOS-only concept; iOS apps are inherently
-          # sandboxed and use no entitlements file here (PhotoKit + document
-          # picker need none).
+          # Automatic signing picks the identity itself: the archive is signed
+          # with Apple Development, then re-signed with the Apple Distribution
+          # cert at export time (exportOptions method: app-store). Pinning
+          # CODE_SIGN_IDENTITY here conflicts with automatic signing, so it is
+          # intentionally left unset. Hardened runtime is macOS-only; iOS is
+          # inherently sandboxed and uses no entitlements file (PhotoKit +
+          # document picker need none).
           "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
     info:
       path: App/Info.plist
