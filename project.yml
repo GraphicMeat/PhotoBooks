@@ -41,6 +41,11 @@ packages:
     path: Packages/EditorFeature
   DocumentUI:
     path: Packages/DocumentUI
+  # Sparkle auto-updater — Developer ID (Direct) build only. Never a dependency
+  # of the App Store target, so that build embeds no Sparkle framework.
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.8.1"
 
 settings:
   base:
@@ -49,10 +54,15 @@ settings:
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
 
-targets:
-  PhotoBooks:
+# Both app flavors share sources, packages, bundle identity, and Info.plist
+# metadata via this template. They differ only on the DISTRIBUTION axis:
+#   PhotoBooks         — App Store, iOS + macOS, no Sparkle.
+#   PhotoBooks-Direct  — Developer ID DMG, macOS only, Sparkle auto-update.
+# (The "one target" convention was about iOS/macOS DESTINATIONS; distribution
+# flavor is a separate axis, so a second target is justified.)
+targetTemplates:
+  AppBase:
     type: application
-    supportedDestinations: [iOS, macOS]
     sources:
       - App
     dependencies:
@@ -61,41 +71,18 @@ targets:
       - package: ModelLayer
     settings:
       base:
+        # Same bundle id for both flavors: a Developer ID install and its
+        # Sparkle updates share update identity + keychain continuity. Only
+        # one flavor is ever submitted to the App Store.
         PRODUCT_BUNDLE_IDENTIFIER: com.graphicMeat.PhotoBooks
         PRODUCT_NAME: PhotoBooks
         ASSETCATALOG_COMPILER_APPICON_NAME: Icon
-        TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: false
-      configs:
-        Debug:
-          # Ad-hoc ("Sign to Run Locally") signing for local macOS runs: no
-          # team required; sandbox + entitlements still apply. iOS builds in
-          # this plan use CODE_SIGNING_ALLOWED=NO on the command line.
-          "CODE_SIGN_IDENTITY[sdk=macosx*]": "-"
-          # Debug adds a temporary sandbox read exception for UITest fixture
-          # folders — see App/PhotoBooks-Debug.entitlements.
-          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks-Debug.entitlements
-        Release:
-          # App Store distribution: Xcode-managed automatic signing against
-          # the Apple Distribution cert + hardened runtime (macOS). Set
-          # DEVELOPMENT_TEAM to your 10-char Apple Developer Team ID.
-          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks.entitlements
-          CODE_SIGN_STYLE: Automatic
-          DEVELOPMENT_TEAM: YXDJG24NWG
-          # Automatic signing picks the identity itself: the archive is signed
-          # with Apple Development, then re-signed with the Apple Distribution
-          # cert at export time (exportOptions method: app-store). Pinning
-          # CODE_SIGN_IDENTITY here conflicts with automatic signing, so it is
-          # intentionally left unset. Hardened runtime is macOS-only; iOS is
-          # inherently sandboxed and uses no entitlements file (PhotoKit +
-          # document picker need none).
-          "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
     info:
-      path: App/Info.plist
       properties:
         CFBundleName: PhotoBooks
         CFBundleDisplayName: PhotoBooks
-        # App Store metadata.
+        # App Store metadata (harmless in the Direct build too).
         LSApplicationCategoryType: public.app-category.photography
         NSHumanReadableCopyright: © 2026 Rokas Ambrazevicius. All rights reserved.
         # No non-exempt encryption — suppresses the export-compliance prompt
@@ -126,6 +113,73 @@ targets:
         UISupportsDocumentBrowser: true
         LSSupportsOpeningDocumentsInPlace: true
 
+targets:
+  PhotoBooks:
+    templates: [AppBase]
+    supportedDestinations: [iOS, macOS]
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: "1,2"
+      configs:
+        Debug:
+          # Ad-hoc ("Sign to Run Locally") signing for local macOS runs: no
+          # team required; sandbox + entitlements still apply. iOS builds in
+          # this plan use CODE_SIGNING_ALLOWED=NO on the command line.
+          "CODE_SIGN_IDENTITY[sdk=macosx*]": "-"
+          # Debug adds a temporary sandbox read exception for UITest fixture
+          # folders — see App/PhotoBooks-Debug.entitlements.
+          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks-Debug.entitlements
+        Release:
+          # App Store distribution: Xcode-managed automatic signing against
+          # the Apple Distribution cert + hardened runtime (macOS).
+          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks.entitlements
+          CODE_SIGN_STYLE: Automatic
+          DEVELOPMENT_TEAM: YXDJG24NWG
+          # Automatic signing picks the identity itself: the archive is signed
+          # with Apple Development, then re-signed with the Apple Distribution
+          # cert at export time (exportOptions method: app-store). Pinning
+          # CODE_SIGN_IDENTITY here conflicts with automatic signing, so it is
+          # intentionally left unset. Hardened runtime is macOS-only; iOS is
+          # inherently sandboxed and uses no entitlements file (PhotoKit +
+          # document picker need none).
+          "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
+    info:
+      path: App/Info.plist
+
+  # Developer ID / notarized DMG flavor with the Sparkle auto-updater.
+  PhotoBooks-Direct:
+    templates: [AppBase]
+    platform: macOS
+    dependencies:
+      - package: Sparkle
+    settings:
+      configs:
+        Debug:
+          # SPARKLE gates the updater code; DEBUG kept for normal debug builds.
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG SPARKLE
+          "CODE_SIGN_IDENTITY[sdk=macosx*]": "-"
+          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks-DirectID.entitlements
+        Release:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: SPARKLE
+          # Developer ID: manual signing, no provisioning profile, hardened
+          # runtime. Sandbox kept (parity with App Store); DirectID entitlements
+          # add Sparkle's XPC mach-lookup exceptions.
+          "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": App/PhotoBooks-DirectID.entitlements
+          CODE_SIGN_STYLE: Manual
+          "CODE_SIGN_IDENTITY[sdk=macosx*]": Developer ID Application
+          DEVELOPMENT_TEAM: YXDJG24NWG
+          PROVISIONING_PROFILE_SPECIFIER: ""
+          "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
+    info:
+      path: App/Info-Direct.plist
+      properties:
+        # Sparkle: EdDSA public key (private key stays out of git), the appcast
+        # feed on GitHub Releases, and automatic update checks (first-launch
+        # consent shown by Sparkle).
+        SUPublicEDKey: Bm5DCgHKFl7d7su7dKBSi+gxrlUwNxlAzI2UkeH5Sjw=
+        SUFeedURL: https://github.com/GraphicMeat/PhotoBooks/releases/latest/download/appcast.xml
+        SUEnableAutomaticChecks: true
+
   PhotoBooksUITests:
     type: bundle.ui-testing
     platform: macOS
@@ -148,3 +202,12 @@ schemes:
       config: Debug
       targets:
         - PhotoBooksUITests
+  # Developer ID / Sparkle build. Archived in Release for the notarized DMG.
+  PhotoBooks (Direct):
+    build:
+      targets:
+        PhotoBooks-Direct: all
+    run:
+      config: Debug
+    archive:
+      config: Release

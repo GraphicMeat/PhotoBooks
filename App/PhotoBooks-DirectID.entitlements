@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Same sandbox surface as the App Store build, for behavior parity. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
+	<key>com.apple.security.files.bookmarks.app-scope</key>
+	<true/>
+	<key>com.apple.security.personal-information.photos-library</key>
+	<true/>
+	<!-- Sparkle runs its Downloader/Installer as sandboxed XPC services; a
+	     sandboxed host must be allowed to reach their mach service names. The
+	     names are <bundle-id>-spks (status) and <bundle-id>-spki (installer),
+	     per Sparkle's sandboxing guide. -->
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array>
+		<string>com.graphicMeat.PhotoBooks-spks</string>
+		<string>com.graphicMeat.PhotoBooks-spki</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,173 @@
+name: Release macOS (Developer ID DMG)
+
+# Builds the Developer ID flavor (PhotoBooks-Direct, with Sparkle), signs +
+# notarizes a DMG, generates the Sparkle appcast, and publishes both to a
+# GitHub Release. Manual trigger only.
+on:
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: "Create the GitHub Release as a draft"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write   # gh release create
+
+jobs:
+  release:
+    runs-on: macos-15
+    env:
+      SCHEME: "PhotoBooks (Direct)"
+      TEAM_ID: YXDJG24NWG
+      SIGNING_IDENTITY: "Developer ID Application: MB Modernios Aplikacijos (YXDJG24NWG)"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install tooling
+        run: brew install xcodegen create-dmg
+
+      - name: Download Sparkle signing tools
+        run: |
+          SPARKLE_VERSION=2.9.4
+          curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" -o /tmp/sparkle.tar.xz
+          mkdir -p /tmp/sparkle-x .tooling/sparkle-bin
+          tar -xf /tmp/sparkle.tar.xz -C /tmp/sparkle-x
+          cp /tmp/sparkle-x/bin/sign_update .tooling/sparkle-bin/
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Derive version
+        id: version
+        run: |
+          VERSION=$(grep -E '^\s+MARKETING_VERSION:' project.yml | head -1 | sed -E 's/.*: *"?([0-9.]+)"?.*/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Import Developer ID certificate
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          echo "$APPLE_CERTIFICATE" | base64 --decode > $RUNNER_TEMP/cert.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import $RUNNER_TEMP/cert.p12 -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+          rm $RUNNER_TEMP/cert.p12
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project PhotoBooks.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath "$RUNNER_TEMP/PhotoBooks.xcarchive" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="$SIGNING_IDENTITY" \
+            DEVELOPMENT_TEAM="$TEAM_ID"
+
+      - name: Export (Developer ID)
+        run: |
+          cat > "$RUNNER_TEMP/exportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>developer-id</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/PhotoBooks.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/exportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export"
+
+      - name: Create + sign DMG
+        id: dmg
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          DMG="PhotoBooks-$VERSION.dmg"
+          create-dmg \
+            --volname "PhotoBooks $VERSION" \
+            --app-drop-link 450 180 \
+            --icon "PhotoBooks.app" 150 180 \
+            --window-size 620 400 \
+            "$RUNNER_TEMP/$DMG" \
+            "$RUNNER_TEMP/export/PhotoBooks.app"
+          codesign --force --sign "$SIGNING_IDENTITY" --timestamp "$RUNNER_TEMP/$DMG"
+          echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
+
+      - name: Notarize + staple
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+        run: |
+          DMG="$RUNNER_TEMP/${{ steps.dmg.outputs.dmg }}"
+          xcrun notarytool submit "$DMG" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_PASSWORD" \
+            --team-id "$TEAM_ID" \
+            --wait
+          xcrun stapler staple "$DMG"
+
+      - name: Sign for Sparkle + build appcast
+        env:
+          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          TAG=${{ steps.version.outputs.tag }}
+          DMG_NAME=${{ steps.dmg.outputs.dmg }}
+          DMG="$RUNNER_TEMP/$DMG_NAME"
+          # sign_update prints: sparkle:edSignature="..." length="..."
+          SIG_LINE=$(.tooling/sparkle-bin/sign_update "$DMG" -s "$SPARKLE_EDDSA_PRIVATE_KEY")
+          PUBDATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
+          URL="https://github.com/GraphicMeat/PhotoBooks/releases/download/$TAG/$DMG_NAME"
+          cat > "$RUNNER_TEMP/appcast.xml" <<EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>PhotoBooks</title>
+              <item>
+                <title>Version $VERSION</title>
+                <pubDate>$PUBDATE</pubDate>
+                <sparkle:version>$VERSION</sparkle:version>
+                <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+                <enclosure url="$URL" type="application/octet-stream" $SIG_LINE />
+              </item>
+            </channel>
+          </rss>
+          EOF
+          cat "$RUNNER_TEMP/appcast.xml"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=${{ steps.version.outputs.tag }}
+          DMG="$RUNNER_TEMP/${{ steps.dmg.outputs.dmg }}"
+          APPCAST="$RUNNER_TEMP/appcast.xml"
+          DRAFT_FLAG=""
+          if [ "${{ inputs.draft }}" = "true" ]; then DRAFT_FLAG="--draft"; fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$DMG" "$APPCAST" --clobber
+          else
+            gh release create "$TAG" "$DMG" "$APPCAST" \
+              --title "PhotoBooks $TAG" \
+              --generate-notes \
+              $DRAFT_FLAG
+          fi

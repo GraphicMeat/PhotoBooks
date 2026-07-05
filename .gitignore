@@ -38,6 +38,19 @@ playground.xcworkspace
 ## `xcodegen generate` after cloning. Never commit the generated project.
 *.xcodeproj/
 
+## Sparkle EdDSA signing — the PRIVATE key never gets committed (public key
+## lives in the Direct build's Info.plist). Local Developer ID builds read it
+## from keys/; CI reads it from the SPARKLE_EDDSA_PRIVATE_KEY secret.
+keys/
+*.pem
+*.key
+
+## Downloaded Sparkle CLI tools (generate_keys / sign_update).
+.tooling/
+
+## Local Developer ID build output (DMG, archive, appcast).
+build/
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
