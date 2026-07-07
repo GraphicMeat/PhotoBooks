@@ -51,7 +51,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.1.0"
+    MARKETING_VERSION: "0.2.0"
     CURRENT_PROJECT_VERSION: "1"
 
 # Both app flavors share sources, packages, bundle identity, and Info.plist
@@ -80,9 +80,12 @@ targetTemplates:
       properties:
         CFBundleName: PhotoBooks
         CFBundleDisplayName: PhotoBooks
+        # Wire the About-panel version to MARKETING_VERSION (else xcodegen
+        # defaults it to a stale literal "1.0").
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         # App Store metadata (harmless in the Direct build too).
         LSApplicationCategoryType: public.app-category.photography
-        NSHumanReadableCopyright: © 2026 Rokas Ambrazevicius. All rights reserved.
+        NSHumanReadableCopyright: © 2026 graphicmeat.com. All rights reserved.
         # No non-exempt encryption — suppresses the export-compliance prompt
         # on every App Store Connect upload.
         ITSAppUsesNonExemptEncryption: false
