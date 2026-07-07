@@ -19,8 +19,8 @@ jobs:
     runs-on: macos-15
     env:
       SCHEME: "PhotoBooks (Direct)"
-      TEAM_ID: YXDJG24NWG
-      SIGNING_IDENTITY: "Developer ID Application: MB Modernios Aplikacijos (YXDJG24NWG)"
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -126,7 +126,7 @@ jobs:
 
       - name: Sign for Sparkle + build appcast
         env:
-          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
+          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_PHOTOBOOKS }}
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TAG=${{ steps.version.outputs.tag }}
