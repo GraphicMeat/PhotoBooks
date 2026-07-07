@@ -63,8 +63,6 @@ settings:
 targetTemplates:
   AppBase:
     type: application
-    sources:
-      - App
     dependencies:
       - package: DocumentUI
       - package: ExportFeature
@@ -117,6 +115,8 @@ targets:
   PhotoBooks:
     templates: [AppBase]
     supportedDestinations: [iOS, macOS]
+    sources:
+      - App
     settings:
       base:
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -150,9 +150,19 @@ targets:
   PhotoBooks-Direct:
     templates: [AppBase]
     platform: macOS
+    # Excludes Icon.icon: the Icon Composer (Liquid Glass) icon crashes actool's
+    # AssetCatalogAgent on headless CI runners. This build uses the plain PNG
+    # AppIconDirect appiconset instead (below); the App Store target keeps the
+    # Liquid Glass icon.
+    sources:
+      - path: App
+        excludes:
+          - Icon.icon
     dependencies:
       - package: Sparkle
     settings:
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIconDirect
       configs:
         Debug:
           # SPARKLE gates the updater code; DEBUG kept for normal debug builds.
