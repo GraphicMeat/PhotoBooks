@@ -198,6 +198,83 @@ public struct BookEngine: Sendable {
         return (spread, [leftPage, rightPage])
     }
 
+    // MARK: - Spread template strip
+
+    /// Spread templates offered for the spread `spreadID`: every bundled
+    /// template whose `photoCount` equals the spread's CURRENT photo count
+    /// (v1: no photo add/remove via templates, so other counts are excluded
+    /// entirely rather than shown disabled). `preset` is accepted for a
+    /// future aspect-aware filter; v1 doesn't use it. Empty for an unknown
+    /// `spreadID`.
+    public func spreadLayoutOptions(for spreadID: UUID, in book: Book, preset: PrintPreset)
+        -> [SpreadTemplateProvider.Template] {
+        guard let spread = book.spreads.first(where: { $0.id == spreadID }) else { return [] }
+        return spreadTemplates.rawTemplates(forPhotoCount: spread.photoSlots.count)
+    }
+
+    /// Applies template `templateID` to spread `spreadID`: rebinds the
+    /// spread's existing photos, IN THEIR CURRENT `photoSlots` ORDER (index 0
+    /// = dominant), to the template's frames — same photo count required, so
+    /// this never adds/removes photos. Per-slot crop is recomputed via
+    /// `GutterSafeCrop` exactly like `buildSpread` (a straddling slot with a
+    /// known salient center gets biased off the gutter; everything else keeps
+    /// `.full`), and the two member pages are re-sliced from the new spread.
+    ///
+    /// No-op (returns `book` unchanged) when `spreadID` is unknown OR
+    /// `templateID` isn't a template for the spread's CURRENT photo count
+    /// (covers both "wrong count" and "unknown id" with one lookup).
+    ///
+    /// Design choice: template frames are authored full-canvas and applied
+    /// AS-IS — no page-margin inset. Unlike `buildSpread`'s EdgeStyle-aware
+    /// justified layout, a hand-designed template's frames (its own borders/
+    /// gaps) are a deliberate part of the design, not a raw content box.
+    ///
+    /// Determinism: the spread `id` is unchanged, and sliced-page ids are
+    /// re-derived by `Spread.slice()` from that same id, so re-slicing is
+    /// byte-stable. New spread-slot ids reuse `buildSpread`'s exact salt
+    /// (`Spread.stableSeed(for: spreadID) &+ 0x5170A11`) — same spread id +
+    /// same photo count always yields the same slot ids, so applying the same
+    /// template twice is byte-identical.
+    public func applySpreadTemplate(_ templateID: String, to spreadID: UUID, in book: Book,
+                                    preset: PrintPreset) -> Book {
+        guard let spreadIdx = book.spreads.firstIndex(where: { $0.id == spreadID }) else { return book }
+        let photoIDs = book.spreads[spreadIdx].photoSlots.map(\.photoID)
+        guard let template = spreadTemplates.rawTemplates(forPhotoCount: photoIDs.count)
+            .first(where: { $0.id == templateID }) else { return book }
+
+        let analyzedByID = analyzedLibrary(of: book)
+        let spreadAspect = 2 * preset.trimSize.aspectRatio
+        var photoSlots: [SpreadPhotoSlot] = []
+        for (index, frame) in template.photoFrames.enumerated() {
+            let photoID = photoIDs[index]
+            let ref = photoID.flatMap { analyzedByID[$0]?.ref }
+            let crop = ref.flatMap {
+                GutterSafeCrop.crop(slotFrame: frame, photoAspect: $0.aspectRatio,
+                                    spreadAspect: spreadAspect, salientCenter: $0.salientCenter)
+            } ?? .full
+            photoSlots.append(SpreadPhotoSlot(frame: frame, photoID: photoID, crop: crop))
+        }
+        var slotIDs = DeterministicIDGenerator(seed: Spread.stableSeed(for: spreadID) &+ 0x5170A11)
+        for i in photoSlots.indices { photoSlots[i].id = slotIDs.next() }
+
+        let origin = LayoutOrigin.template(id: templateID)
+        let newSpread = Spread(id: spreadID, origin: origin, photoSlots: photoSlots, textSlots: [])
+        let sliced = newSpread.slice()
+
+        var result = book
+        result.spreads[spreadIdx] = newSpread
+        guard let leftIdx = result.pages.firstIndex(where: { $0.spreadID == spreadID && $0.half == .left }),
+              let rightIdx = result.pages.firstIndex(where: { $0.spreadID == spreadID && $0.half == .right })
+        else { return result }   // defensive: spread with no member pages (shouldn't happen)
+        result.pages[leftIdx].origin = origin
+        result.pages[leftIdx].photoSlots = sliced.left.photoSlots
+        result.pages[leftIdx].textSlots = sliced.left.textSlots
+        result.pages[rightIdx].origin = origin
+        result.pages[rightIdx].photoSlots = sliced.right.photoSlots
+        result.pages[rightIdx].textSlots = sliced.right.textSlots
+        return result
+    }
+
     /// The cover layout is fixed (full-bleed hero + centered title band),
     /// not provider-chosen; the symbolic origin id records that. Renderers
     /// read `photoSlots`/`textSlots` directly and never re-resolve origins.

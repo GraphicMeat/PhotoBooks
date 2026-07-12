@@ -43,6 +43,14 @@ public struct LayoutWireframeView: View {
         self.textFrames = candidate.textSlotFrames
     }
 
+    /// Raw-frames entry point for wireframes not backed by a `LayoutCandidate`
+    /// — e.g. a spread template's `photoFrames`/`textFrames` on the
+    /// double-wide canvas (the spread-template strip).
+    public init(photoFrames: [NormRect], textFrames: [NormRect] = []) {
+        self.photoFrames = photoFrames
+        self.textFrames = textFrames
+    }
+
     public var body: some View {
         Canvas { context, size in
             let pageRect = CGRect(origin: .zero, size: size).insetBy(dx: 0.5, dy: 0.5)

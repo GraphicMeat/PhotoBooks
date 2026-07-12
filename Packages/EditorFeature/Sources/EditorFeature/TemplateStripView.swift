@@ -44,3 +44,37 @@ struct TemplateStripView: View {
         .accessibilityIdentifier("template-strip")
     }
 }
+
+/// Spread template options for the selected spread (Task B5). Unlike
+/// `TemplateStripView`, v1 offers only templates matching the spread's
+/// CURRENT photo count, so there is no per-count grouping — a single flat
+/// row of wireframes at 2× page aspect (the double-wide spread canvas).
+struct SpreadTemplateStripView: View {
+    let templates: [SpreadTemplateProvider.Template]
+    let pageAspect: Double
+    let onApply: @MainActor (String) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(templates, id: \.id) { template in
+                    Button {
+                        onApply(template.id)
+                    } label: {
+                        LayoutWireframeView(photoFrames: template.photoFrames,
+                                            textFrames: template.textFrames)
+                            .aspectRatio(pageAspect * 2, contentMode: .fit)
+                            .frame(height: 60)
+                    }
+                    .buttonStyle(.plain)
+                    .help("Use spread layout \(template.id)")
+                    .accessibilityIdentifier("spread-template-strip-\(template.id)")
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
+        .background(.thinMaterial)
+        .accessibilityIdentifier("spread-template-strip")
+    }
+}

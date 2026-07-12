@@ -287,7 +287,13 @@ public struct BookBrowserView: View {
                         }
                     }
                 }
-                if editor.selectedPageID != nil && !editor.layoutOptionsByCount.isEmpty {
+                if editor.selectedPageID != nil && !editor.spreadTemplateOptions.isEmpty {
+                    SpreadTemplateStripView(templates: editor.spreadTemplateOptions,
+                                            pageAspect: editor.preset.trimSize.aspectRatio,
+                                            onApply: { templateID in
+                                                editor.applySpreadTemplate(templateID)
+                                            })
+                } else if editor.selectedPageID != nil && !editor.layoutOptionsByCount.isEmpty {
                     TemplateStripView(groups: editor.layoutOptionsByCount,
                                       pageAspect: editor.preset.trimSize.aspectRatio,
                                       onApply: { count, candidate in

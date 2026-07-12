@@ -87,6 +87,11 @@ public final class BookEditorModel {
     /// the count-grouped strip's data. Refreshed with `alternativeCandidates`.
     public private(set) var layoutOptionsByCount: [(count: Int, candidates: [LayoutCandidate])] = []
 
+    /// Spread templates offered for the selected page's spread (empty unless
+    /// the selection is a spread member) — the spread-template strip's data.
+    /// Refreshed alongside `layoutOptionsByCount`.
+    public private(set) var spreadTemplateOptions: [SpreadTemplateProvider.Template] = []
+
     // MARK: Review flags (preset switch)
 
     /// Review flags for pages a cross-class preset switch could NOT
@@ -717,14 +722,35 @@ public final class BookEditorModel {
 
     func refreshAlternatives() {
         guard let pageID = selectedPageID,
-              document.book.pages.contains(where: { $0.id == pageID }) else {
+              let page = document.book.pages.first(where: { $0.id == pageID }) else {
             alternativeCandidates = []
             layoutOptionsByCount = []
+            spreadTemplateOptions = []
             return
         }
         alternativeCandidates = engine.alternatives(for: pageID, in: document.book,
                                                     preset: preset, limit: 8)
         layoutOptionsByCount = engine.layoutOptions(for: pageID, in: document.book, preset: preset)
+        if let spreadID = page.spreadID {
+            spreadTemplateOptions = engine.spreadLayoutOptions(for: spreadID, in: document.book,
+                                                               preset: preset)
+        } else {
+            spreadTemplateOptions = []
+        }
+    }
+
+    // MARK: - Spread template strip (Task B5)
+
+    /// Applies spread template `templateID` to the selected page's spread.
+    /// No-op when no page is selected or the selection isn't a spread member
+    /// (the engine additionally no-ops on a photo-count mismatch or an
+    /// unknown template id — see `BookEngine.applySpreadTemplate`).
+    public func applySpreadTemplate(_ templateID: String) {
+        guard let pageID = selectedPageID,
+              let spreadID = document.book.pages.first(where: { $0.id == pageID })?.spreadID
+        else { return }
+        let preset = preset
+        apply { $0 = self.engine.applySpreadTemplate(templateID, to: spreadID, in: $0, preset: preset) }
     }
 
     // MARK: Missing photos (sweep is NOT undoable — D8)
