@@ -1,0 +1,120 @@
+import Testing
+import Foundation
+import PhotoBookCore
+@testable import PhotoBookImport
+
+struct CurationAnalyzerTests {
+
+    private func id(_ s: String) -> PhotoID { PhotoID(rawValue: s) }
+
+    /// Distance closure driven by a set of "similar" unordered pairs: listed
+    /// pairs are near-duplicates (distance 0.1 < threshold), everything else
+    /// is far (2.0 > threshold).
+    private func distance(similar pairs: [(String, String)])
+        -> (PhotoID, PhotoID) -> Float {
+        let set = Set(pairs.map { Set([$0.0, $0.1]) })
+        return { a, b in
+            a == b ? 0 : (set.contains(Set([a.rawValue, b.rawValue])) ? 0.1 : 2.0)
+        }
+    }
+
+    // MARK: - Pure core
+
+    @Test func burstWithinWindowMergesToOneCluster() {
+        let base = Date(timeIntervalSince1970: 1000)
+        let photos = (0..<5).map {
+            (id: id("p\($0)"), captureDate: Optional(base.addingTimeInterval(Double($0) * 30)))
+        }
+        // Every consecutive pair near-identical.
+        let pairs = (0..<4).map { ("p\($0)", "p\($0 + 1)") }
+        let clusters = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: pairs))
+        #expect(Set(clusters.values).count == 1)
+    }
+
+    @Test func sameBurstFarApartInTimeStaysSeparate() {
+        let base = Date(timeIntervalSince1970: 1000)
+        // Three hours apart each — outside the 10-min window.
+        let photos = (0..<5).map {
+            (id: id("p\($0)"), captureDate: Optional(base.addingTimeInterval(Double($0) * 3 * 3600)))
+        }
+        let pairs = (0..<4).map { ("p\($0)", "p\($0 + 1)") }
+        let clusters = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: pairs))
+        #expect(Set(clusters.values).count == 5)
+    }
+
+    @Test func farInFeatureSpaceStaysSeparateEvenWhenSimultaneous() {
+        let base = Date(timeIntervalSince1970: 1000)
+        let photos = (0..<3).map {
+            (id: id("p\($0)"), captureDate: Optional(base.addingTimeInterval(Double($0))))
+        }
+        // No similar pairs → distance 2.0 everywhere.
+        let clusters = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: []))
+        #expect(Set(clusters.values).count == 3)
+    }
+
+    @Test func determinismSameInputSameIDsTwice() {
+        let base = Date(timeIntervalSince1970: 1000)
+        let photos = (0..<6).map {
+            (id: id("p\($0)"), captureDate: Optional(base.addingTimeInterval(Double($0) * 60)))
+        }
+        let pairs = [("p0", "p1"), ("p3", "p4")]
+        let a = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: pairs))
+        let b = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: pairs))
+        #expect(a == b)
+    }
+
+    @Test func chainMergesViaUnionFindEvenWhenEndsAreOutOfWindow() {
+        // A~B (2 min), B~C (2 min), A–C are ~4 min apart still within window here,
+        // so widen: A at t0, B at t0+8min, C at t0+16min. A–C gap = 16min > window,
+        // but A~B and B~C each fall inside 10-min window → all three merge.
+        let base = Date(timeIntervalSince1970: 1000)
+        let photos = [
+            (id: id("A"), captureDate: Optional(base)),
+            (id: id("B"), captureDate: Optional(base.addingTimeInterval(8 * 60))),
+            (id: id("C"), captureDate: Optional(base.addingTimeInterval(16 * 60))),
+        ]
+        let clusters = CurationAnalyzer.clusters(
+            photos: photos, distance: distance(similar: [("A", "B"), ("B", "C")]))
+        #expect(clusters[id("A")] == clusters[id("C")])
+        #expect(Set(clusters.values).count == 1)
+    }
+
+    @Test func nilDatedPhotosClusterAmongThemselves() {
+        let photos: [(id: PhotoID, captureDate: Date?)] = [
+            (id: id("n0"), captureDate: nil),
+            (id: id("n1"), captureDate: nil),
+            (id: id("n2"), captureDate: nil),
+        ]
+        // n0~n1 similar, n2 far.
+        let clusters = CurationAnalyzer.clusters(
+            photos: photos, distance: distance(similar: [("n0", "n1")]))
+        #expect(clusters[id("n0")] == clusters[id("n1")])
+        #expect(clusters[id("n2")] != clusters[id("n0")])
+        #expect(Set(clusters.values).count == 2)
+    }
+
+    @Test func everyPhotoGetsACluster() {
+        let base = Date(timeIntervalSince1970: 1000)
+        let photos = (0..<4).map {
+            (id: id("p\($0)"), captureDate: Optional(base.addingTimeInterval(Double($0))))
+        }
+        let clusters = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: []))
+        #expect(clusters.count == 4)
+        #expect(clusters.keys.sorted { $0.rawValue < $1.rawValue }
+            == photos.map(\.id).sorted { $0.rawValue < $1.rawValue })
+    }
+
+    @Test func thousandPhotosCompleteQuickly() {
+        let base = Date(timeIntervalSince1970: 1000)
+        // 60s apart → each 10-min window holds ~10 neighbors, so the sliding
+        // window keeps this O(n·window), not O(n²).
+        let photos = (0..<1000).map {
+            (id: id("p\($0)"), captureDate: Optional(base.addingTimeInterval(Double($0) * 60)))
+        }
+        let start = Date()
+        let clusters = CurationAnalyzer.clusters(photos: photos, distance: distance(similar: []))
+        let elapsed = Date().timeIntervalSince(start)
+        #expect(clusters.count == 1000)
+        #expect(elapsed < 1.0)
+    }
+}

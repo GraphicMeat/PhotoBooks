@@ -101,7 +101,22 @@ public enum ImageContentAnalyzer {
         concurrency: Int = 4,
         progress: (@Sendable (Int, Int) -> Void)? = nil
     ) async -> [PhotoRef] {
-        guard !refs.isEmpty else { return refs }
+        await analyzeWithScores(refs, provider: provider, maxPixelSize: maxPixelSize,
+                                concurrency: concurrency, progress: progress).refs
+    }
+
+    /// Like `analyze`, but also surfaces the full per-photo `ImportanceScore`
+    /// (quality, isUtility, aesthetics…) that `analyze` folds away. Keyed by
+    /// `PhotoID`; a photo whose thumbnail failed or was cancelled has no entry
+    /// (and its ref's `importance` stays nil). Curation consumes these.
+    public static func analyzeWithScores(
+        _ refs: [PhotoRef],
+        provider: any PhotoProvider,
+        maxPixelSize: Int = 256,
+        concurrency: Int = 4,
+        progress: (@Sendable (Int, Int) -> Void)? = nil
+    ) async -> (refs: [PhotoRef], scores: [PhotoID: ImportanceScore]) {
+        guard !refs.isEmpty else { return (refs, [:]) }
         let total = refs.count
         let limit = max(1, concurrency)
         var scores = [Int: ImportanceScore]()
@@ -129,11 +144,13 @@ public enum ImageContentAnalyzer {
         }
 
         var result = refs
+        var byID = [PhotoID: ImportanceScore]()
         for (i, s) in scores {
             result[i].importance = s.importance
             result[i].salientCenter = s.salientCenter
+            byID[refs[i].id] = s
         }
-        return result
+        return (result, byID)
     }
 
     // MARK: - Signals

@@ -139,6 +139,35 @@ struct ImageContentAnalyzerTests {
         }
     }
 
+    @Test func analyzeWithScoresReturnsSameRefsPlusPerPhotoScores() async {
+        let provider = MockPhotoProvider()
+        let refs = (0..<3).map { i -> PhotoRef in
+            let r = PhotoRef(id: PhotoID(rawValue: "p\(i)"),
+                             source: .file(bookmark: Data()),
+                             pixelWidth: 64, pixelHeight: 64)
+            provider.setImage(checkerboard(), for: r.id)
+            return r
+        }
+        let plain = await ImageContentAnalyzer.analyze(refs, provider: provider)
+        let out = await ImageContentAnalyzer.analyzeWithScores(refs, provider: provider)
+        // Same refs (identity, order, and stamped importance) as plain analyze.
+        #expect(out.refs.map(\.id) == plain.map(\.id))
+        #expect(out.refs.map(\.importance) == plain.map(\.importance))
+        // A score entry per scored photo, carrying quality/isUtility.
+        #expect(out.scores.count == refs.count)
+        for r in refs { #expect(out.scores[r.id] != nil) }
+    }
+
+    @Test func analyzeWithScoresOmitsFailedPhotos() async {
+        let provider = MockPhotoProvider()   // no images → all thumbnails throw
+        let refs = [PhotoRef(id: PhotoID(rawValue: "x"),
+                             source: .file(bookmark: Data()),
+                             pixelWidth: 64, pixelHeight: 64)]
+        let out = await ImageContentAnalyzer.analyzeWithScores(refs, provider: provider)
+        #expect(out.refs.first?.importance == nil)
+        #expect(out.scores.isEmpty)
+    }
+
     @Test func analyzeRespectsCancellation() async {
         let provider = MockPhotoProvider()
         let refs = (0..<50).map { i -> PhotoRef in
