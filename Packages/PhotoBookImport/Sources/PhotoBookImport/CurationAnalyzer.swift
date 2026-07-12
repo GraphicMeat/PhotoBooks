@@ -1,6 +1,5 @@
 import Foundation
 import PhotoBookCore
-import Vision
 
 /// Groups near-duplicate photos (burst frames, near-identical retakes) so the
 /// selection algorithm can later keep only the best member of each group.
@@ -18,13 +17,6 @@ public enum CurationAnalyzer {
     /// Cap on how many prior undated photos each undated photo is compared
     /// against, so thousands of date-less imports don't degrade to O(n²).
     static let undatedComparisonCap = 32
-
-    /// VNFeaturePrintObservation isn't Sendable, but each is an immutable
-    /// snapshot produced in one task and only read afterwards, so ferrying it
-    /// across the task group is safe.
-    private struct SendablePrint: @unchecked Sendable {
-        let observation: VNFeaturePrintObservation
-    }
 
     // MARK: - Pure core
 
@@ -110,27 +102,25 @@ public enum CurationAnalyzer {
 
     // MARK: - Production entry
 
-    /// Compute a feature print per 256px thumbnail (bounded concurrency,
-    /// progress, cancellation — mirrors `ImageContentAnalyzer.analyze`), then
-    /// cluster via the pure core. `refs` must already be analyzed; `scores`
-    /// supplies quality/isUtility. A photo whose feature print fails is treated
-    /// as infinitely far from everything (its own singleton cluster).
+    /// Cluster refs using feature prints already computed by
+    /// `ImageContentAnalyzer.analyzeWithScores` — the print rides along with
+    /// scoring on the same decoded thumbnail, so the 3,000-photo flow decodes
+    /// each image exactly once. (The wizard is the only caller; there is no
+    /// self-computing fallback path.) `scores` supplies quality/isUtility.
+    /// A photo without a print is treated as infinitely far from everything
+    /// (its own singleton cluster).
     public static func candidates(
         for refs: [PhotoRef],
-        provider: any PhotoProvider,
         scores: [PhotoID: ImportanceScore],
-        progress: (@Sendable (Int, Int) -> Void)? = nil
-    ) async -> [CurationCandidate] {
+        prints: [PhotoID: FeaturePrint]
+    ) -> [CurationCandidate] {
         guard !refs.isEmpty else { return [] }
-        let prints = await featurePrints(for: refs, provider: provider, progress: progress)
 
         let photos = refs.map { (id: $0.id, captureDate: $0.captureDate) }
         let clusterID = clusters(photos: photos) { a, b in
             // Missing print → +∞ so the photo never merges with anything.
             guard let pa = prints[a], let pb = prints[b] else { return .greatestFiniteMagnitude }
-            var d: Float = 0
-            do { try pa.computeDistance(&d, to: pb) } catch { return .greatestFiniteMagnitude }
-            return d
+            return pa.distance(to: pb)
         }
 
         return refs.map { ref in
@@ -143,50 +133,5 @@ public enum CurationAnalyzer {
                 clusterID: clusterID[ref.id] ?? 0,
                 isUtility: scores[ref.id]?.isUtility ?? false)
         }
-    }
-
-    /// Feature print per thumbnail, keyed by `PhotoID`. Bounded to `concurrency`
-    /// in-flight; a thumbnail/Vision failure just omits that photo's entry.
-    private static func featurePrints(
-        for refs: [PhotoRef],
-        provider: any PhotoProvider,
-        maxPixelSize: Int = 256,
-        concurrency: Int = 4,
-        progress: (@Sendable (Int, Int) -> Void)?
-    ) async -> [PhotoID: VNFeaturePrintObservation] {
-        let total = refs.count
-        let limit = max(1, concurrency)
-        var prints = [PhotoID: VNFeaturePrintObservation]()
-        var completed = 0
-
-        await withTaskGroup(of: (PhotoID, SendablePrint?).self) { group in
-            var next = 0
-            func submit(_ i: Int) {
-                let ref = refs[i]
-                group.addTask {
-                    if Task.isCancelled { return (ref.id, nil) }
-                    guard let image = try? await provider.thumbnail(for: ref, maxPixelSize: maxPixelSize)
-                    else { return (ref.id, nil) }
-                    if Task.isCancelled { return (ref.id, nil) }
-                    return (ref.id, featurePrint(of: image).map(SendablePrint.init))
-                }
-            }
-            while next < min(limit, total) { submit(next); next += 1 }
-            for await (pid, value) in group {
-                if let value { prints[pid] = value.observation }
-                completed += 1
-                progress?(completed, total)
-                if next < total && !Task.isCancelled { submit(next); next += 1 }
-            }
-        }
-        return prints
-    }
-
-    /// Synchronous Vision feature-print request (Vision.perform blocks). nil on failure.
-    private static func featurePrint(of image: CGImage) -> VNFeaturePrintObservation? {
-        let request = VNGenerateImageFeaturePrintRequest()
-        let handler = VNImageRequestHandler(cgImage: image, options: [:])
-        do { try handler.perform([request]) } catch { return nil }
-        return request.results?.first as? VNFeaturePrintObservation
     }
 }

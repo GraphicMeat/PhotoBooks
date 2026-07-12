@@ -48,38 +48,35 @@ import PhotoBookImport
 
     public var pickedCount: Int { pickedIDs.count }
 
-    /// Runs the two-stage Vision pipeline (importance scoring, then
-    /// near-duplicate clustering) and best-N selection, updating `phase`
-    /// with determinate progress throughout. Returns the analyzed refs
-    /// (importance/salientCenter stamped) on success — callers must hang
-    /// onto them since `candidates` only carries IDs/quality/date/cluster,
-    /// not full `PhotoRef`s. Returns nil if cancelled via `cancelAnalysis()`.
+    /// Runs the Vision pipeline (one pass: importance scoring + feature
+    /// prints per thumbnail, then near-duplicate clustering on the prints)
+    /// and best-N selection, updating `phase` with determinate progress.
+    /// Returns the analyzed refs (importance/salientCenter stamped) on
+    /// success — callers must hang onto them since `candidates` only carries
+    /// IDs/quality/date/cluster, not full `PhotoRef`s. Returns nil if
+    /// cancelled via `cancelAnalysis()`.
     @discardableResult
     public func startAnalysis(photos: [PhotoRef], provider: any PhotoProvider) async -> [PhotoRef]? {
         availableCount = photos.count
-        let combinedTotal = max(photos.count, 1) * 2
-        let scoringCount = photos.count
+        let total = max(photos.count, 1)
         let target = self.target
-        phase = .analyzing(done: 0, total: combinedTotal)
+        phase = .analyzing(done: 0, total: total)
 
         let task = Task<[PhotoRef]?, Never> { [weak self] in
             guard let self else { return nil }
-            let (analyzed, scores) = await ImageContentAnalyzer.analyzeWithScores(
+            // Single thumbnail pass: prints ride along with scoring, so
+            // clustering below needs no second decode (and no second progress
+            // stage — one honest 0..total pass).
+            let (analyzed, scores, prints) = await ImageContentAnalyzer.analyzeWithScores(
                 photos, provider: provider,
                 progress: { done, _ in
                     Task { @MainActor [weak self] in
-                        self?.updateProgress(done: done, total: combinedTotal)
+                        self?.updateProgress(done: done, total: total)
                     }
                 })
             if Task.isCancelled { return nil }
 
-            let cands = await CurationAnalyzer.candidates(
-                for: analyzed, provider: provider, scores: scores,
-                progress: { done, _ in
-                    Task { @MainActor [weak self] in
-                        self?.updateProgress(done: scoringCount + done, total: combinedTotal)
-                    }
-                })
+            let cands = CurationAnalyzer.candidates(for: analyzed, scores: scores, prints: prints)
             if Task.isCancelled { return nil }
 
             // Task {} inherits this model's MainActor isolation, so no hop is

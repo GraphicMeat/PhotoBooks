@@ -1,6 +1,8 @@
 import Testing
 import Foundation
+import CoreGraphics
 import PhotoBookCore
+import PhotoBookImportTestSupport
 @testable import PhotoBookImport
 
 struct CurationAnalyzerTests {
@@ -116,5 +118,68 @@ struct CurationAnalyzerTests {
         let elapsed = Date().timeIntervalSince(start)
         #expect(clusters.count == 1000)
         #expect(elapsed < 1.0)
+    }
+
+    // MARK: - candidates with precomputed prints (single-decode pipeline)
+
+    @Test func candidatesClustersMatchPureCoreOnTheSamePrints() async {
+        // Parity: candidates(for:scores:prints:) must produce exactly the
+        // clusters the pure core computes from the same prints' distances.
+        // Two identical images + one very different, all within the window.
+        let provider = MockPhotoProvider()
+        let base = Date(timeIntervalSince1970: 1000)
+        let same = MockPhotoProvider.makeImage(width: 64, height: 64)  // solid gray
+        var refs: [PhotoRef] = []
+        for (i, image) in [same, same, checkerboardImage()].enumerated() {
+            let ref = PhotoRef(id: id("p\(i)"), source: .file(bookmark: Data()),
+                               pixelWidth: 64, pixelHeight: 64,
+                               captureDate: base.addingTimeInterval(Double(i)))
+            provider.setImage(image, for: ref.id)
+            refs.append(ref)
+        }
+        let (analyzed, scores, prints) = await ImageContentAnalyzer.analyzeWithScores(
+            refs, provider: provider)
+        let cands = CurationAnalyzer.candidates(for: analyzed, scores: scores, prints: prints)
+
+        let expected = CurationAnalyzer.clusters(
+            photos: analyzed.map { (id: $0.id, captureDate: $0.captureDate) },
+            distance: { a, b in prints[a]!.distance(to: prints[b]!) })
+        #expect(Dictionary(uniqueKeysWithValues: cands.map { ($0.id, $0.clusterID) }) == expected)
+        // Identical images cluster together; the checkerboard stands apart.
+        #expect(cands[0].clusterID == cands[1].clusterID)
+        #expect(cands[2].clusterID != cands[0].clusterID)
+        // Scores flowed through (no 0.5 fallback for scored photos).
+        #expect(cands.allSatisfy { scores[$0.id] != nil })
+    }
+
+    @Test func candidateWithoutPrintIsItsOwnSingletonCluster() {
+        let base = Date(timeIntervalSince1970: 1000)
+        let refs = (0..<2).map {
+            PhotoRef(id: id("p\($0)"), source: .file(bookmark: Data()),
+                     pixelWidth: 64, pixelHeight: 64,
+                     captureDate: base.addingTimeInterval(Double($0)))
+        }
+        // No prints at all → every photo infinitely far from everything.
+        let cands = CurationAnalyzer.candidates(for: refs, scores: [:], prints: [:])
+        #expect(cands.count == 2)
+        #expect(cands[0].clusterID != cands[1].clusterID)
+        // Unscored fallback: mid-quality, not utility.
+        #expect(cands.allSatisfy { $0.quality == 0.5 && !$0.isUtility })
+    }
+
+    private func checkerboardImage(side: Int = 64, cell: Int = 4) -> CGImage {
+        let cs = CGColorSpace(name: CGColorSpace.sRGB)!
+        let ctx = CGContext(data: nil, width: side, height: side, bitsPerComponent: 8,
+                            bytesPerRow: 0, space: cs,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        for y in 0..<side {
+            for x in 0..<side {
+                let on = ((x / cell) + (y / cell)) % 2 == 0
+                let v: CGFloat = on ? 1 : 0
+                ctx.setFillColor(CGColor(srgbRed: v, green: v, blue: v, alpha: 1))
+                ctx.fill(CGRect(x: x, y: y, width: 1, height: 1))
+            }
+        }
+        return ctx.makeImage()!
     }
 }

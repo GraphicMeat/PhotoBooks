@@ -153,9 +153,13 @@ struct ImageContentAnalyzerTests {
         // Same refs (identity, order, and stamped importance) as plain analyze.
         #expect(out.refs.map(\.id) == plain.map(\.id))
         #expect(out.refs.map(\.importance) == plain.map(\.importance))
-        // A score entry per scored photo, carrying quality/isUtility.
+        // A score and feature-print entry per scored photo.
         #expect(out.scores.count == refs.count)
-        for r in refs { #expect(out.scores[r.id] != nil) }
+        #expect(out.prints.count == refs.count)
+        for r in refs {
+            #expect(out.scores[r.id] != nil)
+            #expect(out.prints[r.id] != nil)
+        }
     }
 
     @Test func analyzeWithScoresOmitsFailedPhotos() async {
@@ -166,6 +170,21 @@ struct ImageContentAnalyzerTests {
         let out = await ImageContentAnalyzer.analyzeWithScores(refs, provider: provider)
         #expect(out.refs.first?.importance == nil)
         #expect(out.scores.isEmpty)
+        #expect(out.prints.isEmpty)
+    }
+
+    @Test func includePrintsFalseWithholdsPrints() async {
+        // Plain `analyze` delegates with includePrints: false so non-curation
+        // callers never pay the feature-print Vision pass.
+        let provider = MockPhotoProvider()
+        let ref = PhotoRef(id: PhotoID(rawValue: "p"),
+                           source: .file(bookmark: Data()),
+                           pixelWidth: 64, pixelHeight: 64)
+        provider.setImage(checkerboard(), for: ref.id)
+        let out = await ImageContentAnalyzer.analyzeWithScores(
+            [ref], provider: provider, includePrints: false)
+        #expect(out.scores.count == 1)
+        #expect(out.prints.isEmpty)
     }
 
     @Test func analyzeRespectsCancellation() async {
