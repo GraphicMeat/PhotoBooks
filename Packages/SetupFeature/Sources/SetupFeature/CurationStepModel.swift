@@ -62,7 +62,8 @@ import PhotoBookImport
         let target = self.target
         phase = .analyzing(done: 0, total: combinedTotal)
 
-        let task = Task<[PhotoRef]?, Never> {
+        let task = Task<[PhotoRef]?, Never> { [weak self] in
+            guard let self else { return nil }
             let (analyzed, scores) = await ImageContentAnalyzer.analyzeWithScores(
                 photos, provider: provider,
                 progress: { done, _ in
@@ -81,16 +82,12 @@ import PhotoBookImport
                 })
             if Task.isCancelled { return nil }
 
-            // ponytail: a cancel landing between this check and the MainActor
-            // hop below could still flip phase to .reviewing after the user
-            // clicked Cancel; narrow and harmless (no work is lost, the next
-            // render just shows the review grid instead of "cancelled"), so
-            // no extra synchronization — upgrade to an actor-isolated flag if
-            // this ever proves visible in practice.
+            // Task {} inherits this model's MainActor isolation, so no hop is
+            // needed here — and no suspension between the cancel check above
+            // and applyResults means a cancel can never land in between and
+            // get overwritten by .reviewing.
             let picked = PhotoCurator.select(from: cands, target: target)
-            await MainActor.run { [weak self] in
-                self?.applyResults(candidates: cands, picked: picked)
-            }
+            applyResults(candidates: cands, picked: picked)
             return analyzed
         }
         analysisTask = task
