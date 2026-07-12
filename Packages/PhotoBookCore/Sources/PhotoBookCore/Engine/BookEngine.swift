@@ -18,6 +18,18 @@ public struct BookEngine: Sendable {
     /// to a full 2-page panorama spread during `makeBook`.
     public static let panoramaAspectThreshold = 2.2
 
+    /// A single photo at or above this aspect ratio AND with importance
+    /// ≥ `ImportanceWeight.heroThreshold` is auto-promoted to a full 2-page
+    /// hero spread during `makeBook` (an ADDITIONAL trigger to the panorama
+    /// path, which the panorama branch — checked first — already covers for
+    /// aspect ≥ `panoramaAspectThreshold`).
+    public static let heroAspectThreshold = 1.2
+
+    /// Minimum number of standard (non-spread) interior pages that must be
+    /// emitted after an auto-promoted hero spread before the next hero may be
+    /// promoted. The first hero has no spacing requirement.
+    public static let heroSpreadMinSpacing = 6
+
     private let providers: [any LayoutProvider]
     private let scorer: LayoutScorer
     private let spreadTemplates: SpreadTemplateProvider
@@ -56,6 +68,12 @@ public struct BookEngine: Sendable {
         // the interior — duplicating the cover image inside is standard
         // photobook practice and keeps placeRemaining semantics simple).
         var previousPage: Page? = nil
+        // Hero-spread caps: at most one auto-hero per time-cluster, and at least
+        // `heroSpreadMinSpacing` standard pages between hero spreads. Both are
+        // derived purely from photo data + emission order, so a book with no
+        // qualifying hero consumes exactly the seeds/ids it did pre-B4.
+        var heroClusters = Set<Int>()
+        var pagesSinceHero = Self.heroSpreadMinSpacing   // first hero: no spacing gate
         for indices in packedGroups(analyzed, preset: preset, style: style) {
             let groupPhotos = indices.map { analyzed[$0] }
             // Auto-promote a lone ultra-wide panorama to a 2-page spread. The
@@ -71,12 +89,30 @@ public struct BookEngine: Sendable {
                 previousPage = members.last
                 continue
             }
+            // Auto-promote a lone hero (importance ≥ threshold AND near-landscape)
+            // to a full spread, subject to the per-cluster + spacing caps. Panorama
+            // spreads (above) are a separate mechanism: they neither consume a
+            // hero-cluster slot nor reset the spacing counter.
+            if groupPhotos.count == 1,
+               isHeroCandidate(groupPhotos[0]),
+               !heroClusters.contains(groupPhotos[0].clusterIndex),
+               pagesSinceHero >= Self.heroSpreadMinSpacing {
+                let (spread, members) = buildSpread(
+                    photos: groupPhotos, preset: preset, style: style, ids: &ids)
+                book.spreads.append(spread)
+                book.pages.append(contentsOf: members)
+                previousPage = members.last
+                heroClusters.insert(groupPhotos[0].clusterIndex)
+                pagesSinceHero = 0
+                continue
+            }
             let page = makeStandardPage(photos: groupPhotos, preset: preset,
                                         style: style, needsTextZone: false,
                                         seed: groupSeed, previousPage: previousPage,
                                         ids: &ids)
             book.pages.append(page)
             previousPage = page
+            pagesSinceHero += 1
         }
 
         // Back cover: minted LAST so every existing page ID stays byte-stable.
@@ -84,6 +120,14 @@ public struct BookEngine: Sendable {
             book.backCover = makeBackCoverPage(photo: analyzed[backIdx], ids: &ids)
         }
         return book
+    }
+
+    /// True when a lone photo qualifies for hero-spread promotion: content
+    /// importance at or above `ImportanceWeight.heroThreshold` AND a
+    /// near-landscape aspect (≥ `heroAspectThreshold`). Pure — no seeds/ids.
+    private func isHeroCandidate(_ photo: AnalyzedPhoto) -> Bool {
+        (photo.ref.importance ?? 0) >= ImportanceWeight.heroThreshold
+            && photo.ref.aspectRatio >= Self.heroAspectThreshold
     }
 
     // MARK: - Spread construction
