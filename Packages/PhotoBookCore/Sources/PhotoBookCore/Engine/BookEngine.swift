@@ -117,10 +117,19 @@ public struct BookEngine: Sendable {
         // the origin so reopening never re-lays out.
         var photoSlots: [SpreadPhotoSlot] = []
         for (index, frame) in frames.enumerated() {
+            // Bias the crop off the gutter when this slot straddles the spine
+            // and the photo has a known salient center; otherwise keep .full.
+            // Pure + deterministic — consumes no seeds/ids.
+            let ref = photos[index].ref
+            let crop = GutterSafeCrop.crop(
+                slotFrame: frame,
+                photoAspect: ref.aspectRatio,
+                spreadAspect: spreadAspect,
+                salientCenter: ref.salientCenter) ?? .full
             photoSlots.append(SpreadPhotoSlot(
                 frame: frame,
                 photoID: photos[index].id,
-                crop: .full))
+                crop: crop))
         }
         let origin = LayoutOrigin.generated(
             GeneratedLayoutParams(seed: Spread.stableSeed(for: spreadID), boxes: frames))
