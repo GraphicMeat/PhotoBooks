@@ -37,6 +37,7 @@ public struct NewBookSetupView: View {
         case permissionExplainer
         case photoCollections
         case photoGrid
+        case curation
         case preset
         case generating
     }
@@ -54,6 +55,13 @@ public struct NewBookSetupView: View {
     @State private var analysisDone = 0
     @State private var analysisTotal = 0
 
+    // MARK: Curation step
+
+    @State private var curationModel = CurationStepModel()
+    /// Where the curation step's Back button returns to — `.photoGrid` for
+    /// the Photos flow, `.source` for the folder flow (which has no grid).
+    @State private var curationOrigin: Step = .photoGrid
+
     public var body: some View {
         VStack(spacing: 16) {
             switch step {
@@ -65,6 +73,7 @@ public struct NewBookSetupView: View {
                 })
             case .photoCollections: collectionsStep
             case .photoGrid: photoGridStep
+            case .curation: curationStep
             case .preset: presetStep
             case .generating:
                 ProgressView(analysisTotal > 0 && analysisDone < analysisTotal
@@ -191,7 +200,9 @@ public struct NewBookSetupView: View {
                     availablePhotos = refs
                     selectedPhotoIDs = Set(refs.map(\.id))   // folder: all auto-selected
                     activeProvider = providers.fileSystem
-                    step = .preset
+                    curationModel = CurationStepModel(availableCount: refs.count)
+                    curationOrigin = .source
+                    step = .curation
                 } catch {
                     errorMessage = "Could not read that folder: \(error.localizedDescription)"
                 }
@@ -267,12 +278,33 @@ public struct NewBookSetupView: View {
             HStack {
                 backButton { step = .photoCollections }
                 Spacer()
-                Button("Continue") { step = .preset }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(selectedPhotoIDs.isEmpty)
-                    .help("Continue to choose a book format")
+                Button("Continue") {
+                    curationModel = CurationStepModel(availableCount: selectedPhotoIDs.count)
+                    curationOrigin = .photoGrid
+                    step = .curation
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(selectedPhotoIDs.isEmpty)
+                .help("Continue to choose how many photos to keep")
             }
         }
+    }
+
+    // MARK: Step 1c — curation
+
+    private var curationStep: some View {
+        CurationStepView(
+            model: curationModel,
+            photos: availablePhotos.filter { selectedPhotoIDs.contains($0.id) },
+            provider: activeProvider ?? providers.photoKit,
+            onBack: { step = curationOrigin },
+            onUseAll: { step = .preset },
+            onContinue: { analyzed, picked in
+                availablePhotos = analyzed
+                selectedPhotoIDs = picked
+                step = .preset
+            }
+        )
     }
 
     // MARK: Limited-library mode (spec: "limited mode functional")
@@ -405,7 +437,11 @@ public struct NewBookSetupView: View {
         var style = BookStyle.standard
         style.edgeStyle = edgeStyleDefault
         let chosenStyle = style
-        let shouldAnalyze = analyzeImportance
+        // The curation step already ran this same Vision pre-pass (its refs
+        // come back importance-stamped); re-running it here would double the
+        // wait for no benefit, so only analyze when something is unstamped.
+        let alreadyAnalyzed = !selected.isEmpty && selected.allSatisfy { $0.importance != nil }
+        let shouldAnalyze = analyzeImportance && !alreadyAnalyzed
         let provider = activeProvider
         Task {
             // Optional impure pre-pass: stamp content-importance onto the refs

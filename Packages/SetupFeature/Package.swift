@@ -9,12 +9,28 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../ModelLayer"),
-        .package(path: "../AppSupport")
+        .package(path: "../AppSupport"),
+        .package(path: "../PhotoBookCore"),
+        .package(path: "../PhotoBookImport")
     ],
     targets: [
         .target(
             name: "SetupFeature",
-            dependencies: ["ModelLayer", "AppSupport"]
+            dependencies: [
+                "ModelLayer",
+                "AppSupport",
+                .product(name: "PhotoBookCore", package: "PhotoBookCore"),
+                .product(name: "PhotoBookImport", package: "PhotoBookImport")
+            ]
+        ),
+        .testTarget(
+            name: "SetupFeatureTests",
+            dependencies: [
+                "SetupFeature",
+                .product(name: "PhotoBookCore", package: "PhotoBookCore"),
+                .product(name: "PhotoBookImport", package: "PhotoBookImport"),
+                .product(name: "PhotoBookImportTestSupport", package: "PhotoBookImport")
+            ]
         )
     ]
 )

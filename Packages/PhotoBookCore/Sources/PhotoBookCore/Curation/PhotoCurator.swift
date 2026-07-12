@@ -15,6 +15,20 @@ public enum CurationTarget: Equatable, Sendable {
 /// PhotoBookImport); this only decides the final set.
 public enum PhotoCurator {
 
+    /// Resolves a `CurationTarget` to a concrete photo count, clamped to
+    /// `[1, available]` (0 if `available` is 0). `.pages(p)` uses
+    /// `p * Paginator.idealPhotosPerPage`, rounded. Exposed so the wizard UI
+    /// can preview "≈ N photos" for a pages target before selection runs.
+    public static func resolvedPhotoCount(for target: CurationTarget, available: Int) -> Int {
+        guard available > 0 else { return 0 }
+        let rawN: Int
+        switch target {
+        case .photos(let n): rawN = n
+        case .pages(let p):  rawN = Int((Double(p) * Paginator.idealPhotosPerPage).rounded())
+        }
+        return min(max(rawN, 1), available)
+    }
+
     public static func select(from candidates: [CurationCandidate], target: CurationTarget) -> [PhotoID] {
         let pool = candidates.filter { !$0.isUtility }
         guard !pool.isEmpty else { return [] }
@@ -22,13 +36,7 @@ public enum PhotoCurator {
         // Distinct clusters (order-independent count).
         let clusterCount = Set(pool.map { $0.clusterID }).count
 
-        // Resolve and clamp N.
-        let rawN: Int
-        switch target {
-        case .photos(let n): rawN = n
-        case .pages(let p):  rawN = Int((Double(p) * Paginator.idealPhotosPerPage).rounded())
-        }
-        let n = min(max(rawN, 1), pool.count)
+        let n = resolvedPhotoCount(for: target, available: pool.count)
 
         // Representative = highest-(quality desc, id asc) member of each cluster.
         // O(pool²) worst case here and in the round-robin loops (single time
