@@ -57,7 +57,7 @@ struct SpreadTemplateStripView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                ForEach(templates, id: \.id) { template in
+                ForEach(Array(templates.enumerated()), id: \.element.id) { index, template in
                     Button {
                         onApply(template.id)
                     } label: {
@@ -67,7 +67,7 @@ struct SpreadTemplateStripView: View {
                             .frame(height: 60)
                     }
                     .buttonStyle(.plain)
-                    .help("Use spread layout \(template.id)")
+                    .help("Use spread layout \(index + 1)")
                     .accessibilityIdentifier("spread-template-strip-\(template.id)")
                 }
             }

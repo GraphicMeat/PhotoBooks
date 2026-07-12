@@ -150,6 +150,16 @@ public struct Spread: Codable, Equatable, Sendable, Identifiable {
         return (left, right)
     }
 
+    /// Deterministic generator for a spread's OWN photo-slot ids (the
+    /// double-wide canvas slots — distinct from the sliced-page ids `slice()`
+    /// derives from `stableSeed` unsalted). Single source of truth for
+    /// `BookEngine.buildSpread` AND `BookEngine.applySpreadTemplate`: same
+    /// spread id ⇒ same slot ids, which is what makes re-applying a template
+    /// to an existing spread byte-stable.
+    static func slotIDGenerator(for id: UUID) -> DeterministicIDGenerator {
+        DeterministicIDGenerator(seed: stableSeed(for: id) &+ 0x5170A11)
+    }
+
     /// First 8 UUID bytes, big-endian — a stable per-spread seed so sliced
     /// slot ids survive save/load (mirrors `BookEngine.stableSeed(for:)`).
     static func stableSeed(for id: UUID) -> UInt64 {

@@ -179,7 +179,7 @@ public struct BookEngine: Sendable {
             GeneratedLayoutParams(seed: Spread.stableSeed(for: spreadID), boxes: frames))
 
         // Re-mint the spread photo slot ids deterministically from the spread id.
-        var slotIDs = DeterministicIDGenerator(seed: Spread.stableSeed(for: spreadID) &+ 0x5170A11)
+        var slotIDs = Spread.slotIDGenerator(for: spreadID)
         for i in photoSlots.indices { photoSlots[i].id = slotIDs.next() }
 
         let spread = Spread(id: spreadID, origin: origin,
@@ -231,10 +231,10 @@ public struct BookEngine: Sendable {
     ///
     /// Determinism: the spread `id` is unchanged, and sliced-page ids are
     /// re-derived by `Spread.slice()` from that same id, so re-slicing is
-    /// byte-stable. New spread-slot ids reuse `buildSpread`'s exact salt
-    /// (`Spread.stableSeed(for: spreadID) &+ 0x5170A11`) — same spread id +
-    /// same photo count always yields the same slot ids, so applying the same
-    /// template twice is byte-identical.
+    /// byte-stable. New spread-slot ids come from `Spread.slotIDGenerator` —
+    /// the same shared source `buildSpread` uses — so the same spread id +
+    /// same photo count always yields the same slot ids, and applying the
+    /// same template twice is byte-identical.
     public func applySpreadTemplate(_ templateID: String, to spreadID: UUID, in book: Book,
                                     preset: PrintPreset) -> Book {
         guard let spreadIdx = book.spreads.firstIndex(where: { $0.id == spreadID }) else { return book }
@@ -254,7 +254,7 @@ public struct BookEngine: Sendable {
             } ?? .full
             photoSlots.append(SpreadPhotoSlot(frame: frame, photoID: photoID, crop: crop))
         }
-        var slotIDs = DeterministicIDGenerator(seed: Spread.stableSeed(for: spreadID) &+ 0x5170A11)
+        var slotIDs = Spread.slotIDGenerator(for: spreadID)
         for i in photoSlots.indices { photoSlots[i].id = slotIDs.next() }
 
         let origin = LayoutOrigin.template(id: templateID)
