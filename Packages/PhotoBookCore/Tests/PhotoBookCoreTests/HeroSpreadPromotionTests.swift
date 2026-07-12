@@ -127,8 +127,9 @@ import Testing
     @Test func noHeroBookIsByteIdenticalToBaseline() throws {
         let data = try BookSerializer.encode(makeBook(noHeroFixture(), seed: 99))
         let hex = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
-        // Baseline hash from pre-B4 code (see test doc). If this changes, the
-        // no-hero code path is no longer byte-stable — a determinism regression.
+        // Baseline hash from pre-B4 code (see test doc). If you intentionally
+        // changed engine or serialization output, re-capture this hash from the
+        // new baseline; an UNEXPECTED change here is a determinism regression.
         #expect(hex == "d00433d7f3104350e3d8f8e317aacb0934fb7b5fc6377efc84a441d68311eae6")
     }
 }
