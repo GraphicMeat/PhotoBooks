@@ -35,6 +35,65 @@
         { "x": 0.69, "y": 0.52, "width": 0.28, "height": 0.42 }
       ],
       "textFrames": []
+    },
+    {
+      "id": "hero-full",
+      "photoCount": 1,
+      "photoFrames": [
+        { "x": 0, "y": 0, "width": 1, "height": 1 }
+      ],
+      "textFrames": []
+    },
+    {
+      "id": "split-two-thirds",
+      "photoCount": 2,
+      "photoFrames": [
+        { "x": 0, "y": 0, "width": 0.667, "height": 1 },
+        { "x": 0.667, "y": 0, "width": 0.333, "height": 1 }
+      ],
+      "textFrames": []
+    },
+    {
+      "id": "center-columns-3",
+      "photoCount": 3,
+      "photoFrames": [
+        { "x": 0.30, "y": 0, "width": 0.40, "height": 1 },
+        { "x": 0, "y": 0, "width": 0.30, "height": 1 },
+        { "x": 0.70, "y": 0, "width": 0.30, "height": 1 }
+      ],
+      "textFrames": []
+    },
+    {
+      "id": "panorama-band-3",
+      "photoCount": 3,
+      "photoFrames": [
+        { "x": 0, "y": 0.25, "width": 1, "height": 0.5 },
+        { "x": 0, "y": 0, "width": 1, "height": 0.25 },
+        { "x": 0, "y": 0.75, "width": 1, "height": 0.25 }
+      ],
+      "textFrames": []
+    },
+    {
+      "id": "split-two-thirds-3",
+      "photoCount": 3,
+      "photoFrames": [
+        { "x": 0, "y": 0, "width": 0.667, "height": 1 },
+        { "x": 0.667, "y": 0, "width": 0.333, "height": 0.5 },
+        { "x": 0.667, "y": 0.5, "width": 0.333, "height": 0.5 }
+      ],
+      "textFrames": []
+    },
+    {
+      "id": "center-columns-5",
+      "photoCount": 5,
+      "photoFrames": [
+        { "x": 0.30, "y": 0, "width": 0.40, "height": 1 },
+        { "x": 0, "y": 0, "width": 0.30, "height": 0.5 },
+        { "x": 0, "y": 0.5, "width": 0.30, "height": 0.5 },
+        { "x": 0.70, "y": 0, "width": 0.30, "height": 0.5 },
+        { "x": 0.70, "y": 0.5, "width": 0.30, "height": 0.5 }
+      ],
+      "textFrames": []
     }
   ]
 }
