@@ -432,7 +432,14 @@ public struct NewBookSetupView: View {
 
     private func generate(with preset: PrintPreset) {
         step = .generating
-        let selected = availablePhotos.filter { selectedPhotoIDs.contains($0.id) }
+        var selected = availablePhotos.filter { selectedPhotoIDs.contains($0.id) }
+        // Toggle OFF must mean no importance-weighted layout even when the
+        // curation step already stamped `importance` as a side effect (the
+        // engine honors it unconditionally). Strip it; keep `salientCenter`
+        // — that feeds gutter-safe cropping, not layout weight.
+        if !analyzeImportance {
+            for i in selected.indices { selected[i].importance = nil }
+        }
         let title = bookTitle
         var style = BookStyle.standard
         style.edgeStyle = edgeStyleDefault
