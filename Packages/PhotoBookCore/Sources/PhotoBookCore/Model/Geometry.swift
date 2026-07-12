@@ -39,8 +39,8 @@ public struct NormRect: Codable, Equatable, Hashable, Sendable {
     }
 }
 
-/// Normalized point in 0–1 page space (same coordinate system as `NormRect`).
-public struct NormPoint: Codable, Hashable, Sendable {
+/// Normalized point in a 0–1 coordinate space (page or image, per the consumer).
+public struct NormPoint: Codable, Equatable, Hashable, Sendable {
     public var x: Double
     public var y: Double
 
