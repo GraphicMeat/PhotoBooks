@@ -31,6 +31,9 @@ public enum PhotoCurator {
         let n = min(max(rawN, 1), pool.count)
 
         // Representative = highest-(quality desc, id asc) member of each cluster.
+        // O(pool²) worst case here and in the round-robin loops (single time
+        // bucket); fine for one-shot wizard selection — group-by if this ever
+        // runs on live edits.
         let repIDs = Set(Set(pool.map { $0.clusterID }).map { cluster in
             pool.filter { $0.clusterID == cluster }.min(by: betterFirst)!.id
         })
