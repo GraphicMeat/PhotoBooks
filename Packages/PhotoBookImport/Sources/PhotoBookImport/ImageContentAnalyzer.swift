@@ -3,17 +3,36 @@ import Foundation
 import PhotoBookCore
 import Vision
 
-/// One photo's content signals, each in [0,1], plus their blended importance.
+/// One photo's content signals, each in [0,1], plus their blended importance
+/// and an aesthetics-aware quality score.
 public struct ImportanceScore: Equatable, Sendable {
     public var faces: Double
     public var saliency: Double
     public var sharpness: Double
+    /// Vision aesthetics overallScore mapped [-1,1]→[0,1]; nil if the request failed.
+    public var aesthetics: Double?
+    /// Vision's "utility image" flag (screenshots, receipts, documents);
+    /// false when aesthetics is unavailable.
+    public var isUtility: Bool
+    /// Center of the best salient object (area×confidence winner), in
+    /// top-left-origin normalized image space; nil if none found.
+    public var salientCenter: NormPoint?
     public var importance: Double
 
-    public init(faces: Double, saliency: Double, sharpness: Double, importance: Double) {
+    /// aesthetics != nil ? 0.5·importance + 0.5·aesthetics : importance.
+    public var quality: Double {
+        ImageContentAnalyzer.quality(importance: importance, aesthetics: aesthetics)
+    }
+
+    public init(faces: Double, saliency: Double, sharpness: Double,
+                aesthetics: Double? = nil, isUtility: Bool = false,
+                salientCenter: NormPoint? = nil, importance: Double) {
         self.faces = faces
         self.saliency = saliency
         self.sharpness = sharpness
+        self.aesthetics = aesthetics
+        self.isUtility = isUtility
+        self.salientCenter = salientCenter
         self.importance = importance
     }
 }
@@ -44,12 +63,27 @@ public enum ImageContentAnalyzer {
         return min(1.0, max(0.0, v))
     }
 
+    /// Pure: map Vision's aesthetics overallScore ([-1,1]) to [0,1], clamped.
+    public static func mapAesthetics(_ overallScore: Float) -> Double {
+        min(1.0, max(0.0, (Double(overallScore) + 1.0) / 2.0))
+    }
+
+    /// Pure: quality blends importance with aesthetics when available, else
+    /// falls back to importance alone.
+    public static func quality(importance: Double, aesthetics: Double?) -> Double {
+        guard let aesthetics else { return importance }
+        return 0.5 * importance + 0.5 * aesthetics
+    }
+
     /// Score a single image. Synchronous (Vision.perform blocks).
     public static func score(image: CGImage) -> ImportanceScore {
         let f = faceScore(of: image)
-        let s = saliencyScore(of: image)
+        let (s, center) = saliency(of: image)
         let q = sharpness(of: image)
+        let (aes, utility) = aesthetics(of: image)
         return ImportanceScore(faces: f, saliency: s, sharpness: q,
+                               aesthetics: aes, isUtility: utility,
+                               salientCenter: center,
                                importance: blend(faces: f, saliency: s, sharpness: q))
     }
 
@@ -70,10 +104,10 @@ public enum ImageContentAnalyzer {
         guard !refs.isEmpty else { return refs }
         let total = refs.count
         let limit = max(1, concurrency)
-        var scores = [Int: Double]()
+        var scores = [Int: ImportanceScore]()
         var completed = 0
 
-        await withTaskGroup(of: (Int, Double?).self) { group in
+        await withTaskGroup(of: (Int, ImportanceScore?).self) { group in
             var next = 0
             func submit(_ i: Int) {
                 let ref = refs[i]
@@ -82,7 +116,7 @@ public enum ImageContentAnalyzer {
                     guard let image = try? await provider.thumbnail(for: ref, maxPixelSize: maxPixelSize)
                     else { return (i, nil) }
                     if Task.isCancelled { return (i, nil) }
-                    return (i, score(image: image).importance)
+                    return (i, score(image: image))
                 }
             }
             while next < min(limit, total) { submit(next); next += 1 }
@@ -95,7 +129,10 @@ public enum ImageContentAnalyzer {
         }
 
         var result = refs
-        for (i, value) in scores { result[i].importance = value }
+        for (i, s) in scores {
+            result[i].importance = s.importance
+            result[i].salientCenter = s.salientCenter
+        }
         return result
     }
 
@@ -111,16 +148,32 @@ public enum ImageContentAnalyzer {
         return min(1.0, area * faceAreaGain)
     }
 
-    private static func saliencyScore(of image: CGImage) -> Double {
+    /// Returns the saliency score plus the center of the best salient object
+    /// (area×confidence winner) in top-left-origin normalized image space.
+    /// Vision bounding boxes are bottom-left-origin, so y is flipped to match
+    /// the crop `NormRect` convention used by `SlotGeometry.imageDrawRect`.
+    private static func saliency(of image: CGImage) -> (score: Double, center: NormPoint?) {
         let request = VNGenerateAttentionBasedSaliencyImageRequest()
         let handler = VNImageRequestHandler(cgImage: image, options: [:])
-        do { try handler.perform([request]) } catch { return 0 }
-        guard let obs = request.results?.first as? VNSaliencyImageObservation else { return 0 }
+        do { try handler.perform([request]) } catch { return (0, nil) }
+        guard let obs = request.results?.first as? VNSaliencyImageObservation else { return (0, nil) }
         let objects = obs.salientObjects ?? []
-        let best = objects
-            .map { Double($0.boundingBox.width * $0.boundingBox.height) * Double($0.confidence) }
-            .max() ?? 0
-        return min(1.0, best)
+        guard let winner = objects.max(by: {
+            Double($0.boundingBox.width * $0.boundingBox.height) * Double($0.confidence)
+            < Double($1.boundingBox.width * $1.boundingBox.height) * Double($1.confidence)
+        }) else { return (0, nil) }
+        let bb = winner.boundingBox
+        let score = Double(bb.width * bb.height) * Double(winner.confidence)
+        let center = NormPoint(x: Double(bb.midX), y: 1 - Double(bb.midY))
+        return (min(1.0, score), center)
+    }
+
+    private static func aesthetics(of image: CGImage) -> (score: Double?, isUtility: Bool) {
+        let request = VNCalculateImageAestheticsScoresRequest()
+        let handler = VNImageRequestHandler(cgImage: image, options: [:])
+        do { try handler.perform([request]) } catch { return (nil, false) }
+        guard let obs = request.results?.first else { return (nil, false) }
+        return (mapAesthetics(obs.overallScore), obs.isUtility)
     }
 
     /// Laplacian variance on a 64×64 grayscale downsample, saturating-normalized.
