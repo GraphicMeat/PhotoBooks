@@ -2,14 +2,6 @@
   "comment": "First-class 2-page spread templates on the DOUBLE-WIDE canvas: x in 0-1 spans BOTH facing pages, gutter at x=0.5 (left page x in [0,0.5], right page x in [0.5,1]); y in 0-1. Frames are NormRect in this canvas space. Spread.slice() projects each template onto the two real pages. Slots carry no photoID here (blueprints); the engine binds photos at use. Ordered by photoCount then id for determinism.",
   "templates": [
     {
-      "id": "hero-full",
-      "photoCount": 1,
-      "photoFrames": [
-        { "x": 0, "y": 0, "width": 1, "height": 1 }
-      ],
-      "textFrames": []
-    },
-    {
       "id": "spread-panorama",
       "photoCount": 1,
       "photoFrames": [
@@ -18,7 +10,7 @@
       "textFrames": []
     },
     {
-      "id": "split-two-thirds",
+      "id": "spread-split-two-thirds",
       "photoCount": 2,
       "photoFrames": [
         { "x": 0, "y": 0, "width": 0.667, "height": 1 },
@@ -36,32 +28,12 @@
       "textFrames": []
     },
     {
-      "id": "center-columns-3",
+      "id": "spread-center-columns-3",
       "photoCount": 3,
       "photoFrames": [
         { "x": 0.3, "y": 0, "width": 0.4, "height": 1 },
         { "x": 0, "y": 0, "width": 0.3, "height": 1 },
         { "x": 0.7, "y": 0, "width": 0.3, "height": 1 }
-      ],
-      "textFrames": []
-    },
-    {
-      "id": "panorama-band-3",
-      "photoCount": 3,
-      "photoFrames": [
-        { "x": 0, "y": 0.25, "width": 1, "height": 0.5 },
-        { "x": 0, "y": 0, "width": 1, "height": 0.25 },
-        { "x": 0, "y": 0.75, "width": 1, "height": 0.25 }
-      ],
-      "textFrames": []
-    },
-    {
-      "id": "split-two-thirds-3",
-      "photoCount": 3,
-      "photoFrames": [
-        { "x": 0, "y": 0, "width": 0.667, "height": 1 },
-        { "x": 0.667, "y": 0, "width": 0.333, "height": 0.5 },
-        { "x": 0.667, "y": 0.5, "width": 0.333, "height": 0.5 }
       ],
       "textFrames": []
     },
@@ -76,6 +48,26 @@
       "textFrames": []
     },
     {
+      "id": "spread-panorama-band-3",
+      "photoCount": 3,
+      "photoFrames": [
+        { "x": 0, "y": 0.25, "width": 1, "height": 0.5 },
+        { "x": 0, "y": 0, "width": 1, "height": 0.25 },
+        { "x": 0, "y": 0.75, "width": 1, "height": 0.25 }
+      ],
+      "textFrames": []
+    },
+    {
+      "id": "spread-split-two-thirds-3",
+      "photoCount": 3,
+      "photoFrames": [
+        { "x": 0, "y": 0, "width": 0.667, "height": 1 },
+        { "x": 0.667, "y": 0, "width": 0.333, "height": 0.5 },
+        { "x": 0.667, "y": 0.5, "width": 0.333, "height": 0.5 }
+      ],
+      "textFrames": []
+    },
+    {
       "id": "spread-three-up",
       "photoCount": 3,
       "photoFrames": [
@@ -86,7 +78,7 @@
       "textFrames": []
     },
     {
-      "id": "center-columns-5",
+      "id": "spread-center-columns-5",
       "photoCount": 5,
       "photoFrames": [
         { "x": 0.3, "y": 0, "width": 0.4, "height": 1 },

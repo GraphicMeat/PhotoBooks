@@ -87,9 +87,9 @@ import PhotoBookCore
         }
     }
 
-    @Test func heroFullOfferedForCountOne() {
+    @Test func fullCanvasSpreadOfferedForCountOne() {
         let provider = SpreadTemplateProvider()
-        let hero = templateNamed("hero-full", count: 1, provider)
+        let hero = templateNamed("spread-panorama", count: 1, provider)
         #expect(hero != nil)
         #expect(hero?.photoSlots.count == 1)
         #expect(hero?.photoSlots[0].frame == NormRect(x: 0, y: 0, width: 1, height: 1))
@@ -121,12 +121,12 @@ import PhotoBookCore
     @Test func newTemplatesTileTheCanvas() {
         let provider = SpreadTemplateProvider()
         let cases: [(id: String, count: Int)] = [
-            ("hero-full", 1),
-            ("center-columns-3", 3),
-            ("center-columns-5", 5),
-            ("split-two-thirds", 2),
-            ("split-two-thirds-3", 3),
-            ("panorama-band-3", 3),
+            ("spread-panorama", 1),
+            ("spread-center-columns-3", 3),
+            ("spread-center-columns-5", 5),
+            ("spread-split-two-thirds", 2),
+            ("spread-split-two-thirds-3", 3),
+            ("spread-panorama-band-3", 3),
         ]
         for (id, count) in cases {
             guard let template = templateNamed(id, count: count, provider) else {
@@ -140,34 +140,34 @@ import PhotoBookCore
 
     @Test func centerColumnsPutsCenterFrameFirst() {
         let provider = SpreadTemplateProvider()
-        let three = templateNamed("center-columns-3", count: 3, provider)!
+        let three = templateNamed("spread-center-columns-3", count: 3, provider)!
         #expect(three.photoSlots[0].frame == NormRect(x: 0.30, y: 0, width: 0.40, height: 1))
 
-        let five = templateNamed("center-columns-5", count: 5, provider)!
+        let five = templateNamed("spread-center-columns-5", count: 5, provider)!
         #expect(five.photoSlots[0].frame == NormRect(x: 0.30, y: 0, width: 0.40, height: 1))
     }
 
     @Test func splitTwoThirdsPutsBigFrameFirst() {
         let provider = SpreadTemplateProvider()
-        let two = templateNamed("split-two-thirds", count: 2, provider)!
+        let two = templateNamed("spread-split-two-thirds", count: 2, provider)!
         #expect(two.photoSlots[0].frame == NormRect(x: 0, y: 0, width: 0.667, height: 1))
 
-        let three = templateNamed("split-two-thirds-3", count: 3, provider)!
+        let three = templateNamed("spread-split-two-thirds-3", count: 3, provider)!
         #expect(three.photoSlots[0].frame == NormRect(x: 0, y: 0, width: 0.667, height: 1))
     }
 
     @Test func panoramaBandPutsBandFrameFirst() {
         let provider = SpreadTemplateProvider()
-        let band = templateNamed("panorama-band-3", count: 3, provider)!
+        let band = templateNamed("spread-panorama-band-3", count: 3, provider)!
         #expect(band.photoSlots[0].frame == NormRect(x: 0, y: 0.25, width: 1, height: 0.5))
     }
 
-    /// `hero-full`'s single slot straddles the gutter (x:0 w:1 spans both
+    /// `spread-panorama`'s single slot straddles the gutter (x:0 w:1 spans both
     /// pages). `slice()` must split it into complementary left/right crops
     /// whose widths sum back to the full source crop.
     @Test func heroFullSliceProducesComplementaryHalfCrops() {
         let provider = SpreadTemplateProvider()
-        let hero = templateNamed("hero-full", count: 1, provider)!
+        let hero = templateNamed("spread-panorama", count: 1, provider)!
         let (left, right) = hero.slice()
         #expect(left.photoSlots.count == 1)
         #expect(right.photoSlots.count == 1)
