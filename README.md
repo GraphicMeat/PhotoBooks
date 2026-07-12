@@ -12,7 +12,7 @@ print) plus a shareable digital PDF.
 - `Packages/PhotoBookImport` — photo source providers (PhotoKit, filesystem)
 - `Packages/PhotoBookRender` — screen + PDF renderers (shared layout math; WYSIWYG screen/print)
 - `App/` — multiplatform SwiftUI document app (browse, edit, export)
-- `docs/superpowers/` — design spec, API contract, implementation plans
+- `docs/superpowers/` — implementation plans
 
 ## Development
 
@@ -30,6 +30,3 @@ Generate the Xcode project and build/test the app (the `.xcodeproj` is generated
 xcodegen generate
 xcodebuild -project PhotoBooks.xcodeproj -scheme PhotoBooks -destination 'platform=macOS' test
 ```
-
-- Spec: `docs/superpowers/specs/2026-06-10-photobooks-design.md`
-- API contract: `docs/superpowers/specs/2026-06-10-photobooks-api-contract.md`
