@@ -7,11 +7,15 @@ import Foundation
 /// spread layouts are new JSON entries.
 public struct SpreadTemplateProvider: Sendable {
 
-    struct Template: Codable, Equatable, Sendable {
-        var id: String
-        var photoCount: Int
-        var photoFrames: [NormRect]
-        var textFrames: [NormRect]
+    /// A bundled spread blueprint's raw data (id + frames), as opposed to
+    /// `templates(forPhotoCount:)`'s `Spread` wrapper. Exposed publicly so the
+    /// spread-template strip (BookEngine.spreadLayoutOptions) can read `id`/
+    /// `photoFrames` directly without round-tripping through a blueprint `Spread`.
+    public struct Template: Codable, Equatable, Sendable {
+        public var id: String
+        public var photoCount: Int
+        public var photoFrames: [NormRect]
+        public var textFrames: [NormRect]
     }
 
     private struct TemplatesFile: Decodable {
@@ -53,10 +57,17 @@ public struct SpreadTemplateProvider: Sendable {
     /// Spread blueprints whose photo count matches `count`, ordered by id for
     /// determinism. Slots carry no photoID — the engine binds photos at use.
     public func templates(forPhotoCount count: Int) -> [Spread] {
+        rawTemplates(forPhotoCount: count).map(Self.blueprint)
+    }
+
+    /// Raw template blueprints (id + frames, no `Spread` wrapper) whose photo
+    /// count matches `count`, ordered by id for determinism. Used by
+    /// `BookEngine.spreadLayoutOptions`/`applySpreadTemplate` to drive and
+    /// apply the spread-template strip.
+    public func rawTemplates(forPhotoCount count: Int) -> [Template] {
         templateList
             .filter { $0.photoCount == count }
             .sorted { $0.id < $1.id }
-            .map(Self.blueprint)
     }
 
     private static func blueprint(_ template: Template) -> Spread {

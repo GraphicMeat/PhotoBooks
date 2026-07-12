@@ -18,6 +18,18 @@ public struct BookEngine: Sendable {
     /// to a full 2-page panorama spread during `makeBook`.
     public static let panoramaAspectThreshold = 2.2
 
+    /// A single photo at or above this aspect ratio AND with importance
+    /// ≥ `ImportanceWeight.heroThreshold` is auto-promoted to a full 2-page
+    /// hero spread during `makeBook` (an ADDITIONAL trigger to the panorama
+    /// path, which the panorama branch — checked first — already covers for
+    /// aspect ≥ `panoramaAspectThreshold`).
+    public static let heroAspectThreshold = 1.2
+
+    /// Minimum number of standard (non-spread) interior pages that must be
+    /// emitted after an auto-promoted hero spread before the next hero may be
+    /// promoted. The first hero has no spacing requirement.
+    public static let heroSpreadMinSpacing = 6
+
     private let providers: [any LayoutProvider]
     private let scorer: LayoutScorer
     private let spreadTemplates: SpreadTemplateProvider
@@ -56,6 +68,12 @@ public struct BookEngine: Sendable {
         // the interior — duplicating the cover image inside is standard
         // photobook practice and keeps placeRemaining semantics simple).
         var previousPage: Page? = nil
+        // Hero-spread caps: at most one auto-hero per time-cluster, and at least
+        // `heroSpreadMinSpacing` standard pages between hero spreads. Both are
+        // derived purely from photo data + emission order, so a book with no
+        // qualifying hero consumes exactly the seeds/ids it did pre-B4.
+        var heroClusters = Set<Int>()
+        var pagesSinceHero = Self.heroSpreadMinSpacing   // first hero: no spacing gate
         for indices in packedGroups(analyzed, preset: preset, style: style) {
             let groupPhotos = indices.map { analyzed[$0] }
             // Auto-promote a lone ultra-wide panorama to a 2-page spread. The
@@ -71,12 +89,30 @@ public struct BookEngine: Sendable {
                 previousPage = members.last
                 continue
             }
+            // Auto-promote a lone hero (importance ≥ threshold AND near-landscape)
+            // to a full spread, subject to the per-cluster + spacing caps. Panorama
+            // spreads (above) are a separate mechanism: they neither consume a
+            // hero-cluster slot nor reset the spacing counter.
+            if groupPhotos.count == 1,
+               isHeroCandidate(groupPhotos[0]),
+               !heroClusters.contains(groupPhotos[0].clusterIndex),
+               pagesSinceHero >= Self.heroSpreadMinSpacing {
+                let (spread, members) = buildSpread(
+                    photos: groupPhotos, preset: preset, style: style, ids: &ids)
+                book.spreads.append(spread)
+                book.pages.append(contentsOf: members)
+                previousPage = members.last
+                heroClusters.insert(groupPhotos[0].clusterIndex)
+                pagesSinceHero = 0
+                continue
+            }
             let page = makeStandardPage(photos: groupPhotos, preset: preset,
                                         style: style, needsTextZone: false,
                                         seed: groupSeed, previousPage: previousPage,
                                         ids: &ids)
             book.pages.append(page)
             previousPage = page
+            pagesSinceHero += 1
         }
 
         // Back cover: minted LAST so every existing page ID stays byte-stable.
@@ -84,6 +120,14 @@ public struct BookEngine: Sendable {
             book.backCover = makeBackCoverPage(photo: analyzed[backIdx], ids: &ids)
         }
         return book
+    }
+
+    /// True when a lone photo qualifies for hero-spread promotion: content
+    /// importance at or above `ImportanceWeight.heroThreshold` AND a
+    /// near-landscape aspect (≥ `heroAspectThreshold`). Pure — no seeds/ids.
+    private func isHeroCandidate(_ photo: AnalyzedPhoto) -> Bool {
+        (photo.ref.importance ?? 0) >= ImportanceWeight.heroThreshold
+            && photo.ref.aspectRatio >= Self.heroAspectThreshold
     }
 
     // MARK: - Spread construction
@@ -99,28 +143,43 @@ public struct BookEngine: Sendable {
                              ids: inout DeterministicIDGenerator) -> (Spread, [Page]) {
         let spreadID = ids.next()
 
-        // Zero-crop frames on the double-wide canvas (spine at x = 0.5).
-        let content = NormRect.full.inset(by: style.pageMargin)
+        // Zero-crop frames on the double-wide canvas (spine at x = 0.5). Honor
+        // the book edge style the same way JustifiedProvider does: no outer
+        // margin unless framed, no gutter under borderless. Spreads are built
+        // before member pages exist, so book-level `style.edgeStyle` is the
+        // source (there is no per-page override yet to resolve).
+        let margin = style.edgeStyle.hasOuterMargin ? style.pageMargin : 0
+        let gutter = style.edgeStyle.keepsGutter ? style.gutter : 0
+        let content = NormRect.full.inset(by: margin)
         let spreadAspect = 2 * preset.trimSize.aspectRatio
         let frames = JustifiedSpreadLayout.boxes(
             aspects: photos.map(\.ref.aspectRatio),
-            content: content, spreadAspect: spreadAspect, gutter: style.gutter)
+            content: content, spreadAspect: spreadAspect, gutter: gutter)
 
         // Bind photos into their boxes in order; crop stays .full (now matches
         // the frame aspect, so the whole photo shows). Serialize the boxes in
         // the origin so reopening never re-lays out.
         var photoSlots: [SpreadPhotoSlot] = []
         for (index, frame) in frames.enumerated() {
+            // Bias the crop off the gutter when this slot straddles the spine
+            // and the photo has a known salient center; otherwise keep .full.
+            // Pure + deterministic — consumes no seeds/ids.
+            let ref = photos[index].ref
+            let crop = GutterSafeCrop.crop(
+                slotFrame: frame,
+                photoAspect: ref.aspectRatio,
+                spreadAspect: spreadAspect,
+                salientCenter: ref.salientCenter) ?? .full
             photoSlots.append(SpreadPhotoSlot(
                 frame: frame,
                 photoID: photos[index].id,
-                crop: .full))
+                crop: crop))
         }
         let origin = LayoutOrigin.generated(
             GeneratedLayoutParams(seed: Spread.stableSeed(for: spreadID), boxes: frames))
 
         // Re-mint the spread photo slot ids deterministically from the spread id.
-        var slotIDs = DeterministicIDGenerator(seed: Spread.stableSeed(for: spreadID) &+ 0x5170A11)
+        var slotIDs = Spread.slotIDGenerator(for: spreadID)
         for i in photoSlots.indices { photoSlots[i].id = slotIDs.next() }
 
         let spread = Spread(id: spreadID, origin: origin,
@@ -137,6 +196,83 @@ public struct BookEngine: Sendable {
                              textSlots: sliced.right.textSlots,
                              isLocked: false, spreadID: spreadID, half: .right)
         return (spread, [leftPage, rightPage])
+    }
+
+    // MARK: - Spread template strip
+
+    /// Spread templates offered for the spread `spreadID`: every bundled
+    /// template whose `photoCount` equals the spread's CURRENT photo count
+    /// (v1: no photo add/remove via templates, so other counts are excluded
+    /// entirely rather than shown disabled). `preset` is accepted for a
+    /// future aspect-aware filter; v1 doesn't use it. Empty for an unknown
+    /// `spreadID`.
+    public func spreadLayoutOptions(for spreadID: UUID, in book: Book, preset: PrintPreset)
+        -> [SpreadTemplateProvider.Template] {
+        guard let spread = book.spreads.first(where: { $0.id == spreadID }) else { return [] }
+        return spreadTemplates.rawTemplates(forPhotoCount: spread.photoSlots.count)
+    }
+
+    /// Applies template `templateID` to spread `spreadID`: rebinds the
+    /// spread's existing photos, IN THEIR CURRENT `photoSlots` ORDER (index 0
+    /// = dominant), to the template's frames — same photo count required, so
+    /// this never adds/removes photos. Per-slot crop is recomputed via
+    /// `GutterSafeCrop` exactly like `buildSpread` (a straddling slot with a
+    /// known salient center gets biased off the gutter; everything else keeps
+    /// `.full`), and the two member pages are re-sliced from the new spread.
+    ///
+    /// No-op (returns `book` unchanged) when `spreadID` is unknown OR
+    /// `templateID` isn't a template for the spread's CURRENT photo count
+    /// (covers both "wrong count" and "unknown id" with one lookup).
+    ///
+    /// Design choice: template frames are authored full-canvas and applied
+    /// AS-IS — no page-margin inset. Unlike `buildSpread`'s EdgeStyle-aware
+    /// justified layout, a hand-designed template's frames (its own borders/
+    /// gaps) are a deliberate part of the design, not a raw content box.
+    ///
+    /// Determinism: the spread `id` is unchanged, and sliced-page ids are
+    /// re-derived by `Spread.slice()` from that same id, so re-slicing is
+    /// byte-stable. New spread-slot ids come from `Spread.slotIDGenerator` —
+    /// the same shared source `buildSpread` uses — so the same spread id +
+    /// same photo count always yields the same slot ids, and applying the
+    /// same template twice is byte-identical.
+    public func applySpreadTemplate(_ templateID: String, to spreadID: UUID, in book: Book,
+                                    preset: PrintPreset) -> Book {
+        guard let spreadIdx = book.spreads.firstIndex(where: { $0.id == spreadID }) else { return book }
+        let photoIDs = book.spreads[spreadIdx].photoSlots.map(\.photoID)
+        guard let template = spreadTemplates.rawTemplates(forPhotoCount: photoIDs.count)
+            .first(where: { $0.id == templateID }) else { return book }
+
+        let analyzedByID = analyzedLibrary(of: book)
+        let spreadAspect = 2 * preset.trimSize.aspectRatio
+        var photoSlots: [SpreadPhotoSlot] = []
+        for (index, frame) in template.photoFrames.enumerated() {
+            let photoID = photoIDs[index]
+            let ref = photoID.flatMap { analyzedByID[$0]?.ref }
+            let crop = ref.flatMap {
+                GutterSafeCrop.crop(slotFrame: frame, photoAspect: $0.aspectRatio,
+                                    spreadAspect: spreadAspect, salientCenter: $0.salientCenter)
+            } ?? .full
+            photoSlots.append(SpreadPhotoSlot(frame: frame, photoID: photoID, crop: crop))
+        }
+        var slotIDs = Spread.slotIDGenerator(for: spreadID)
+        for i in photoSlots.indices { photoSlots[i].id = slotIDs.next() }
+
+        let origin = LayoutOrigin.template(id: templateID)
+        let newSpread = Spread(id: spreadID, origin: origin, photoSlots: photoSlots, textSlots: [])
+        let sliced = newSpread.slice()
+
+        var result = book
+        result.spreads[spreadIdx] = newSpread
+        guard let leftIdx = result.pages.firstIndex(where: { $0.spreadID == spreadID && $0.half == .left }),
+              let rightIdx = result.pages.firstIndex(where: { $0.spreadID == spreadID && $0.half == .right })
+        else { return result }   // defensive: spread with no member pages (shouldn't happen)
+        result.pages[leftIdx].origin = origin
+        result.pages[leftIdx].photoSlots = sliced.left.photoSlots
+        result.pages[leftIdx].textSlots = sliced.left.textSlots
+        result.pages[rightIdx].origin = origin
+        result.pages[rightIdx].photoSlots = sliced.right.photoSlots
+        result.pages[rightIdx].textSlots = sliced.right.textSlots
+        return result
     }
 
     /// The cover layout is fixed (full-bleed hero + centered title band),

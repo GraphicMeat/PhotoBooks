@@ -14,17 +14,19 @@ import PhotoBookCore
     private var preset: PrintPreset { PresetLibrary.preset(id: "blurb-standard-landscape")! }
     private let heroID = PhotoID(rawValue: "hero")
 
-    /// 8 single-cluster landscape photos. The hero (importance 0.9) sits in the
-    /// middle of the sequence — deliberately NOT first, so it is not the cover
-    /// lead and therefore appears on exactly one page. Every other photo has
-    /// nil importance → weight 1. Landscape 4:3 avoids panorama spread promotion.
+    /// 8 single-cluster photos. The hero (importance 0.9) sits in the middle of
+    /// the sequence — deliberately NOT first, so it is not the cover lead and
+    /// therefore appears on exactly one page. Every other photo has nil
+    /// importance → weight 1. The hero is PORTRAIT (aspect 0.75) so it exercises
+    /// importance → density (weight → solo page) WITHOUT tripping hero-spread
+    /// promotion, which needs a near-landscape aspect (≥ heroAspectThreshold).
     private func photos() -> [PhotoRef] {
         (0..<8).map { i in
             let isHero = (i == 3)
             return PhotoRef(
                 id: isHero ? heroID : PhotoID(rawValue: "p\(i)"),
                 source: .file(bookmark: Data()),
-                pixelWidth: 4000, pixelHeight: 3000,
+                pixelWidth: isHero ? 3000 : 4000, pixelHeight: isHero ? 4000 : 3000,
                 captureDate: Date(timeIntervalSinceReferenceDate: Double(i) * 0.2 * 3600),
                 importance: isHero ? 0.9 : nil)
         }

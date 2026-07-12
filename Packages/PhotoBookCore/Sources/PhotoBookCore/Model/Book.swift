@@ -14,7 +14,9 @@ public struct Book: Codable, Equatable, Sendable {
     /// Bumped 3 → 4 for the back-cover page (`backCover`). Optional and additive:
     /// a v3 document decodes with `backCover == nil`; the migration only
     /// re-stamps the version.
-    public static let currentSchemaVersion = 4
+    ///
+    /// v4→v5: PhotoRef.salientCenter (optional, additive — decodeIfPresent → nil)
+    public static let currentSchemaVersion = 5
 
     public var schemaVersion: Int
     public var title: String
@@ -150,6 +152,15 @@ public enum BookSerializer {
                 throw BookSerializerError.corruptData("v3 payload is not a JSON object")
             }
             object["schemaVersion"] = 4
+            return try JSONSerialization.data(withJSONObject: object)
+        case 4:
+            // 4 → 5: photo salient center. `PhotoRef.salientCenter` is optional
+            // and absent in v4 JSON; it decodes to nil via decodeIfPresent.
+            // This step only re-stamps the version.
+            guard var object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw BookSerializerError.corruptData("v4 payload is not a JSON object")
+            }
+            object["schemaVersion"] = 5
             return try JSONSerialization.data(withJSONObject: object)
         default:
             throw BookSerializerError.unsupportedSchemaVersion(version)

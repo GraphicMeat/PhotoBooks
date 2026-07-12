@@ -44,6 +44,10 @@ public struct PhotoRef: Codable, Hashable, Sendable, Identifiable {
     /// Bigger / Smaller / Make key actions; clamped to [1, ImportanceWeight.maxWeight].
     /// A larger weight lands the photo on a less-crowded page, so it appears bigger.
     public var userWeight: Int?
+    /// Center of the photo's primary salient region, in normalized 0–1 image
+    /// space; nil = not analyzed. Stamped by the import-time Vision pre-pass
+    /// (ImageContentAnalyzer); consumed by gutter-safe spread cropping.
+    public var salientCenter: NormPoint?
 
     public init(
         id: PhotoID,
@@ -53,7 +57,8 @@ public struct PhotoRef: Codable, Hashable, Sendable, Identifiable {
         captureDate: Date? = nil,
         isMissing: Bool = false,
         importance: Double? = nil,
-        userWeight: Int? = nil
+        userWeight: Int? = nil,
+        salientCenter: NormPoint? = nil
     ) {
         self.id = id
         self.source = source
@@ -63,6 +68,7 @@ public struct PhotoRef: Codable, Hashable, Sendable, Identifiable {
         self.isMissing = isMissing
         self.importance = importance
         self.userWeight = userWeight
+        self.salientCenter = salientCenter
     }
 
     public var aspectRatio: Double { Double(pixelWidth) / Double(pixelHeight) }

@@ -39,6 +39,17 @@ public struct NormRect: Codable, Equatable, Hashable, Sendable {
     }
 }
 
+/// Normalized point in a 0–1 coordinate space (page or image, per the consumer).
+public struct NormPoint: Codable, Equatable, Hashable, Sendable {
+    public var x: Double
+    public var y: Double
+
+    public init(x: Double, y: Double) {
+        self.x = x
+        self.y = y
+    }
+}
+
 /// Physical size in inches.
 public struct SizeInches: Codable, Equatable, Hashable, Sendable {
     public var width: Double
