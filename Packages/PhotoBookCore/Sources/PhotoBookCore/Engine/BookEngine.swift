@@ -99,12 +99,18 @@ public struct BookEngine: Sendable {
                              ids: inout DeterministicIDGenerator) -> (Spread, [Page]) {
         let spreadID = ids.next()
 
-        // Zero-crop frames on the double-wide canvas (spine at x = 0.5).
-        let content = NormRect.full.inset(by: style.pageMargin)
+        // Zero-crop frames on the double-wide canvas (spine at x = 0.5). Honor
+        // the book edge style the same way JustifiedProvider does: no outer
+        // margin unless framed, no gutter under borderless. Spreads are built
+        // before member pages exist, so book-level `style.edgeStyle` is the
+        // source (there is no per-page override yet to resolve).
+        let margin = style.edgeStyle.hasOuterMargin ? style.pageMargin : 0
+        let gutter = style.edgeStyle.keepsGutter ? style.gutter : 0
+        let content = NormRect.full.inset(by: margin)
         let spreadAspect = 2 * preset.trimSize.aspectRatio
         let frames = JustifiedSpreadLayout.boxes(
             aspects: photos.map(\.ref.aspectRatio),
-            content: content, spreadAspect: spreadAspect, gutter: style.gutter)
+            content: content, spreadAspect: spreadAspect, gutter: gutter)
 
         // Bind photos into their boxes in order; crop stays .full (now matches
         // the frame aspect, so the whole photo shows). Serialize the boxes in

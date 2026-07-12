@@ -390,6 +390,91 @@ import PhotoBookCore
         #expect(abs(slot.frame.aspectRatio * spreadAspect - 4.0) < 1e-6)
     }
 
+    // MARK: - B2: EdgeStyle-aware buildSpread
+
+    /// The auto-promoted pano spread under a book style of `edge`.
+    private func panoSpread(edge: EdgeStyle) throws -> Spread {
+        var style = BookStyle.standard
+        style.edgeStyle = edge
+        let book = BookEngine().makeBook(title: "Edge", photos: panoFixture(),
+                                         preset: preset, style: style, seed: 7)
+        return try #require(book.spreads.first)
+    }
+
+    /// Regression: `.framed` spreads keep the book margin + gutter exactly as
+    /// before EdgeStyle wiring — the single pano slot frame is byte-identical to
+    /// the geometry captured from the shipping engine. If this drifts, the fix
+    /// changed framed behavior it must not touch.
+    @Test func framedSpreadGeometryUnchanged() throws {
+        let spread = try panoSpread(edge: .framed)
+        #expect(spread.photoSlots.count == 1)
+        let f = spread.photoSlots[0].frame
+        #expect(abs(f.x - 0.05) < 1e-12)
+        #expect(abs(f.y - 0.21875) < 1e-12)
+        #expect(abs(f.width - 0.9) < 1e-12)
+        #expect(abs(f.height - 0.5625) < 1e-12)
+    }
+
+    /// `.borderless` drops the outer margin: the hero pano frame reaches both
+    /// side edges of the double-wide canvas (x = 0 … 1), so a full-bleed spread
+    /// truly bleeds to the paper edge (unblocks B4 hero full-bleed spreads).
+    @Test func borderlessSpreadReachesCanvasEdges() throws {
+        let f = try panoSpread(edge: .borderless).photoSlots[0].frame
+        #expect(abs(f.x - 0) < 1e-9)
+        #expect(abs((f.x + f.width) - 1) < 1e-9)
+    }
+
+    /// Same photos, three edge modes on one spread. Multi-photo justified
+    /// layouts letterbox/center (they don't touch x = 0…1 like a lone hero), so
+    /// margin/gutter removal is read through coverage instead: `.tiled` drops
+    /// the outer margin, so its content region grows and it packs MORE area than
+    /// `.framed` (and reaches further out, minL smaller). `.borderless` also
+    /// drops the gutter, so photos touch and it packs MORE area than `.tiled`.
+    /// The chain framed < tiled < borderless encodes both spacing decisions.
+    @Test func tiledDropsMarginKeepsGutterBorderlessRemovesBoth() throws {
+        let engine = BookEngine()
+        let photos = (1...8).map { i -> PhotoRef in
+            i.isMultiple(of: 2)
+                ? ref("g\(i)", width: 3000, height: 4000, hours: Double(i))   // portrait
+                : ref("g\(i)", width: 4000, height: 3000, hours: Double(i))   // landscape
+        }
+        let book = engine.makeBook(title: "G", photos: photos, preset: preset,
+                                   style: .standard, seed: 7)
+        let stdIdx = book.pages.indices.filter {
+            book.pages[$0].role == .standard && book.pages[$0].spreadID == nil
+        }
+        guard let leftIdx = stdIdx.first(where: { idx in
+            idx + 1 < book.pages.count && book.pages[idx + 1].role == .standard
+                && book.pages[idx + 1].spreadID == nil
+        }) else { Issue.record("no facing pair"); return }
+        let leftID = book.pages[leftIdx].id
+
+        // Only the book style's edgeStyle differs between the three conversions;
+        // the same facing pair (same photos) flows into buildSpread each time.
+        func spread(_ edge: EdgeStyle) throws -> Spread {
+            var b = book
+            b.style.edgeStyle = edge
+            return try #require(
+                engine.convertToSpread(b, leftPageID: leftID, preset: preset, seed: 11).spreads.first)
+        }
+        func area(_ s: Spread) -> Double {
+            s.photoSlots.reduce(0) { $0 + $1.frame.width * $1.frame.height }
+        }
+        func minL(_ s: Spread) -> Double { s.photoSlots.map(\.frame.x).min() ?? 1 }
+
+        let framed = try spread(.framed)
+        let tiled = try spread(.tiled)
+        let borderless = try spread(.borderless)
+
+        // Margin: tiled drops framed's outer margin, so its content region grows —
+        // it reaches further toward the edge (smaller minL) and packs more area.
+        #expect(minL(tiled) < minL(framed))
+        #expect(area(tiled) > area(framed) + 1e-6)
+
+        // Gutter: tiled keeps inter-photo gaps, borderless removes them → more area.
+        #expect(area(borderless) > area(tiled) + 1e-6)
+    }
+
     /// Slicing a zero-crop box that straddles the gutter keeps it zero-crop on
     /// each page: the per-page frame's true aspect equals the per-page crop's
     /// pixel aspect, so the whole photo still shows split across the spine.
