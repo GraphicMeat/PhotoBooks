@@ -703,7 +703,20 @@ public final class BookEditorModel {
               let leftIdx = row.left else { return }
         let leftID = document.book.pages[leftIdx].id
         let preset = preset
+        let spreadCountBefore = document.book.spreads.count
         apply { $0 = self.engine.convertToSpread($0, leftPageID: leftID, preset: preset, seed: seed) }
+        // convertToSpread mints FRESH member-page IDs, so the old selection is
+        // dead and apply()'s internal refreshAlternatives ran against it. The
+        // new spread is appended to book.spreads — re-point selection at its
+        // left member and refresh so the spread-template strip renders.
+        // (Not reselectPhoto: the cover duplicates the lead photo, so a photo
+        // scan can land on the cover instead of the new member page.)
+        guard document.book.spreads.count > spreadCountBefore,
+              let sid = document.book.spreads.last?.id,
+              let member = document.book.pages.first(where: { $0.spreadID == sid && $0.half == .left })
+        else { return }
+        selectedPageID = member.id
+        refreshAlternatives()
     }
 
     /// Reverts the spread containing the selected page back to two independent

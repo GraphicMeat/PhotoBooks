@@ -106,6 +106,43 @@ import Testing
         #expect(!undo.canUndo)
     }
 
+    // MARK: - Convert keeps selection alive (QA fix)
+
+    /// `convertToSpread` mints fresh member-page IDs. After
+    /// `convertSelectedSpread` the selection must point at a live member page
+    /// of the new spread and the spread-template strip must be populated —
+    /// a 2-photo spread offers spread-split-two-thirds and spread-two-up.
+    @Test func convertSelectedSpreadKeepsSelectionAndPopulatesStrip() throws {
+        // Cover + two 1-photo standard pages → facing pair (1,2) → 2-photo spread.
+        let refs = [ref("p1", hours: 0), ref("p2", hours: 1)]
+        var book = Book(title: "Convert", presetID: Self.preset.id, style: .standard)
+        book.photoLibrary = refs
+        func page(_ photoID: PhotoID, role: PageRole) -> Page {
+            Page(role: role, origin: .template(id: "one-full-bleed"),
+                 photoSlots: [PhotoSlot(id: UUID(), frame: .full, photoID: photoID,
+                                        crop: .full, isLocked: false)])
+        }
+        book.pages = [page(refs[0].id, role: .cover),
+                      page(refs[0].id, role: .standard),
+                      page(refs[1].id, role: .standard)]
+
+        let (model, document, _) = makeModel(book)
+        model.selectPage(document.book.pages[1].id)
+        #expect(model.canConvertSelectedToSpread)
+
+        model.convertSelectedSpread(seed: 42)
+
+        let spread = try #require(document.book.spreads.first)
+        #expect(spread.photoSlots.count == 2)
+        // Selection points at a LIVE member page of the new spread.
+        let selected = try #require(document.book.pages.first { $0.id == model.selectedPageID })
+        #expect(selected.spreadID == spread.id)
+        // And the strip is populated with the 2-photo templates.
+        let ids = Set(model.spreadTemplateOptions.map(\.id))
+        #expect(ids.contains("spread-split-two-thirds"))
+        #expect(ids.contains("spread-two-up"))
+    }
+
     @Test func applySpreadTemplateOnNonSpreadPageIsANoOp() {
         let (book, _, _) = fixtureBookWithSpread()
         let (model, document, undo) = makeModel(book)
