@@ -177,8 +177,8 @@ import PhotoBookCore
 
     @Test func newBooksUseCurrentSchemaVersion() {
         let book = Book(title: "T", presetID: "p", style: .standard)
-        #expect(book.schemaVersion == 4)
-        #expect(Book.currentSchemaVersion == 4)
+        #expect(book.schemaVersion == 5)
+        #expect(Book.currentSchemaVersion == 5)
     }
 
     @Test func v2DocumentMigratesToV3WithNilImportance() throws {
@@ -199,7 +199,40 @@ import PhotoBookCore
         let v2 = try JSONSerialization.data(withJSONObject: object)
 
         let migrated = try BookSerializer.decode(v2)
-        #expect(migrated.schemaVersion == 4)
+        #expect(migrated.schemaVersion == 5)
         #expect(migrated.photoLibrary.first?.importance == nil)
+    }
+
+    // MARK: - A1: salient center + schema v5
+
+    @Test func photoRefSalientCenterRoundTripsThroughSerializer() throws {
+        var book = sampleBook()
+        book.photoLibrary[0].salientCenter = NormPoint(x: 0.7, y: 0.4)
+        let data = try BookSerializer.encode(book)
+        let decoded = try BookSerializer.decode(data)
+        #expect(decoded.photoLibrary[0].salientCenter == NormPoint(x: 0.7, y: 0.4))
+        #expect(decoded == book)
+    }
+
+    @Test func v4DocumentMigratesToV5WithNilSalientCenter() throws {
+        // Encode a current book, then back-date its schemaVersion to 4 to
+        // simulate a real v4 document on disk (v4 predates the field, so the
+        // absent-key → nil path is what loads).
+        var book = Book(title: "Old", presetID: "p", style: .standard)
+        book.photoLibrary = [PhotoRef(id: PhotoID(rawValue: "a"),
+                                      source: .file(bookmark: Data()),
+                                      pixelWidth: 4000, pixelHeight: 3000)]
+        let data = try BookSerializer.encode(book)
+        var object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        object["schemaVersion"] = 4
+        if var library = object["photoLibrary"] as? [[String: Any]] {
+            for i in library.indices { library[i].removeValue(forKey: "salientCenter") }
+            object["photoLibrary"] = library
+        }
+        let v4 = try JSONSerialization.data(withJSONObject: object)
+
+        let migrated = try BookSerializer.decode(v4)
+        #expect(migrated.schemaVersion == 5)
+        #expect(migrated.photoLibrary.first?.salientCenter == nil)
     }
 }

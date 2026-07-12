@@ -15,7 +15,7 @@ final class BackCoverModelTests: XCTestCase {
     }
 
     func test_currentSchemaVersionIs4() {
-        XCTAssertEqual(Book.currentSchemaVersion, 4)
+        XCTAssertEqual(Book.currentSchemaVersion, 5)
     }
 
     func test_backCoverRoundTrips() throws {
@@ -24,7 +24,7 @@ final class BackCoverModelTests: XCTestCase {
         let data = try BookSerializer.encode(book)
         let decoded = try BookSerializer.decode(data)
         XCTAssertEqual(decoded.backCover, book.backCover)
-        XCTAssertEqual(decoded.schemaVersion, 4)
+        XCTAssertEqual(decoded.schemaVersion, 5)
     }
 
     func test_v3JSON_decodesBackCoverNil_andRestampsTo4() throws {
@@ -34,7 +34,7 @@ final class BackCoverModelTests: XCTestCase {
         """.data(using: .utf8)!
         let decoded = try BookSerializer.decode(v3)
         XCTAssertNil(decoded.backCover)
-        XCTAssertEqual(decoded.schemaVersion, 4)
+        XCTAssertEqual(decoded.schemaVersion, 5)
     }
 
     private func sampleStyle() -> BookStyle { BookStyle.standard }
