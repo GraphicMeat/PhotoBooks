@@ -27,6 +27,9 @@ struct PhotoBooksApp: App {
         }
         .commands {
             ExportCommands()
+            CommandGroup(after: .help) {
+                Link("Graphic Meat Website", destination: URL(string: "https://graphicmeat.com")!)
+            }
             #if SPARKLE
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)

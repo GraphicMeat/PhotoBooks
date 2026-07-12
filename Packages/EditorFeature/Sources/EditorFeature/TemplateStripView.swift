@@ -13,8 +13,14 @@ struct TemplateStripView: View {
     let onApply: @MainActor (Int, LayoutCandidate) -> Void
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .top, spacing: 18) {
+        VStack(alignment: .leading, spacing: 0) {
+            Label("Layouts for this page", systemImage: "rectangle.3.group")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 18) {
                 ForEach(groups, id: \.count) { group in
                     VStack(alignment: .leading, spacing: 4) {
                         Text("\(group.count) photo\(group.count == 1 ? "" : "s")")
@@ -37,8 +43,9 @@ struct TemplateStripView: View {
                     }
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+            }
         }
         .background(.thinMaterial)
         .accessibilityIdentifier("template-strip")
@@ -55,8 +62,14 @@ struct SpreadTemplateStripView: View {
     let onApply: @MainActor (String) -> Void
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 0) {
+            Label("Layouts for this spread", systemImage: "rectangle.split.2x1")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
                 ForEach(Array(templates.enumerated()), id: \.element.id) { index, template in
                     Button {
                         onApply(template.id)
@@ -71,8 +84,9 @@ struct SpreadTemplateStripView: View {
                     .accessibilityIdentifier("spread-template-strip-\(template.id)")
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+            }
         }
         .background(.thinMaterial)
         .accessibilityIdentifier("spread-template-strip")

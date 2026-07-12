@@ -128,6 +128,11 @@ public final class BookEditorModel {
 
     public var unplacedPhotoIDs: [PhotoID] { EditMutations.unplacedPhotoIDs(in: document.book) }
 
+    public var unplacedPhotos: [PhotoRef] {
+        let ids = Set(unplacedPhotoIDs)
+        return document.book.photoLibrary.filter { ids.contains($0.id) }
+    }
+
     public var selectedSlotHasPhoto: Bool {
         guard let slotID = selectedSlotID,
               let location = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return false }
@@ -247,7 +252,17 @@ public final class BookEditorModel {
     // MARK: Crop
 
     public func beginCropEditing(_ slotID: UUID) {
+        selectedTextSlotID = nil
+        selectedSlotID = slotID
+        if let location = EditMutations.locatePhotoSlot(slotID, in: document.book) {
+            selectedPageID = document.book.pages[location.pageIndex].id
+        }
         cropEditingContext = cropEditorContext(forSlot: slotID)
+    }
+
+    public func beginCropEditingSelectedPhoto() {
+        guard let selectedSlotID else { return }
+        beginCropEditing(selectedSlotID)
     }
 
     func cropEditorContext(forSlot slotID: UUID) -> CropEditorContext? {
@@ -534,6 +549,35 @@ public final class BookEditorModel {
         guard let pageID = selectedPageID else { return }
         let preset = preset
         apply { $0 = self.engine.reshuffle($0, scope: .page(pageID), preset: preset, seed: seed) }
+    }
+
+    /// Whether the selected page has a genuinely different layout available.
+    /// Covers and locked pages deliberately report false instead of exposing
+    /// an action that the engine will silently ignore.
+    public var canTryAnotherSelectedLayout: Bool {
+        guard let pageID = selectedPageID,
+              let page = document.book.pages.first(where: { $0.id == pageID }),
+              page.role == .standard, !page.isLocked,
+              page.photoSlots.allSatisfy({ !$0.isLocked }),
+              page.textSlots.allSatisfy({ !$0.isLocked }) else { return false }
+        if page.spreadID != nil {
+            return spreadTemplateOptions.contains { .template(id: $0.id) != page.origin }
+        }
+        return alternativeCandidates.contains { $0.origin != page.origin }
+    }
+
+    /// Applies the next visibly different stable candidate. Unlike a random
+    /// reshuffle this cannot accidentally reproduce the current layout.
+    public func tryAnotherSelectedLayout() {
+        guard canTryAnotherSelectedLayout,
+              let pageID = selectedPageID,
+              let page = document.book.pages.first(where: { $0.id == pageID }) else { return }
+        if page.spreadID != nil,
+           let next = spreadTemplateOptions.first(where: { .template(id: $0.id) != page.origin }) {
+            applySpreadTemplate(next.id)
+        } else if let next = alternativeCandidates.first(where: { $0.origin != page.origin }) {
+            applyAlternative(next, to: pageID)
+        }
     }
 
     // MARK: Per-page density stepper (Phase B)

@@ -6,6 +6,131 @@ import PhotoBookCore
 import PhotoBookRender
 import SetupFeature
 import SwiftUI
+#if os(macOS)
+import AppKit
+#endif
+
+private enum EditorZoomMode: Equatable {
+    case fitSpread
+    case percentage(Int)
+    case printSize
+}
+
+private extension EditorZoomMode {
+    var percentageValue: Int? {
+        if case .percentage(let value) = self { return value }
+        return nil
+    }
+}
+
+/// Presentation-only workspace behind the book. "Transparent" uses the
+/// familiar checkerboard convention; it does not alter exported pages.
+private struct EditorCanvasBackground: View {
+    let mode: String
+    let customColor: Color
+
+    var body: some View {
+        switch mode {
+        case "black": Color.black
+        case "clear": checkerboard
+        case "custom": customColor
+        default: Color.white
+        }
+    }
+
+    private var checkerboard: some View {
+        Canvas { context, size in
+            let cell: CGFloat = 18
+            let columns = Int(ceil(size.width / cell))
+            let rows = Int(ceil(size.height / cell))
+            for row in 0..<rows {
+                for column in 0..<columns {
+                    let color = (row + column).isMultiple(of: 2)
+                        ? Color(white: 0.82) : Color(white: 0.96)
+                    context.fill(Path(CGRect(x: CGFloat(column) * cell,
+                                             y: CGFloat(row) * cell,
+                                             width: cell, height: cell)),
+                                 with: .color(color))
+                }
+            }
+        }
+    }
+}
+
+/// Sizes the document itself at the requested zoom, rather than applying a
+/// visual scale transform. That keeps PageView geometry, hit testing, resize
+/// handles, and text rendering in the same coordinate system.
+private struct ZoomableEditorCanvas<Content: View>: View {
+    @Binding var mode: EditorZoomMode
+    let trimSize: SizeInches
+    let pageCount: Int
+    let extraWidthInches: Double
+    @ViewBuilder let content: () -> Content
+    @GestureState private var pinchScale = 1.0
+
+    var body: some View {
+        GeometryReader { proxy in
+            let documentInches = CGSize(width: trimSize.width * Double(pageCount) + extraWidthInches,
+                                        height: trimSize.height)
+            let baseSize = size(for: mode, documentInches: documentInches,
+                                viewport: proxy.size)
+            let displaySize = CGSize(width: baseSize.width * pinchScale,
+                                     height: baseSize.height * pinchScale)
+            ScrollView([.horizontal, .vertical]) {
+                content()
+                    .frame(width: displaySize.width, height: displaySize.height)
+                    .shadow(color: .black.opacity(0.16), radius: 8, y: 4)
+                    .padding(32)
+                    .frame(minWidth: proxy.size.width, minHeight: proxy.size.height)
+            }
+            .scrollIndicators(mode == .fitSpread ? .hidden : .automatic)
+            .animation(.easeInOut(duration: 0.22), value: mode)
+            .simultaneousGesture(
+                MagnifyGesture()
+                    .updating($pinchScale) { value, state, _ in
+                        state = value.magnification
+                    }
+                    .onEnded { value in
+                        let naturalWidth = max(1, documentInches.width * 72)
+                        let startingPercent = baseSize.width / naturalWidth * 100
+                        let result = min(800, max(10,
+                            Int((startingPercent * value.magnification).rounded())))
+                        mode = .percentage(result)
+                    }
+            )
+        }
+    }
+
+    private func size(for mode: EditorZoomMode, documentInches: CGSize,
+                      viewport: CGSize) -> CGSize {
+        switch mode {
+        case .fitSpread:
+            let available = CGSize(width: max(1, viewport.width - 64),
+                                   height: max(1, viewport.height - 64))
+            let scale = min(available.width / documentInches.width,
+                            available.height / documentInches.height)
+            return CGSize(width: documentInches.width * scale,
+                          height: documentInches.height * scale)
+        case .percentage(let percent):
+            let pointsPerInch = 72.0 * Double(percent) / 100.0
+            return CGSize(width: documentInches.width * pointsPerInch,
+                          height: documentInches.height * pointsPerInch)
+        case .printSize:
+            let ppi = Self.approximateScreenPointsPerInch
+            return CGSize(width: documentInches.width * ppi,
+                          height: documentInches.height * ppi)
+        }
+    }
+
+    private static var approximateScreenPointsPerInch: Double {
+        #if os(macOS)
+        if let value = NSScreen.main?.deviceDescription[.resolution] as? NSValue {
+            return max(72, value.sizeValue.width)
+        }
+        #endif
+        return 72
+    }
+}
 
 /// The editing browser: Plan 4's spread browser + the full v1 light-edit
 /// loop. All edits go through `BookEditorModel` (D1); this view owns only
@@ -34,6 +159,10 @@ public struct BookBrowserView: View {
     @State private var showTray = false
     @State private var showRelinkSheet = false
     @State private var showPresetPicker = false
+    @State private var showCanvasColorPicker = false
+    @AppStorage("editor-canvas-background-mode") private var canvasBackgroundMode = "white"
+    @AppStorage("editor-canvas-background-color") private var canvasBackgroundHex = "#D9D9D9"
+    @State private var zoomMode: EditorZoomMode = .fitSpread
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var zoomedPage: ZoomTarget?
@@ -133,13 +262,13 @@ public struct BookBrowserView: View {
                 }
             }
             .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 160, ideal: 200)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 280)
         } detail: {
             spreadDetail
         }
         .navigationTitle(book.title)
         .inspector(isPresented: $showTray) {
-            TrayView(unplacedPhotoIDs: editor.unplacedPhotoIDs,
+            TrayView(unplacedPhotos: editor.unplacedPhotos,
                      imageStore: imageStore,
                      hasSelectedSlot: editor.selectedSlotID != nil,
                      onTapPhoto: { editor.assignFromTray($0) })
@@ -180,9 +309,9 @@ public struct BookBrowserView: View {
     private func sidebarRow(index: Int, page: Page) -> some View {
         HStack(spacing: 10) {
             pageThumbnail(page)
-                .frame(height: 56)
-                .clipShape(RoundedRectangle(cornerRadius: 3))
-                .overlay(RoundedRectangle(cornerRadius: 3).stroke(.separator, lineWidth: 0.5))
+                .frame(height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 5))
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.separator, lineWidth: 0.5))
                 .overlay(alignment: .topLeading) {
                     if page.isLocked {
                         Image(systemName: "lock.fill")
@@ -229,7 +358,7 @@ public struct BookBrowserView: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 5)
         .contextMenu {
             Button(page.isLocked ? "Unlock Page" : "Lock Page",
                    systemImage: page.isLocked ? "lock.open" : "lock") {
@@ -260,30 +389,32 @@ public struct BookBrowserView: View {
                     + (isCoverSpread ? [book.backCover].compactMap { $0 } : [])
                 missingBanner(pages: bannerPages)
                 if isCoverSpread, let coverIdx = spread.right {
-                    CoverSheetView(backPage: book.backCover, title: book.title,
-                                   book: book, preset: editor.preset, imageStore: imageStore) {
-                        editablePage(at: coverIdx)
+                    zoomableCanvas(pageCount: 2,
+                                   extraWidthInches: editor.preset.spineBase
+                                     + editor.preset.spinePerPage * Double(standardPages.count)) {
+                        CoverSheetView(backPage: book.backCover, title: book.title,
+                                       book: book, preset: editor.preset, imageStore: imageStore) {
+                            editablePage(at: coverIdx)
+                        }
                     }
-                    .padding(24)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     // A first-class spread row renders its two member pages flush at
                     // the gutter (spacing: 0) so a panorama reads continuously across
                     // the seam. Normal facing pairs keep the standard gap (spacing: 8).
                     let isSpreadRow: Bool = spread.left.map { book.pages[$0].spreadID != nil } ?? false
-                    HStack(spacing: isSpreadRow ? 0 : 8) {
-                        editablePage(at: spread.left)
-                        editablePage(at: spread.right)
-                    }
-                    .padding(24)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .overlay {
-                        if spreadSeparatorVisible(left: spread.left, right: spread.right) {
-                            Rectangle()
-                                .fill(Color.primary.opacity(0.3))
-                                .frame(width: 1)
-                                .allowsHitTesting(false)
-                                .accessibilityIdentifier("spread-separator")
+                    zoomableCanvas(pageCount: 2) {
+                        HStack(spacing: isSpreadRow ? 0 : 8) {
+                            editablePage(at: spread.left)
+                            editablePage(at: spread.right)
+                        }
+                        .overlay {
+                            if spreadSeparatorVisible(left: spread.left, right: spread.right) {
+                                Rectangle()
+                                    .fill(Color.primary.opacity(0.3))
+                                    .frame(width: 1)
+                                    .allowsHitTesting(false)
+                                    .accessibilityIdentifier("spread-separator")
+                            }
                         }
                     }
                 }
@@ -305,8 +436,14 @@ public struct BookBrowserView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .background(Color(white: 0.93))
-        .modifier(PhotoActionsInlineOverlay(editor: editor))
+        .background {
+            EditorCanvasBackground(mode: canvasBackgroundMode,
+                                   customColor: Color(hex: canvasBackgroundHex))
+                .ignoresSafeArea()
+        }
+        .modifier(PhotoActionsInlineOverlay(editor: editor,
+                                            slotIsLocked: editor.selectedSlotIsLocked,
+                                            pageIsLocked: editor.selectedPageIsLocked))
         .modifier(TextActionsInlineOverlay(editor: editor))
         .snackbar(editor.isReplacing
             ? SnackbarConfig(message: "Select a photo to swap in",
@@ -330,6 +467,10 @@ public struct BookBrowserView: View {
             .accessibilityHidden(true)
         }
         .focusable()
+        // The detail must remain focusable for Return/Delete shortcuts, but a
+        // macOS resize can promote it to key focus and draw a giant blue ring
+        // around the entire canvas. Selection chrome belongs on slots only.
+        .focusEffectDisabled()
         .onKeyPress(.return) {
             if let slotID = editor.selectedTextSlotID {
                 editor.beginTextEditing(slotID)
@@ -345,6 +486,15 @@ public struct BookBrowserView: View {
             return .ignored
         }
         #endif
+    }
+
+    private func zoomableCanvas<Content: View>(pageCount: Int, extraWidthInches: Double = 0,
+                                                @ViewBuilder content: @escaping () -> Content) -> some View {
+        ZoomableEditorCanvas(mode: $zoomMode,
+                             trimSize: editor.preset.trimSize,
+                             pageCount: pageCount,
+                             extraWidthInches: extraWidthInches,
+                             content: content)
     }
 
     @ViewBuilder
@@ -365,6 +515,261 @@ public struct BookBrowserView: View {
 
     @ToolbarContentBuilder
     private var editingToolbar: some ToolbarContent {
+        ToolbarItemGroup {
+            Menu {
+                Button {
+                    editor.tryAnotherSelectedLayout()
+                } label: {
+                    Label("Try Another Layout", systemImage: "arrow.triangle.2.circlepath")
+                }
+                .disabled(!editor.canTryAnotherSelectedLayout)
+                .accessibilityIdentifier("toolbar-reshuffle-page")
+
+                Button {
+                    editor.toggleSelectedPageLock()
+                } label: {
+                    Label(editor.selectedPageIsLocked ? "Unlock Page" : "Lock Page",
+                          systemImage: editor.selectedPageIsLocked ? "lock.open" : "lock")
+                }
+                .disabled(editor.selectedPageID == nil)
+                .accessibilityIdentifier("toolbar-lock-page")
+
+                Divider()
+                Button("Merge Facing Pages", systemImage: "rectangle.split.2x1") {
+                    editor.convertSelectedSpread()
+                }
+                .disabled(!editor.canConvertSelectedToSpread)
+                .accessibilityIdentifier("spread-merge")
+
+                Button("Split Spread", systemImage: "rectangle.split.2x1.slash") {
+                    editor.revertSelectedSpread()
+                }
+                .disabled(!editor.canRevertSelectedSpread)
+                .accessibilityIdentifier("spread-split")
+
+                Divider()
+                Button("Add One Photo", systemImage: "plus.rectangle") {
+                    editor.increaseSelectedPageDensity()
+                }
+                .disabled(!editor.canIncreaseSelectedPageDensity)
+                .accessibilityIdentifier("density-increase")
+
+                Button("Remove One Photo", systemImage: "minus.rectangle") {
+                    editor.decreaseSelectedPageDensity()
+                }
+                .disabled(!editor.canDecreaseSelectedPageDensity)
+                .accessibilityIdentifier("density-decrease")
+
+                Divider()
+                Picker("Photo Edges", selection: Binding(
+                    get: { editor.selectedPageEdgeStyle },
+                    set: { editor.setSelectedPageEdgeStyle($0) }
+                )) {
+                    Text("Framed").tag(EdgeStyle.framed)
+                    Text("Tiled").tag(EdgeStyle.tiled)
+                    Text("Borderless").tag(EdgeStyle.borderless)
+                }
+                .accessibilityIdentifier("toolbar-edge-style-page")
+
+                ColorPicker("Page Background", selection: Binding(
+                    get: { Color(hex: editor.selectedPageEffectiveBackgroundHex) },
+                    set: { editor.setSelectedPageBackground($0.rgbHexString) }
+                ), supportsOpacity: false)
+                .disabled(editor.selectedPageID == nil)
+                .accessibilityIdentifier("page-bg-color")
+
+                Button("Reset Page Style", systemImage: "arrow.uturn.backward") {
+                    editor.resetSelectedPageToDefault()
+                }
+                .disabled(editor.selectedPageID == nil)
+            } label: {
+                Label("Page", systemImage: "doc")
+            }
+            .help("Layout and appearance for the selected page")
+
+            Menu {
+                Button("Add Text", systemImage: "textbox") {
+                    editor.addTextSlotToSelectedPage()
+                }
+                .disabled(!editor.canAddTextToSelectedPage)
+                .accessibilityIdentifier("toolbar-add-text")
+
+                Button("Place Remaining Photos", systemImage: "rectangle.stack.badge.plus") {
+                    editor.placeRemaining()
+                }
+                .disabled(editor.unplacedPhotoIDs.isEmpty)
+                .accessibilityIdentifier("toolbar-place-remaining")
+            } label: {
+                Label("Add", systemImage: "plus")
+            }
+            .help("Add content to the book")
+
+            Menu {
+                Button("Rebuild Unlocked Pages", systemImage: "shuffle") {
+                    editor.reshuffleBook()
+                }
+                .accessibilityIdentifier("toolbar-reshuffle-book")
+
+                Divider()
+                ColorPicker("Book Background", selection: Binding(
+                    get: { Color(hex: editor.bookBackgroundHex) },
+                    set: { editor.setBookBackground($0.rgbHexString) }
+                ), supportsOpacity: false)
+                .accessibilityIdentifier("book-bg-color")
+
+                Picker("Default Photo Edges", selection: Binding(
+                    get: { editor.bookEdgeStyle },
+                    set: { editor.setBookEdgeStyle($0) }
+                )) {
+                    Text("Framed").tag(EdgeStyle.framed)
+                    Text("Tiled").tag(EdgeStyle.tiled)
+                    Text("Borderless").tag(EdgeStyle.borderless)
+                }
+                .accessibilityIdentifier("toolbar-edge-style-book")
+
+                Divider()
+                Button("Book Size and Format…", systemImage: "aspectratio") {
+                    showPresetPicker = true
+                }
+                .accessibilityIdentifier("toolbar-book-format")
+            } label: {
+                Label("Book", systemImage: "book.closed")
+            }
+            .help("Settings that affect the whole book")
+
+            Button {
+                showTray.toggle()
+            } label: {
+                Label("Photos", systemImage: showTray ? "tray.full.fill" : "tray.full")
+            }
+            .help(showTray ? "Hide unplaced photos" : "Show unplaced photos")
+            .accessibilityIdentifier("tray-toggle")
+
+            Menu {
+                canvasBackgroundChoice("White", systemImage: "square.fill", mode: "white")
+                canvasBackgroundChoice("Black", systemImage: "square.fill", mode: "black")
+                canvasBackgroundChoice("Transparent", systemImage: "square.grid.3x3.square", mode: "clear")
+                Divider()
+                Button("Custom Color…", systemImage: "paintpalette") {
+                    showCanvasColorPicker = true
+                }
+            } label: {
+                Label("Canvas", systemImage: canvasBackgroundMode == "clear"
+                      ? "square.grid.3x3.square" : "circle.lefthalf.filled")
+            }
+            .help("Change the workspace color behind the book")
+            .accessibilityIdentifier("canvas-background-menu")
+            .popover(isPresented: $showCanvasColorPicker, arrowEdge: .bottom) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Canvas Color")
+                        .font(.headline)
+                    Text("This changes only the workspace behind the book.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    ColorPicker("Custom color", selection: Binding(
+                        get: { Color(hex: canvasBackgroundHex) },
+                        set: { color in
+                            canvasBackgroundHex = color.rgbHexString
+                            canvasBackgroundMode = "custom"
+                        }
+                    ), supportsOpacity: false)
+                    .accessibilityIdentifier("canvas-custom-color-picker")
+                    HStack {
+                        Spacer()
+                        Button("Done") { showCanvasColorPicker = false }
+                            .keyboardShortcut(.defaultAction)
+                    }
+                }
+                .padding(16)
+                .frame(width: 280)
+            }
+
+            HStack(spacing: 0) {
+                Button { zoomOut() } label: {
+                    Image(systemName: "minus")
+                }
+                .help("Zoom out")
+                .keyboardShortcut("-", modifiers: .command)
+                .accessibilityIdentifier("canvas-zoom-out")
+
+                Menu {
+                    Button("Fit Spread") { zoomMode = .fitSpread }
+                        .keyboardShortcut("0", modifiers: .command)
+                    Button("Actual Print Size") { zoomMode = .printSize }
+                    Divider()
+                    ForEach([25, 50, 75, 100, 125, 150, 200, 400], id: \.self) { percent in
+                        Button("\(percent)%") { zoomMode = .percentage(percent) }
+                    }
+                } label: {
+                    Text(zoomLabel)
+                        .monospacedDigit()
+                        .frame(minWidth: 42)
+                }
+                .help("Choose a zoom level")
+                .accessibilityIdentifier("canvas-zoom-menu")
+
+                Button { zoomIn() } label: {
+                    Image(systemName: "plus")
+                }
+                .help("Zoom in")
+                .keyboardShortcut("+", modifiers: .command)
+                .accessibilityIdentifier("canvas-zoom-in")
+            }
+        }
+
+        ToolbarItemGroup(placement: .primaryAction) {
+            Menu {
+                ForEach(ExportModel.ExportTarget.allCases, id: \.self) { target in
+                    Button(target.menuTitle) { exportModel.begin(target) }
+                }
+            } label: {
+                Label("Export", systemImage: "square.and.arrow.up")
+            }
+            .help("Export or print your finished book")
+            .accessibilityIdentifier("toolbar-export")
+        }
+    }
+
+    private func canvasBackgroundChoice(_ title: String, systemImage: String,
+                                        mode: String) -> some View {
+        Button {
+            canvasBackgroundMode = mode
+        } label: {
+            HStack {
+                Label(title, systemImage: systemImage)
+                if canvasBackgroundMode == mode {
+                    Spacer()
+                    Image(systemName: "checkmark")
+                }
+            }
+        }
+    }
+
+    private var zoomLabel: String {
+        switch zoomMode {
+        case .fitSpread: "Fit"
+        case .printSize: "Print"
+        case .percentage(let percent): "\(percent)%"
+        }
+    }
+
+    private let zoomSteps = [25, 50, 75, 100, 125, 150, 200, 400]
+
+    private func zoomIn() {
+        let current = zoomMode.percentageValue ?? 75
+        zoomMode = .percentage(zoomSteps.first(where: { $0 > current }) ?? zoomSteps.last!)
+    }
+
+    private func zoomOut() {
+        let current = zoomMode.percentageValue ?? 125
+        zoomMode = .percentage(zoomSteps.last(where: { $0 < current }) ?? zoomSteps.first!)
+    }
+
+    /// Kept as a command inventory while the editor transitions to the calmer
+    /// contextual toolbar above. These commands remain reachable through the
+    /// Page, Add, and Book menus or the inline selection cards.
+    @ToolbarContentBuilder
+    private var legacyEditingToolbar: some ToolbarContent {
         ToolbarItemGroup {
             Button {
                 editor.reshuffleSelectedPage()
@@ -710,7 +1115,7 @@ public struct BookBrowserView: View {
                                  preset: editor.preset, imageStore: imageStore)
             }
             .sheet(isPresented: $showTray) {
-                TrayView(unplacedPhotoIDs: editor.unplacedPhotoIDs,
+                TrayView(unplacedPhotos: editor.unplacedPhotos,
                          imageStore: imageStore,
                          hasSelectedSlot: editor.selectedSlotID != nil,
                          onTapPhoto: { editor.assignFromTray($0) })
@@ -819,6 +1224,8 @@ struct ZoomablePageView: View {
 /// again toggles it off.
 private struct PhotoActionsInlineOverlay: ViewModifier {
     let editor: BookEditorModel
+    let slotIsLocked: Bool
+    let pageIsLocked: Bool
 
     func body(content: Content) -> some View {
         content.overlayPreferenceValue(SelectedSlotBoundsKey.self) { anchor in
@@ -828,7 +1235,9 @@ private struct PhotoActionsInlineOverlay: ViewModifier {
                     let gap: CGFloat = 44
                     let placeAbove = rect.minY > 72
                     let centerY = placeAbove ? rect.minY - gap : rect.maxY + gap
-                    PhotoActionsPopover(editor: editor)
+                    PhotoActionsPopover(editor: editor,
+                                        slotIsLocked: slotIsLocked,
+                                        pageIsLocked: pageIsLocked)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
                         .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(.quaternary))
                         .shadow(radius: 8, y: 2)

@@ -22,6 +22,7 @@ struct CropEditorView: View {
     @State private var dragTranslation: CGSize = .zero
     @State private var magnification: Double = 1
     @State private var editorSize: CGSize = CGSize(width: 300, height: 300)
+    @State private var isQuickZoomed = false
 
     init(context: CropEditorContext, imageStore: any ImageStore) {
         self.context = context
@@ -51,7 +52,7 @@ struct CropEditorView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            Text("Drag to pan. Pinch or use + / − to zoom.")
+            Text("Drag to position. Double-click to zoom in or out; pinch or use + / − for finer control.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             GeometryReader { proxy in
@@ -64,6 +65,9 @@ struct CropEditorView: View {
                     }
                 }
                 .contentShape(Rectangle())
+                .onTapGesture(count: 2, coordinateSpace: .local) { location in
+                    toggleQuickZoom(at: location, viewSize: proxy.size)
+                }
                 .gesture(SimultaneousGesture(
                     DragGesture()
                         .onChanged { dragTranslation = $0.translation }
@@ -115,5 +119,29 @@ struct CropEditorView: View {
         .task {
             image = try? await imageStore.thumbnail(for: context.photoID, maxPixelSize: 2048)
         }
+    }
+
+    private func toggleQuickZoom(at location: CGPoint, viewSize: CGSize) {
+        bakeGesture(viewSize: viewSize)
+        if isQuickZoomed {
+            baseCrop = adjustedCrop(base: .full, translation: .zero, zoomDelta: 1,
+                                    photoAspect: context.photoAspect,
+                                    slotAspect: context.slotAspect, viewSize: viewSize)
+            isQuickZoomed = false
+            return
+        }
+
+        let unitX = min(1, max(0, location.x / max(1, viewSize.width)))
+        let unitY = min(1, max(0, location.y / max(1, viewSize.height)))
+        let newWidth = baseCrop.width / 2
+        let newHeight = baseCrop.height / 2
+        let centerX = baseCrop.x + baseCrop.width * unitX
+        let centerY = baseCrop.y + baseCrop.height * unitY
+        baseCrop = NormRect(
+            x: min(1 - newWidth, max(0, centerX - newWidth / 2)),
+            y: min(1 - newHeight, max(0, centerY - newHeight / 2)),
+            width: newWidth,
+            height: newHeight)
+        isQuickZoomed = true
     }
 }

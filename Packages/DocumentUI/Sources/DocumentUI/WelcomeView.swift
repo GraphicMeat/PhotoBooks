@@ -2,13 +2,14 @@ import ModelLayer
 import PhotoBookCore
 import SwiftUI
 import UniformTypeIdentifiers
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 
-/// First screen of an empty document window: a clear chooser between starting
-/// a new book and opening an existing `.photobook`. "Create" hands control to
-/// the existing setup flow via `onCreate`. The "Open Existing Project…"
-/// affordance is macOS-only — programmatic document opening
-/// (`@Environment(\.openDocument)`) is unavailable on iOS, where the system
-/// `DocumentGroup` file browser is the entry point for opening saved books.
+/// Editorial home for an empty document. The primary action starts the guided
+/// creation flow; opening an existing project stays deliberately secondary.
 struct WelcomeView: View {
     let onCreate: () -> Void
 
@@ -19,58 +20,159 @@ struct WelcomeView: View {
     #endif
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 6) {
-                Text("Create a Photo Book")
-                    .font(.largeTitle.bold())
-                Text("Where are your photos?")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-            }
-
-            Button(action: onCreate) {
-                Label("Choose Photos…", systemImage: "photo.on.rectangle.angled")
-                    .font(.title3)
-                    .frame(maxWidth: 320)
-                    .padding(.vertical, 6)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .help("Start a new book from photos in your library or a folder")
-            .accessibilityIdentifier("welcome-create")
-
+        ZStack {
+            Color.primary.opacity(0.035).ignoresSafeArea()
             #if os(macOS)
-            Button {
-                showOpenImporter = true
-            } label: {
-                Label("Open Existing Project…", systemImage: "folder")
-                    .font(.title3)
-                    .frame(maxWidth: 320)
-                    .padding(.vertical, 6)
+            HStack(spacing: 64) {
+                heroCopy
+                    .frame(maxWidth: 430, alignment: .leading)
+                bookPreview
+                    .frame(width: 400, height: 320)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-            .help("Open a saved PhotoBooks project")
-            .accessibilityIdentifier("welcome-open")
-
-            if let errorMessage {
-                Text(errorMessage).font(.callout).foregroundStyle(.red)
+            .padding(56)
+            .frame(maxWidth: 980)
+            #else
+            ScrollView {
+                VStack(spacing: 28) {
+                    bookPreview
+                        .frame(maxWidth: 360)
+                        .frame(height: 260)
+                    heroCopy
+                        .frame(maxWidth: 430, alignment: .leading)
+                }
+                .padding(28)
             }
             #endif
         }
-        .padding(40)
-        .frame(minWidth: 480, minHeight: 420)
+        #if os(macOS)
+        .frame(minWidth: 680, minHeight: 520)
+        #endif
         #if os(macOS)
         .fileImporter(isPresented: $showOpenImporter,
                       allowedContentTypes: [.photoBook]) { result in
             switch result {
-            case .success(let url):
-                openProject(at: url)
-            case .failure(let error):
-                errorMessage = error.localizedDescription
+            case .success(let url): openProject(at: url)
+            case .failure(let error): errorMessage = error.localizedDescription
             }
         }
         #endif
+    }
+
+    private var heroCopy: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            Text("PHOTOBOOKS")
+                .font(.caption.weight(.semibold))
+                .tracking(2.4)
+                .foregroundStyle(.secondary)
+            Text("Turn your photos\ninto a book.")
+                .font(.system(size: 46, weight: .bold, design: .rounded))
+                .tracking(-1.2)
+            Text("Choose the moments you love. We’ll arrange them into a polished book you can refine and print.")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(alignment: .leading, spacing: 12) {
+                Button(action: onCreate) {
+                    HStack {
+                        Label("Create a new book", systemImage: "plus")
+                        Spacer()
+                        Image(systemName: "arrow.right")
+                    }
+                    .font(.headline)
+                    .padding(.horizontal, 4)
+                    .frame(maxWidth: 340)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .focusEffectDisabled()
+                .accessibilityIdentifier("welcome-create")
+
+                #if os(macOS)
+                Button {
+                    showOpenImporter = true
+                } label: {
+                    Label("Open an existing book", systemImage: "folder")
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("welcome-open")
+
+                if let errorMessage {
+                    Text(errorMessage).font(.callout).foregroundStyle(.red)
+                }
+                #endif
+            }
+
+            Link(destination: URL(string: "https://graphicmeat.com")!) {
+                HStack(spacing: 10) {
+                    graphicMeatLogo
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Made by Graphic Meat")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.primary)
+                        Text("graphicmeat.com")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help("Visit graphicmeat.com")
+            .accessibilityLabel("Visit Graphic Meat website")
+        }
+    }
+
+    private var graphicMeatLogo: Image {
+        guard let url = Bundle.module.url(forResource: "GraphicMeatLogo", withExtension: "png") else {
+            return Image(systemName: "globe")
+        }
+        #if os(macOS)
+        guard let image = NSImage(contentsOf: url) else { return Image(systemName: "globe") }
+        return Image(nsImage: image)
+        #else
+        guard let image = UIImage(contentsOfFile: url.path) else { return Image(systemName: "globe") }
+        return Image(uiImage: image)
+        #endif
+    }
+
+    private var bookPreview: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28)
+                .fill(Color.accentColor.opacity(0.10))
+                .frame(width: 330, height: 260)
+                .rotationEffect(.degrees(5))
+            HStack(spacing: 3) {
+                previewPage(alignment: .trailing)
+                previewPage(alignment: .leading)
+            }
+            .padding(14)
+            .background(.background, in: RoundedRectangle(cornerRadius: 8))
+            .shadow(color: .black.opacity(0.16), radius: 22, y: 12)
+            .rotationEffect(.degrees(-3))
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func previewPage(alignment: Alignment) -> some View {
+        VStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(LinearGradient(colors: [Color.accentColor.opacity(0.8),
+                                              Color.orange.opacity(0.55)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+            HStack(spacing: 6) {
+                RoundedRectangle(cornerRadius: 2).fill(Color.secondary.opacity(0.18))
+                RoundedRectangle(cornerRadius: 2).fill(Color.secondary.opacity(0.28))
+            }
+            .frame(height: 62)
+        }
+        .frame(width: 150, height: 210, alignment: alignment)
     }
 
     #if os(macOS)
@@ -79,11 +181,8 @@ struct WelcomeView: View {
         let scoped = url.startAccessingSecurityScopedResource()
         Task {
             defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-            do {
-                try await openDocument(at: url)
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+            do { try await openDocument(at: url) }
+            catch { errorMessage = error.localizedDescription }
         }
     }
     #endif

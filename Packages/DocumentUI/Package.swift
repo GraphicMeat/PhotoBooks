@@ -17,7 +17,8 @@ let package = Package(
     targets: [
         .target(
             name: "DocumentUI",
-            dependencies: ["ModelLayer", "EditorFeature", "SetupFeature", "ExportFeature", "AppSupport"]
+            dependencies: ["ModelLayer", "EditorFeature", "SetupFeature", "ExportFeature", "AppSupport"],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "DocumentUITests",
