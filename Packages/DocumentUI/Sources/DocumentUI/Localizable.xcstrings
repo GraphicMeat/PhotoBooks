@@ -1,5 +1,86 @@
 {
   "sourceLanguage" : "en",
-  "strings" : { },
+  "strings" : {
+    "Choose the moments you love. We’ll arrange them into a polished book you can refine and print." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the moments you love. We’ll arrange them into a polished book you can refine and print."
+          }
+        }
+      }
+    },
+    "Create a new book" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a new book"
+          }
+        }
+      }
+    },
+    "Made by Graphic Meat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Made by Graphic Meat"
+          }
+        }
+      }
+    },
+    "Open an existing book" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open an existing book"
+          }
+        }
+      }
+    },
+    "PHOTOBOOKS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PHOTOBOOKS"
+          }
+        }
+      }
+    },
+    "Turn your photos\ninto a book." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn your photos\ninto a book."
+          }
+        }
+      }
+    },
+    "Visit Graphic Meat website" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visit Graphic Meat website"
+          }
+        }
+      }
+    },
+    "Visit graphicmeat.com" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visit graphicmeat.com"
+          }
+        }
+      }
+    }
+  },
   "version" : "1.0"
 }
