@@ -1,5 +1,7 @@
 # PhotoBooks
 
+![PhotoBooks editor](docs/app-workspace.webp)
+
 Native Apple-ecosystem photobook app (iOS 18+ / macOS 15+, SwiftUI). Imports photos
 from Apple Photos or the filesystem, auto-arranges them into album page layouts with
 a hybrid layout engine (templates + generative partitioning, unified by a scorer),
