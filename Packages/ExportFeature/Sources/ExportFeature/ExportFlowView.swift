@@ -60,10 +60,10 @@ public struct ExportFlowView: View {
 
     private var preflightStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Preflight — \(model.target.menuTitle.replacingOccurrences(of: "…", with: ""))")
+            Text("Preflight — \(model.target.menuTitle.replacingOccurrences(of: "…", with: ""))", bundle: .module)
                 .font(.headline)
             if model.issues.isEmpty {
-                Label("No issues found. Ready to export.", systemImage: "checkmark.circle.fill")
+                Label(String(localized: "No issues found. Ready to export.", bundle: .module), systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
@@ -74,13 +74,13 @@ public struct ExportFlowView: View {
                 .accessibilityIdentifier("preflight-list")
             }
             HStack {
-                Button("Cancel") { model.dismissFlow() }
+                Button(String(localized: "Cancel", bundle: .module)) { model.dismissFlow() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
-                Button("Continue") { model.continueFromPreflight() }
+                Button(String(localized: "Continue", bundle: .module)) { model.continueFromPreflight() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(model.summary.hasBlockingIssues)
-                    .help("Proceed to choose where to export")
+                    .help(Text("Proceed to choose where to export", bundle: .module))
                     .accessibilityIdentifier("preflight-continue")
             }
         }
@@ -95,23 +95,23 @@ public struct ExportFlowView: View {
                 Text(PreflightSummary.message(for: issue))
                     .fixedSize(horizontal: false, vertical: true)
                 if case .pageCountOutOfRange(let actual, let min, _) = issue.kind, actual < min {
-                    Button("Add \(min - actual) blank pages") {
+                    Button(String(localized: "Add \(min - actual) blank pages", bundle: .module)) {
                         editor.padToMinimumPages()
                         model.begin(model.target)        // re-run preflight on the padded book
                     }
                     .font(.caption)
-                    .help("Append blank pages to meet the minimum page count")
+                    .help(Text("Append blank pages to meet the minimum page count", bundle: .module))
                 }
             }
             Spacer()
             if let pageIndex = issue.pageIndex, model.book.pages.indices.contains(pageIndex) {
-                Button("Page \(pageIndex)") {
+                Button(String(localized: "Page \(pageIndex)", bundle: .module)) {
                     editor.selectPage(model.book.pages[pageIndex].id)
                     model.dismissFlow()              // jump: close the sheet, select in browser
                 }
                 .buttonStyle(.borderless)
                 .foregroundStyle(.tint)
-                .help("Jump to this page in the editor")
+                .help(Text("Jump to this page in the editor", bundle: .module))
             }
         }
         .padding(.vertical, 2)
@@ -125,25 +125,25 @@ public struct ExportFlowView: View {
                 .font(.headline)
             switch model.target {
             case .blurb:
-                Text("Blurb needs two files. Pick a folder; PhotoBooks writes \u{201C}\(ExportFilenames.interior(title: model.book.title))\u{201D} and \u{201C}\(ExportFilenames.cover(title: model.book.title))\u{201D} into it.")
+                Text("Blurb needs two files. Pick a folder; PhotoBooks writes \u{201C}\(ExportFilenames.interior(title: model.book.title))\u{201D} and \u{201C}\(ExportFilenames.cover(title: model.book.title))\u{201D} into it.", bundle: .module)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                Button("Choose Folder…") { showFolderPicker = true }
+                Button(String(localized: "Choose Folder…", bundle: .module)) { showFolderPicker = true }
                     .buttonStyle(.borderedProminent)
-                    .help("Pick the folder PhotoBooks writes the two Blurb files into")
+                    .help(Text("Pick the folder PhotoBooks writes the two Blurb files into", bundle: .module))
                     .accessibilityIdentifier("export-choose-folder")
             case .genericPrint, .digital:
                 Text(model.target == .digital
-                     ? "A screen-resolution PDF for sharing and on-device viewing."
-                     : "A print-ready PDF with bleed for generic print services.")
+                     ? String(localized: "A screen-resolution PDF for sharing and on-device viewing.", bundle: .module)
+                     : String(localized: "A print-ready PDF with bleed for generic print services.", bundle: .module))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                Button("Export…") { model.exportSingleFileToTemporary() }
+                Button(String(localized: "Export…", bundle: .module)) { model.exportSingleFileToTemporary() }
                     .buttonStyle(.borderedProminent)
-                    .help("Render the book and save the PDF")
+                    .help(Text("Render the book and save the PDF", bundle: .module))
                     .accessibilityIdentifier("export-single-file")
             }
-            Button("Cancel") { model.dismissFlow() }
+            Button(String(localized: "Cancel", bundle: .module)) { model.dismissFlow() }
                 .keyboardShortcut(.cancelAction)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -154,12 +154,12 @@ public struct ExportFlowView: View {
     private func progressStep(_ value: Double) -> some View {
         VStack(spacing: 16) {
             ProgressView(value: value) {
-                Text(value < 0.5 ? "Fetching photos…" : "Rendering pages…")
+                Text(value < 0.5 ? String(localized: "Fetching photos…", bundle: .module) : String(localized: "Rendering pages…", bundle: .module))
             }
             .progressViewStyle(.linear)
             .accessibilityIdentifier("export-progress")
-            Button("Cancel") { model.cancelExport() }
-                .help("Stop the export in progress")
+            Button(String(localized: "Cancel", bundle: .module)) { model.cancelExport() }
+                .help(Text("Stop the export in progress", bundle: .module))
                 .accessibilityIdentifier("export-cancel")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -170,18 +170,18 @@ public struct ExportFlowView: View {
 
     private func failureStep(message: String, retryIDs: [PhotoID]) -> some View {
         VStack(spacing: 16) {
-            Label("Export failed", systemImage: "exclamationmark.octagon.fill")
+            Label(String(localized: "Export failed", bundle: .module), systemImage: "exclamationmark.octagon.fill")
                 .font(.headline)
                 .foregroundStyle(.red)
             Text(message)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
             HStack {
-                Button("Close") { model.dismissFlow() }
-                Button(retryIDs.isEmpty ? "Try Again" : "Retry Failed Photos") { model.retry() }
+                Button(String(localized: "Close", bundle: .module)) { model.dismissFlow() }
+                Button(retryIDs.isEmpty ? String(localized: "Try Again", bundle: .module) : String(localized: "Retry Failed Photos", bundle: .module)) { model.retry() }
                     .buttonStyle(.borderedProminent)
-                    .help(retryIDs.isEmpty ? "Run the export again"
-                                           : "Re-render only the photos that failed")
+                    .help(retryIDs.isEmpty ? Text("Run the export again", bundle: .module)
+                                           : Text("Re-render only the photos that failed", bundle: .module))
                     .accessibilityIdentifier("export-retry")
             }
         }
@@ -190,7 +190,7 @@ public struct ExportFlowView: View {
 
     private func finishedStep(_ urls: [URL]) -> some View {
         VStack(spacing: 16) {
-            Label("Export complete", systemImage: "checkmark.circle.fill")
+            Label(String(localized: "Export complete", bundle: .module), systemImage: "checkmark.circle.fill")
                 .font(.headline)
                 .foregroundStyle(.green)
             ForEach(urls, id: \.absoluteString) { url in
@@ -198,18 +198,18 @@ public struct ExportFlowView: View {
                     .font(.callout.monospaced())
             }
             HStack {
-                Button("Done") { model.dismissFlow() }
+                Button(String(localized: "Done", bundle: .module)) { model.dismissFlow() }
                     .keyboardShortcut(.defaultAction)
                 #if os(macOS)
-                Button("Reveal in Finder") {
+                Button(String(localized: "Reveal in Finder", bundle: .module)) {
                     NSWorkspace.shared.activateFileViewerSelecting(urls)
                 }
-                .help("Show the exported files in Finder")
+                .help(Text("Show the exported files in Finder", bundle: .module))
                 .accessibilityIdentifier("export-reveal")
                 #else
                 if !urls.isEmpty {
                     ShareLink(items: urls) {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
                     }
                 }
                 #endif
@@ -237,7 +237,7 @@ public struct ExportCommands: Commands {
         CommandGroup(after: .saveItem) {
             Divider()
             ForEach(ExportModel.ExportTarget.allCases, id: \.self) { target in
-                Button("Export \(target.menuTitle)") {
+                Button(String(localized: "Export \(target.menuTitle)", bundle: .module)) {
                     exportModel?.begin(target)
                 }
                 .disabled(exportModel == nil)
