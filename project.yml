@@ -127,7 +127,13 @@ targets:
     templates: [AppBase]
     supportedDestinations: [iOS, macOS]
     sources:
-      - App
+      # Exclude the Direct flavor's Info plist: xcodegen only auto-excludes this
+      # target's own info.path, so the sibling plist would otherwise be copied
+      # into Contents/Resources verbatim (unexpanded $(PRODUCT_BUNDLE_IDENTIFIER))
+      # and App Store Connect rejects it as a broken nested bundle (90280/90261/90277).
+      - path: App
+        excludes:
+          - Info-Direct.plist
     settings:
       base:
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -169,6 +175,8 @@ targets:
       - path: App
         excludes:
           - Icon.icon
+          # Sibling App Store Info plist — same stray-resource hazard as above.
+          - Info.plist
     dependencies:
       - package: Sparkle
     settings:
