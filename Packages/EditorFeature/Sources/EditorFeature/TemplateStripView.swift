@@ -14,7 +14,7 @@ struct TemplateStripView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Label("Layouts for this page", systemImage: "rectangle.3.group")
+            Label(String(localized: "Layouts for this page", bundle: .module), systemImage: "rectangle.3.group")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 12)
@@ -23,7 +23,7 @@ struct TemplateStripView: View {
                 HStack(alignment: .top, spacing: 18) {
                 ForEach(groups, id: \.count) { group in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("\(group.count) photo\(group.count == 1 ? "" : "s")")
+                        Text("\(group.count) photos", bundle: .module)
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.secondary)
                         HStack(spacing: 10) {
@@ -36,7 +36,7 @@ struct TemplateStripView: View {
                                         .frame(height: 60)
                                 }
                                 .buttonStyle(.plain)
-                                .help("Use \(group.count)-photo layout \(index + 1)")
+                                .help(Text("Use \(group.count)-photo layout \(index + 1)", bundle: .module))
                                 .accessibilityIdentifier("template-strip-\(group.count)-\(index)")
                             }
                         }
@@ -63,7 +63,7 @@ struct SpreadTemplateStripView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Label("Layouts for this spread", systemImage: "rectangle.split.2x1")
+            Label(String(localized: "Layouts for this spread", bundle: .module), systemImage: "rectangle.split.2x1")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 12)
@@ -80,7 +80,7 @@ struct SpreadTemplateStripView: View {
                             .frame(height: 60)
                     }
                     .buttonStyle(.plain)
-                    .help("Use spread layout \(index + 1)")
+                    .help(Text("Use spread layout \(index + 1)", bundle: .module))
                     .accessibilityIdentifier("spread-template-strip-\(template.id)")
                 }
             }

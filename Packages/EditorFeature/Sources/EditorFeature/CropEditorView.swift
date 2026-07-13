@@ -52,7 +52,7 @@ struct CropEditorView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            Text("Drag to position. Double-click to zoom in or out; pinch or use + / − for finer control.")
+            Text("Drag to position. Double-click to zoom in or out; pinch or use + / − for finer control.", bundle: .module)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             GeometryReader { proxy in
@@ -90,7 +90,7 @@ struct CropEditorView: View {
                 } label: {
                     Image(systemName: "minus.magnifyingglass")
                 }
-                .help("Zoom out")
+                .help(Text("Zoom out", bundle: .module))
                 .accessibilityIdentifier("crop-editor-zoom-out")
                 Button {
                     baseCrop = adjustedCrop(base: baseCrop, translation: .zero, zoomDelta: 1.25,
@@ -99,19 +99,19 @@ struct CropEditorView: View {
                 } label: {
                     Image(systemName: "plus.magnifyingglass")
                 }
-                .help("Zoom in")
+                .help(Text("Zoom in", bundle: .module))
                 .accessibilityIdentifier("crop-editor-zoom-in")
                 Spacer()
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityIdentifier("crop-editor-cancel")
-                Button("Done") {
+                Button(String(localized: "Done", bundle: .module)) {
                     bakeGesture(viewSize: editorSize)
                     editor.commitCrop(slotID: context.slotID, crop: baseCrop)
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
-                .help("Apply this crop and lock the frame")
+                .help(Text("Apply this crop and lock the frame", bundle: .module))
                 .accessibilityIdentifier("crop-editor-done")
             }
         }

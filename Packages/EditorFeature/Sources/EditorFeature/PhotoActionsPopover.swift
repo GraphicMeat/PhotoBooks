@@ -9,57 +9,57 @@ struct PhotoActionsPopover: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            button("Adjust photo", systemImage: "crop",
-                   help: "Zoom and position this photo (or double-click the photo)",
+            button(String(localized: "Adjust photo", bundle: .module), systemImage: "crop",
+                   help: String(localized: "Zoom and position this photo (or double-click the photo)", bundle: .module),
                    id: "photo-action-crop") {
                 editor.beginCropEditingSelectedPhoto()
             }
-            button("Replace", systemImage: "arrow.triangle.2.circlepath",
-                   help: "Replace this photo — then tap another photo or a tray photo to swap it in",
+            button(String(localized: "Replace", bundle: .module), systemImage: "arrow.triangle.2.circlepath",
+                   help: String(localized: "Replace this photo — then tap another photo or a tray photo to swap it in", bundle: .module),
                    id: "photo-action-replace") {
                 editor.beginReplaceSelectedPhoto()
             }
-            button("More", systemImage: "plus.rectangle",
-                   help: "Add a photo to this page (pulled from the next page)",
+            button(String(localized: "More", bundle: .module), systemImage: "plus.rectangle",
+                   help: String(localized: "Add a photo to this page (pulled from the next page)", bundle: .module),
                    id: "photo-action-bigger",
                    disabled: !editor.canIncreaseSelectedPageDensity) {
                 editor.increaseSelectedPageDensity()
             }
-            button("Fewer", systemImage: "minus.rectangle",
-                   help: "Remove a photo from this page (moved to the next page)",
+            button(String(localized: "Fewer", bundle: .module), systemImage: "minus.rectangle",
+                   help: String(localized: "Remove a photo from this page (moved to the next page)", bundle: .module),
                    id: "photo-action-smaller",
                    disabled: !editor.canDecreaseSelectedPageDensity) {
                 editor.decreaseSelectedPageDensity()
             }
-            button("Make key", systemImage: "star",
-                   help: "Emphasize this photo — shrink surrounding photos so it stands out",
+            button(String(localized: "Make key", bundle: .module), systemImage: "star",
+                   help: String(localized: "Emphasize this photo — shrink surrounding photos so it stands out", bundle: .module),
                    id: "photo-action-key",
                    disabled: !editor.selectedPhotoCanGrow || slotIsLocked) {
                 editor.makeSelectedPhotoKey()
             }
-            button("Reset to auto layout", systemImage: "arrow.uturn.backward",
-                   help: "Return this photo to automatic placement on its page",
+            button(String(localized: "Reset to auto layout", bundle: .module), systemImage: "arrow.uturn.backward",
+                   help: String(localized: "Return this photo to automatic placement on its page", bundle: .module),
                    id: "photo-action-reset",
                    disabled: !slotIsLocked) {
                 editor.resetSelectedPhotoToAutoLayout()
             }
             Divider().frame(height: 20)
             // Photo lock: a plain padlock (locks just this one photo's frame).
-            button(slotIsLocked ? "Unlock photo" : "Lock photo",
+            button(slotIsLocked ? String(localized: "Unlock photo", bundle: .module) : String(localized: "Lock photo", bundle: .module),
                    systemImage: slotIsLocked ? "lock.fill" : "lock.open",
                    help: slotIsLocked
-                        ? "Photo is locked — click to unlock so reflow can move it"
-                        : "Lock just this photo so reflow leaves it in place",
+                        ? String(localized: "Photo is locked — click to unlock so reflow can move it", bundle: .module)
+                        : String(localized: "Lock just this photo so reflow leaves it in place", bundle: .module),
                    id: "photo-action-lock-slot") {
                 editor.toggleSelectedSlotLock()
             }
             // Page lock: a padlock on a document (locks the whole page) — a
             // distinct glyph so it doesn't read as a second photo lock.
-            button(pageIsLocked ? "Unlock page" : "Lock page",
+            button(pageIsLocked ? String(localized: "Unlock page", bundle: .module) : String(localized: "Lock page", bundle: .module),
                    systemImage: pageIsLocked ? "lock.doc.fill" : "lock.doc",
                    help: pageIsLocked
-                        ? "Whole page is locked — click to unlock so reflow can re-lay it"
-                        : "Lock the whole page so reflow skips every photo on it",
+                        ? String(localized: "Whole page is locked — click to unlock so reflow can re-lay it", bundle: .module)
+                        : String(localized: "Lock the whole page so reflow skips every photo on it", bundle: .module),
                    id: "photo-action-lock-page") {
                 editor.toggleSelectedPageLock()
             }

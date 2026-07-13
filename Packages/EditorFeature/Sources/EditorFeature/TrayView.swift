@@ -19,10 +19,10 @@ struct TrayView: View {
         VStack(alignment: .leading, spacing: 8) {
             VStack(alignment: .leading, spacing: 3) {
                 HStack {
-                    Label("Available Photos", systemImage: "photo.on.rectangle.angled")
+                    Label(String(localized: "Available Photos", bundle: .module), systemImage: "photo.on.rectangle.angled")
                         .font(.headline)
                     Spacer()
-                    Text("\(unplacedPhotos.count) available")
+                    Text("\(unplacedPhotos.count) available", bundle: .module)
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 7)
@@ -49,8 +49,8 @@ struct TrayView: View {
                                      value: photo.aspectRatio)
                         .buttonStyle(.plain)
                         .disabled(!hasSelectedSlot)
-                        .help(hasSelectedSlot ? "Use this photo in the selected frame"
-                                              : "Select a frame on the page first")
+                        .help(hasSelectedSlot ? Text("Use this photo in the selected frame", bundle: .module)
+                                              : Text("Select a frame on the page first", bundle: .module))
                         .accessibilityIdentifier("tray-item-\(index)")
                     }
                 }
@@ -61,9 +61,13 @@ struct TrayView: View {
     }
 
     private var hint: String {
-        if unplacedPhotos.isEmpty { return "All available photos are in the book." }
-        if hasSelectedSlot { return "Choose a photo to replace the selected image or fill its frame." }
-        return "These include photos left out of the original selection. Select a frame to use one."
+        if unplacedPhotos.isEmpty {
+            return String(localized: "All available photos are in the book.", bundle: .module)
+        }
+        if hasSelectedSlot {
+            return String(localized: "Choose a photo to replace the selected image or fill its frame.", bundle: .module)
+        }
+        return String(localized: "These include photos left out of the original selection. Select a frame to use one.", bundle: .module)
     }
 }
 

@@ -8,22 +8,22 @@ struct TextActionsPopover: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            button("Edit", systemImage: "character.cursor.ibeam",
-                   help: "Edit this caption's text and style",
+            button(String(localized: "Edit", bundle: .module), systemImage: "character.cursor.ibeam",
+                   help: String(localized: "Edit this caption's text and style", bundle: .module),
                    id: "text-action-edit") {
                 if let id = editor.selectedTextSlotID { editor.beginTextEditing(id) }
             }
-            button(editor.selectedTextSlotIsLocked ? "Unlock" : "Lock",
+            button(editor.selectedTextSlotIsLocked ? String(localized: "Unlock", bundle: .module) : String(localized: "Lock", bundle: .module),
                    systemImage: editor.selectedTextSlotIsLocked ? "lock.fill" : "lock.open",
                    help: editor.selectedTextSlotIsLocked
-                        ? "Unlock this text box"
-                        : "Lock this text box in place",
+                        ? String(localized: "Unlock this text box", bundle: .module)
+                        : String(localized: "Lock this text box in place", bundle: .module),
                    id: "text-action-lock") {
                 editor.toggleSelectedTextSlotLock()
             }
             Divider().frame(height: 20)
-            button("Delete", systemImage: "trash",
-                   help: "Delete this text box",
+            button(String(localized: "Delete", bundle: .module), systemImage: "trash",
+                   help: String(localized: "Delete this text box", bundle: .module),
                    id: "text-action-delete") {
                 editor.removeSelectedTextSlot()
             }

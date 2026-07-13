@@ -27,9 +27,9 @@ struct RelinkView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Missing Photos")
+            Text("Missing Photos", bundle: .module)
                 .font(.title2)
-            Text("These photos can't be found. Pick the folder they moved to, or remove them from the book.")
+            Text("These photos can't be found. Pick the folder they moved to, or remove them from the book.", bundle: .module)
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
@@ -40,21 +40,21 @@ struct RelinkView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(MissingPhotoSweep.rememberedFilename(for: ref) ?? ref.id.rawValue)
                             .lineLimit(1)
-                        Text(isFileSource(ref)
-                             ? "File moved or deleted — relink by picking its folder."
-                             : "Deleted from your Photos library — relinking isn't possible.")
+                        (isFileSource(ref)
+                             ? Text("File moved or deleted — relink by picking its folder.", bundle: .module)
+                             : Text("Deleted from your Photos library — relinking isn't possible.", bundle: .module))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button("Remove from Book", role: .destructive) {
+                    Button(String(localized: "Remove from Book", bundle: .module), role: .destructive) {
                         if isFileSource(ref) {
                             editor.removeMissingPhoto(ref.id)
                         } else {
                             pendingRemoval = ref   // PhotoKit: explain first
                         }
                     }
-                    .help("Remove this missing photo and clear its frames")
+                    .help(Text("Remove this missing photo and clear its frames", bundle: .module))
                 }
             }
             .frame(minHeight: 160)
@@ -66,14 +66,14 @@ struct RelinkView: View {
             }
 
             HStack {
-                Button("Relink from Folder…") { showFolderImporter = true }
+                Button(String(localized: "Relink from Folder…", bundle: .module)) { showFolderImporter = true }
                     .disabled(!missingRefs.contains(where: isFileSource))
-                    .help("Point PhotoBooks at the folder these photos moved to")
+                    .help(Text("Point PhotoBooks at the folder these photos moved to", bundle: .module))
                     .accessibilityIdentifier("relink-choose-folder")
                 Spacer()
-                Button("Done") { dismiss() }
+                Button(String(localized: "Done", bundle: .module)) { dismiss() }
                     .keyboardShortcut(.defaultAction)
-                    .help("Close this dialog")
+                    .help(Text("Close this dialog", bundle: .module))
                     .accessibilityIdentifier("relink-done")
             }
         }
@@ -84,19 +84,19 @@ struct RelinkView: View {
             guard case .success(let url) = result else { return }   // cancel = no-op
             let relinked = editor.relinkMissingPhotos(toFolder: url)
             statusMessage = relinked == 0
-                ? "No files in that folder match the missing photos' names."
-                : "Relinked \(relinked) photo\(relinked == 1 ? "" : "s")."
+                ? String(localized: "No files in that folder match the missing photos' names.", bundle: .module)
+                : String(localized: "Relinked \(relinked) photos.", bundle: .module)
         }
-        .alert("Photo Deleted from Photos",
+        .alert(String(localized: "Photo Deleted from Photos", bundle: .module),
                isPresented: Binding(get: { pendingRemoval != nil },
                                     set: { if !$0 { pendingRemoval = nil } }),
                presenting: pendingRemoval) { ref in
-            Button("Remove from Book", role: .destructive) {
+            Button(String(localized: "Remove from Book", bundle: .module), role: .destructive) {
                 editor.removeMissingPhoto(ref.id)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: { _ in
-            Text("This photo was deleted from your Photos library, so it can't be relinked. Removing it clears its frames; they can be refilled from the tray or by reshuffling.")
+            Text("This photo was deleted from your Photos library, so it can't be relinked. Removing it clears its frames; they can be refilled from the tray or by reshuffling.", bundle: .module)
         }
     }
 }

@@ -26,7 +26,7 @@ struct TextEditorOverlay: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            TextField("Caption", text: $draft.string, axis: .vertical)
+            TextField(String(localized: "Caption", bundle: .module), text: $draft.string, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1...4)
                 .accessibilityIdentifier("text-editor-field")
@@ -35,15 +35,15 @@ struct TextEditorOverlay: View {
 
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .accessibilityIdentifier("text-editor-cancel")
-                Button("Done") {
+                Button(String(localized: "Done", bundle: .module)) {
                     editor.commitText(slotID: context.slotID, text: draft)
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
-                .help("Save this caption to the frame")
+                .help(Text("Save this caption to the frame", bundle: .module))
                 .accessibilityIdentifier("text-editor-done")
             }
         }
@@ -53,42 +53,43 @@ struct TextEditorOverlay: View {
 
     private var styleBar: some View {
         HStack(spacing: 16) {
-            Picker("Font", selection: $draft.fontName) {
-                Text("Book Default").tag("")
+            Picker(String(localized: "Font", bundle: .module), selection: $draft.fontName) {
+                Text("Book Default", bundle: .module).tag("")
                 ForEach(FontCatalog.families()) { family in
                     Text(family.displayName).tag(family.postScriptName)
                 }
             }
             .frame(maxWidth: 200)
-            .help("Choose the typeface for this text")
+            .help(Text("Choose the typeface for this text", bundle: .module))
             .accessibilityIdentifier("text-editor-font")
 
             // 0.005-factor steps, DISPLAYED as print points on the current
             // trim height (D13: 7 in trim → 0.05 shows as 25.2 pt).
             Stepper {
-                Text("\(displayPoints(pointSizeFactor: draft.pointSizeFactor, trimHeightInches: trimHeightInches), format: .number.precision(.fractionLength(1))) pt")
+                Text(verbatim: displayPoints(pointSizeFactor: draft.pointSizeFactor, trimHeightInches: trimHeightInches)
+                    .formatted(.number.precision(.fractionLength(1))) + " pt")
                     .monospacedDigit()
             } onIncrement: {
                 draft.pointSizeFactor = min(0.2, draft.pointSizeFactor + 0.005)
             } onDecrement: {
                 draft.pointSizeFactor = max(0.005, draft.pointSizeFactor - 0.005)
             }
-            .help("Adjust the text size (shown in print points)")
+            .help(Text("Adjust the text size (shown in print points)", bundle: .module))
             .accessibilityIdentifier("text-editor-size")
 
-            ColorPicker("Color", selection: colorBinding, supportsOpacity: false)
+            ColorPicker(String(localized: "Color", bundle: .module), selection: colorBinding, supportsOpacity: false)
                 .labelsHidden()
-                .help("Set the text color")
+                .help(Text("Set the text color", bundle: .module))
                 .accessibilityIdentifier("text-editor-color")
 
-            Picker("Alignment", selection: $draft.alignment) {
+            Picker(String(localized: "Alignment", bundle: .module), selection: $draft.alignment) {
                 Image(systemName: "text.alignleft").tag(PhotoBookCore.TextAlignment.leading)
                 Image(systemName: "text.aligncenter").tag(PhotoBookCore.TextAlignment.center)
                 Image(systemName: "text.alignright").tag(PhotoBookCore.TextAlignment.trailing)
             }
             .pickerStyle(.segmented)
             .frame(maxWidth: 140)
-            .help("Align the text left, center, or right")
+            .help(Text("Align the text left, center, or right", bundle: .module))
             .accessibilityIdentifier("text-editor-alignment")
         }
     }

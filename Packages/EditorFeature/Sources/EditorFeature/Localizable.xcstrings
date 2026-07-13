@@ -1,513 +1,1692 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Actual Print Size" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Actual Print Size" } }
-      }
-    },
-    "Add" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } }
-      }
-    },
-    "Add a text box to the selected page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add a text box to the selected page" } }
-      }
-    },
-    "Add content to the book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add content to the book" } }
-      }
-    },
-    "Add One Photo" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add One Photo" } }
-      }
-    },
-    "Add Text" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Text" } }
-      }
-    },
-    "All pages: %@" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "All pages: %@" } }
-      }
-    },
-    "Black" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Black" } }
-      }
-    },
-    "Book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Book" } }
-      }
-    },
-    "Book Background" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Book Background" } }
-      }
-    },
-    "Book background" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Book background" } }
-      }
-    },
-    "Book Size and Format…" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Book Size and Format…" } }
-      }
-    },
-    "Borderless" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Borderless" } }
-      }
-    },
-    "Cancel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }
-      }
-    },
-    "Canvas" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Canvas" } }
-      }
-    },
-    "Canvas Color" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Canvas Color" } }
-      }
-    },
-    "Change the workspace color behind the book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change the workspace color behind the book" } }
-      }
-    },
-    "Choose a zoom level" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a zoom level" } }
-      }
-    },
-    "Cover" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cover" } }
-      }
-    },
-    "Cover stays first" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cover stays first" } }
-      }
-    },
-    "Custom Color…" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom Color…" } }
-      }
-    },
-    "Custom color" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom color" } }
-      }
-    },
-    "Default Photo Edges" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default Photo Edges" } }
-      }
-    },
-    "Delete Text" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Text" } }
-      }
-    },
-    "Delete the selected text box" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete the selected text box" } }
-      }
-    },
-    "Done" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } }
-      }
-    },
-    "Edit Text" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Text" } }
-      }
-    },
-    "Edit the caption in the selected text frame" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit the caption in the selected text frame" } }
-      }
-    },
-    "Empty the selected frame; the photo returns to the tray" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Empty the selected frame; the photo returns to the tray" } }
-      }
-    },
-    "Export" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export" } }
-      }
-    },
-    "Export or print your finished book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export or print your finished book" } }
-      }
-    },
-    "Export the book to a PDF or print service" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export the book to a PDF or print service" } }
-      }
-    },
-    "Fewer Photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fewer Photos" } }
-      }
-    },
-    "Find the missing photos or remove them from the book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Find the missing photos or remove them from the book" } }
-      }
-    },
-    "Fit" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fit" } }
-      }
-    },
-    "Fit Spread" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fit Spread" } }
-      }
-    },
-    "Framed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Framed" } }
-      }
-    },
-    "Hide unplaced photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide unplaced photos" } }
-      }
-    },
-    "Lay out every unplaced photo on new pages at the end" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lay out every unplaced photo on new pages at the end" } }
-      }
-    },
-    "Layout and appearance for the selected page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Layout and appearance for the selected page" } }
-      }
-    },
-    "Lock Frame" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock Frame" } }
-      }
-    },
-    "Lock Page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock Page" } }
-      }
-    },
-    "Lock this page so reshuffle skips it" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lock this page so reshuffle skips it" } }
-      }
-    },
-    "Locked frames are skipped by reshuffle; unlocking returns the frame to the engine" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Locked frames are skipped by reshuffle; unlocking returns the frame to the engine" } }
-      }
-    },
-    "Merge Facing Pages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Merge Facing Pages" } }
-      }
-    },
-    "Merge into Spread" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Merge into Spread" } }
-      }
-    },
-    "Merge this facing pair into a single panoramic spread" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Merge this facing pair into a single panoramic spread" } }
-      }
-    },
-    "Missing" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing" } }
-      }
-    },
-    "More Photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "More Photos" } }
-      }
-    },
-    "Move one more photo onto this page from the next page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move one more photo onto this page from the next page" } }
-      }
-    },
-    "Move one photo from this page onto the next page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move one photo from this page onto the next page" } }
-      }
-    },
-    "No pages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No pages" } }
-      }
-    },
-    "Page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Page" } }
-      }
-    },
-    "Page %lld" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Page %lld" } }
-      }
-    },
-    "Page Background" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Page Background" } }
-      }
-    },
-    "Page background" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Page background" } }
-      }
-    },
-    "Photo Edges" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo Edges" } }
-      }
-    },
-    "Photo edges" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo edges" } }
-      }
-    },
-    "Photo edges (all pages)" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo edges (all pages)" } }
-      }
-    },
-    "Photo edges for the whole book — sets every page's default. Pages you've set individually keep their own choice." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo edges for the whole book — sets every page's default. Pages you've set individually keep their own choice." } }
-      }
-    },
-    "Photo edges for this page — Framed (margin + gaps), Tiled (fills to edge, keeps gaps), or Borderless (edge-to-edge, no gaps)." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo edges for this page — Framed (margin + gaps), Tiled (fills to edge, keeps gaps), or Borderless (edge-to-edge, no gaps)." } }
-      }
-    },
-    "Photo Tray" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo Tray" } }
-      }
-    },
-    "Photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photos" } }
-      }
-    },
-    "Place Remaining" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Place Remaining" } }
-      }
-    },
-    "Place Remaining Photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Place Remaining Photos" } }
-      }
-    },
-    "Print" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Print" } }
-      }
-    },
-    "Rebuild Unlocked Pages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rebuild Unlocked Pages" } }
-      }
-    },
-    "Regenerate every unlocked page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regenerate every unlocked page" } }
-      }
-    },
-    "Regenerate the selected page's layout (locked content survives)" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regenerate the selected page's layout (locked content survives)" } }
-      }
-    },
-    "Relink…" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Relink…" } }
-      }
-    },
-    "Remove One Photo" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove One Photo" } }
-      }
-    },
-    "Remove Photo" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove Photo" } }
-      }
-    },
-    "Reorder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reorder" } }
-      }
-    },
-    "Reorder Pages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reorder Pages" } }
-      }
-    },
-    "Reset Page Style" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset Page Style" } }
-      }
-    },
-    "Reset this page: clear its color, edge style, and photo sizing back to the book default" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset this page: clear its color, edge style, and photo sizing back to the book default" } }
-      }
-    },
-    "Reset to book default" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset to book default" } }
-      }
-    },
-    "Reshuffle Book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reshuffle Book" } }
-      }
-    },
-    "Reshuffle Page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reshuffle Page" } }
-      }
-    },
-    "Select a photo to swap in" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select a photo to swap in" } }
-      }
-    },
-    "Set the background color of the selected page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set the background color of the selected page" } }
-      }
-    },
-    "Set the default background color for every page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set the default background color for every page" } }
-      }
-    },
-    "Settings that affect the whole book" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings that affect the whole book" } }
-      }
-    },
-    "Show or hide the tray of unplaced photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show or hide the tray of unplaced photos" } }
-      }
-    },
-    "Show unplaced photos" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show unplaced photos" } }
-      }
-    },
-    "Split Spread" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Split Spread" } }
-      }
-    },
-    "Split this spread back into two independent pages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Split this spread back into two independent pages" } }
-      }
-    },
-    "Switch the print preset; a cross-shape switch relays out unlocked pages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Switch the print preset; a cross-shape switch relays out unlocked pages" } }
-      }
-    },
-    "This changes only the workspace behind the book." : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This changes only the workspace behind the book." } }
-      }
-    },
-    "Tiled" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tiled" } }
-      }
-    },
-    "Transparent" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Transparent" } }
-      }
-    },
-    "Try Another Layout" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Another Layout" } }
-      }
-    },
-    "Unlock Frame" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock Frame" } }
-      }
-    },
-    "Unlock Page" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock Page" } }
-      }
-    },
-    "Unlock this page so reshuffle can re-lay it" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock this page so reshuffle can re-lay it" } }
-      }
-    },
-    "Warning" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Warning" } }
-      }
-    },
-    "White" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "White" } }
-      }
-    },
-    "Zoom in" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Zoom in" } }
-      }
-    },
-    "Zoom out" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Zoom out" } }
-      }
+  "sourceLanguage": "en",
+  "strings": {
+    "Actual Print Size": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actual Print Size"
+          }
+        }
+      }
+    },
+    "Add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        }
+      }
+    },
+    "Add a text box to the selected page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a text box to the selected page"
+          }
+        }
+      }
+    },
+    "Add content to the book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add content to the book"
+          }
+        }
+      }
+    },
+    "Add One Photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add One Photo"
+          }
+        }
+      }
+    },
+    "Add Text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Text"
+          }
+        }
+      }
+    },
+    "All pages: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All pages: %@"
+          }
+        }
+      }
+    },
+    "Black": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black"
+          }
+        }
+      }
+    },
+    "Book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book"
+          }
+        }
+      }
+    },
+    "Book Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book Background"
+          }
+        }
+      }
     },
-    "%lld photos are missing." : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld photo is missing." } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld photos are missing." } }
+    "Book background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book background"
+          }
+        }
+      }
+    },
+    "Book Size and Format…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book Size and Format…"
+          }
+        }
+      }
+    },
+    "Borderless": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borderless"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Canvas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canvas"
+          }
+        }
+      }
+    },
+    "Canvas Color": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Canvas Color"
+          }
+        }
+      }
+    },
+    "Change the workspace color behind the book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the workspace color behind the book"
+          }
+        }
+      }
+    },
+    "Choose a zoom level": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a zoom level"
+          }
+        }
+      }
+    },
+    "Cover": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cover"
+          }
+        }
+      }
+    },
+    "Cover stays first": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cover stays first"
+          }
+        }
+      }
+    },
+    "Custom Color…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Color…"
+          }
+        }
+      }
+    },
+    "Custom color": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom color"
+          }
+        }
+      }
+    },
+    "Default Photo Edges": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default Photo Edges"
+          }
+        }
+      }
+    },
+    "Delete Text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Text"
+          }
+        }
+      }
+    },
+    "Delete the selected text box": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete the selected text box"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Edit Text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Text"
+          }
+        }
+      }
+    },
+    "Edit the caption in the selected text frame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit the caption in the selected text frame"
+          }
+        }
+      }
+    },
+    "Empty the selected frame; the photo returns to the tray": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the selected frame; the photo returns to the tray"
+          }
+        }
+      }
+    },
+    "Export": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export"
+          }
+        }
+      }
+    },
+    "Export or print your finished book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export or print your finished book"
+          }
+        }
+      }
+    },
+    "Export the book to a PDF or print service": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export the book to a PDF or print service"
+          }
+        }
+      }
+    },
+    "Fewer Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fewer Photos"
+          }
+        }
+      }
+    },
+    "Find the missing photos or remove them from the book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find the missing photos or remove them from the book"
+          }
+        }
+      }
+    },
+    "Fit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit"
+          }
+        }
+      }
+    },
+    "Fit Spread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit Spread"
+          }
+        }
+      }
+    },
+    "Framed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framed"
+          }
+        }
+      }
+    },
+    "Hide unplaced photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide unplaced photos"
+          }
+        }
+      }
+    },
+    "Lay out every unplaced photo on new pages at the end": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lay out every unplaced photo on new pages at the end"
+          }
+        }
+      }
+    },
+    "Layout and appearance for the selected page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Layout and appearance for the selected page"
+          }
+        }
+      }
+    },
+    "Lock Frame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock Frame"
+          }
+        }
+      }
+    },
+    "Lock Page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock Page"
+          }
+        }
+      }
+    },
+    "Lock this page so reshuffle skips it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock this page so reshuffle skips it"
+          }
+        }
+      }
+    },
+    "Locked frames are skipped by reshuffle; unlocking returns the frame to the engine": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked frames are skipped by reshuffle; unlocking returns the frame to the engine"
+          }
+        }
+      }
+    },
+    "Merge Facing Pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge Facing Pages"
+          }
+        }
+      }
+    },
+    "Merge into Spread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge into Spread"
+          }
+        }
+      }
+    },
+    "Merge this facing pair into a single panoramic spread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge this facing pair into a single panoramic spread"
+          }
+        }
+      }
+    },
+    "Missing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing"
+          }
+        }
+      }
+    },
+    "More Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Photos"
+          }
+        }
+      }
+    },
+    "Move one more photo onto this page from the next page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move one more photo onto this page from the next page"
+          }
+        }
+      }
+    },
+    "Move one photo from this page onto the next page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move one photo from this page onto the next page"
+          }
+        }
+      }
+    },
+    "No pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No pages"
+          }
+        }
+      }
+    },
+    "Page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page"
+          }
+        }
+      }
+    },
+    "Page %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page %lld"
+          }
+        }
+      }
+    },
+    "Page Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page Background"
+          }
+        }
+      }
+    },
+    "Page background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Page background"
+          }
+        }
+      }
+    },
+    "Photo Edges": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo Edges"
+          }
+        }
+      }
+    },
+    "Photo edges": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo edges"
+          }
+        }
+      }
+    },
+    "Photo edges (all pages)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo edges (all pages)"
+          }
+        }
+      }
+    },
+    "Photo edges for the whole book — sets every page's default. Pages you've set individually keep their own choice.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo edges for the whole book — sets every page's default. Pages you've set individually keep their own choice."
+          }
+        }
+      }
+    },
+    "Photo edges for this page — Framed (margin + gaps), Tiled (fills to edge, keeps gaps), or Borderless (edge-to-edge, no gaps).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo edges for this page — Framed (margin + gaps), Tiled (fills to edge, keeps gaps), or Borderless (edge-to-edge, no gaps)."
+          }
+        }
+      }
+    },
+    "Photo Tray": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo Tray"
+          }
+        }
+      }
+    },
+    "Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos"
+          }
+        }
+      }
+    },
+    "Place Remaining": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place Remaining"
+          }
+        }
+      }
+    },
+    "Place Remaining Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place Remaining Photos"
+          }
+        }
+      }
+    },
+    "Print": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print"
+          }
+        }
+      }
+    },
+    "Rebuild Unlocked Pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuild Unlocked Pages"
+          }
+        }
+      }
+    },
+    "Regenerate every unlocked page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate every unlocked page"
+          }
+        }
+      }
+    },
+    "Regenerate the selected page's layout (locked content survives)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenerate the selected page's layout (locked content survives)"
+          }
+        }
+      }
+    },
+    "Relink…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relink…"
+          }
+        }
+      }
+    },
+    "Remove One Photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove One Photo"
+          }
+        }
+      }
+    },
+    "Remove Photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Photo"
+          }
+        }
+      }
+    },
+    "Reorder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reorder"
+          }
+        }
+      }
+    },
+    "Reorder Pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reorder Pages"
+          }
+        }
+      }
+    },
+    "Reset Page Style": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Page Style"
+          }
+        }
+      }
+    },
+    "Reset this page: clear its color, edge style, and photo sizing back to the book default": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset this page: clear its color, edge style, and photo sizing back to the book default"
+          }
+        }
+      }
+    },
+    "Reset to book default": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset to book default"
+          }
+        }
+      }
+    },
+    "Reshuffle Book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reshuffle Book"
+          }
+        }
+      }
+    },
+    "Reshuffle Page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reshuffle Page"
+          }
+        }
+      }
+    },
+    "Select a photo to swap in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a photo to swap in"
+          }
+        }
+      }
+    },
+    "Set the background color of the selected page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the background color of the selected page"
+          }
+        }
+      }
+    },
+    "Set the default background color for every page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the default background color for every page"
+          }
+        }
+      }
+    },
+    "Settings that affect the whole book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings that affect the whole book"
+          }
+        }
+      }
+    },
+    "Show or hide the tray of unplaced photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show or hide the tray of unplaced photos"
+          }
+        }
+      }
+    },
+    "Show unplaced photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show unplaced photos"
+          }
+        }
+      }
+    },
+    "Split Spread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split Spread"
+          }
+        }
+      }
+    },
+    "Split this spread back into two independent pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split this spread back into two independent pages"
+          }
+        }
+      }
+    },
+    "Switch the print preset; a cross-shape switch relays out unlocked pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch the print preset; a cross-shape switch relays out unlocked pages"
+          }
+        }
+      }
+    },
+    "This changes only the workspace behind the book.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This changes only the workspace behind the book."
+          }
+        }
+      }
+    },
+    "Tiled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiled"
+          }
+        }
+      }
+    },
+    "Transparent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transparent"
+          }
+        }
+      }
+    },
+    "Try Another Layout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try Another Layout"
+          }
+        }
+      }
+    },
+    "Unlock Frame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Frame"
+          }
+        }
+      }
+    },
+    "Unlock Page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Page"
+          }
+        }
+      }
+    },
+    "Unlock this page so reshuffle can re-lay it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock this page so reshuffle can re-lay it"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warning"
+          }
+        }
+      }
+    },
+    "White": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "White"
+          }
+        }
+      }
+    },
+    "Zoom in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom in"
+          }
+        }
+      }
+    },
+    "Zoom out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom out"
+          }
+        }
+      }
+    },
+    "%lld photos are missing.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld photo is missing."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld photos are missing."
+                }
+              }
             }
+          }
+        }
+      }
+    },
+    "Available Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available Photos"
+          }
+        }
+      }
+    },
+    "%lld available": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld available"
+          }
+        }
+      }
+    },
+    "Use this photo in the selected frame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use this photo in the selected frame"
+          }
+        }
+      }
+    },
+    "Select a frame on the page first": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a frame on the page first"
+          }
+        }
+      }
+    },
+    "All available photos are in the book.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All available photos are in the book."
+          }
+        }
+      }
+    },
+    "Choose a photo to replace the selected image or fill its frame.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a photo to replace the selected image or fill its frame."
+          }
+        }
+      }
+    },
+    "These include photos left out of the original selection. Select a frame to use one.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These include photos left out of the original selection. Select a frame to use one."
+          }
+        }
+      }
+    },
+    "Drag to position. Double-click to zoom in or out; pinch or use + / − for finer control.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to position. Double-click to zoom in or out; pinch or use + / − for finer control."
+          }
+        }
+      }
+    },
+    "Apply this crop and lock the frame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply this crop and lock the frame"
+          }
+        }
+      }
+    },
+    "Adjust photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust photo"
+          }
+        }
+      }
+    },
+    "Zoom and position this photo (or double-click the photo)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoom and position this photo (or double-click the photo)"
+          }
+        }
+      }
+    },
+    "Replace": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        }
+      }
+    },
+    "Replace this photo — then tap another photo or a tray photo to swap it in": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace this photo — then tap another photo or a tray photo to swap it in"
+          }
+        }
+      }
+    },
+    "More": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "Add a photo to this page (pulled from the next page)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a photo to this page (pulled from the next page)"
+          }
+        }
+      }
+    },
+    "Fewer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fewer"
+          }
+        }
+      }
+    },
+    "Remove a photo from this page (moved to the next page)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove a photo from this page (moved to the next page)"
+          }
+        }
+      }
+    },
+    "Make key": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make key"
+          }
+        }
+      }
+    },
+    "Emphasize this photo — shrink surrounding photos so it stands out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emphasize this photo — shrink surrounding photos so it stands out"
+          }
+        }
+      }
+    },
+    "Reset to auto layout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset to auto layout"
+          }
+        }
+      }
+    },
+    "Return this photo to automatic placement on its page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return this photo to automatic placement on its page"
+          }
+        }
+      }
+    },
+    "Unlock photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock photo"
+          }
+        }
+      }
+    },
+    "Lock photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock photo"
+          }
+        }
+      }
+    },
+    "Photo is locked — click to unlock so reflow can move it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo is locked — click to unlock so reflow can move it"
+          }
+        }
+      }
+    },
+    "Lock just this photo so reflow leaves it in place": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock just this photo so reflow leaves it in place"
+          }
+        }
+      }
+    },
+    "Unlock page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock page"
+          }
+        }
+      }
+    },
+    "Lock page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock page"
+          }
+        }
+      }
+    },
+    "Whole page is locked — click to unlock so reflow can re-lay it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole page is locked — click to unlock so reflow can re-lay it"
+          }
+        }
+      }
+    },
+    "Lock the whole page so reflow skips every photo on it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock the whole page so reflow skips every photo on it"
+          }
+        }
+      }
+    },
+    "Missing Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing Photos"
+          }
+        }
+      }
+    },
+    "These photos can't be found. Pick the folder they moved to, or remove them from the book.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These photos can't be found. Pick the folder they moved to, or remove them from the book."
+          }
+        }
+      }
+    },
+    "File moved or deleted — relink by picking its folder.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File moved or deleted — relink by picking its folder."
+          }
+        }
+      }
+    },
+    "Deleted from your Photos library — relinking isn't possible.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted from your Photos library — relinking isn't possible."
+          }
+        }
+      }
+    },
+    "Remove from Book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Book"
+          }
+        }
+      }
+    },
+    "Remove this missing photo and clear its frames": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove this missing photo and clear its frames"
+          }
+        }
+      }
+    },
+    "Relink from Folder…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relink from Folder…"
+          }
+        }
+      }
+    },
+    "Point PhotoBooks at the folder these photos moved to": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Point PhotoBooks at the folder these photos moved to"
+          }
+        }
+      }
+    },
+    "Close this dialog": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close this dialog"
+          }
+        }
+      }
+    },
+    "No files in that folder match the missing photos' names.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No files in that folder match the missing photos' names."
+          }
+        }
+      }
+    },
+    "Relinked %lld photos.": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Relinked %lld photo."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Relinked %lld photos."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Photo Deleted from Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo Deleted from Photos"
+          }
+        }
+      }
+    },
+    "This photo was deleted from your Photos library, so it can't be relinked. Removing it clears its frames; they can be refilled from the tray or by reshuffling.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This photo was deleted from your Photos library, so it can't be relinked. Removing it clears its frames; they can be refilled from the tray or by reshuffling."
+          }
+        }
+      }
+    },
+    "Layouts for this page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Layouts for this page"
+          }
+        }
+      }
+    },
+    "%lld photos": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld photo"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld photos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Use %lld-photo layout %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use %lld-photo layout %lld"
+          }
+        }
+      }
+    },
+    "Layouts for this spread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Layouts for this spread"
+          }
+        }
+      }
+    },
+    "Use spread layout %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use spread layout %lld"
+          }
+        }
+      }
+    },
+    "Edit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "Edit this caption's text and style": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit this caption's text and style"
+          }
+        }
+      }
+    },
+    "Unlock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        }
+      }
+    },
+    "Lock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock"
+          }
+        }
+      }
+    },
+    "Unlock this text box": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock this text box"
+          }
+        }
+      }
+    },
+    "Lock this text box in place": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock this text box in place"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "Delete this text box": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this text box"
+          }
+        }
+      }
+    },
+    "Caption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caption"
+          }
+        }
+      }
+    },
+    "Save this caption to the frame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save this caption to the frame"
+          }
+        }
+      }
+    },
+    "Font": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Font"
+          }
+        }
+      }
+    },
+    "Book Default": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book Default"
+          }
+        }
+      }
+    },
+    "Choose the typeface for this text": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the typeface for this text"
+          }
+        }
+      }
+    },
+    "Adjust the text size (shown in print points)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust the text size (shown in print points)"
+          }
+        }
+      }
+    },
+    "Color": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color"
+          }
+        }
+      }
+    },
+    "Set the text color": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the text color"
+          }
+        }
+      }
+    },
+    "Alignment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alignment"
+          }
+        }
+      }
+    },
+    "Align the text left, center, or right": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Align the text left, center, or right"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
