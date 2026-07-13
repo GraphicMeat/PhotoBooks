@@ -1,0 +1,9 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PhotoBooks" } } } },
+    "NSPhotoLibraryUsageDescription" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PhotoBooks lays out books from photos you choose in your library. Originals stay in Photos; the app only reads them to arrange pages and export your book." } } } },
+    "UTTypeDescription" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PhotoBooks Book" } } } }
+  },
+  "version" : "1.0"
+}
