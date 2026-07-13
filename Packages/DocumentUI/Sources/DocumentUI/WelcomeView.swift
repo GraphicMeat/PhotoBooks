@@ -25,9 +25,10 @@ struct WelcomeView: View {
             #if os(macOS)
             HStack(spacing: 64) {
                 heroCopy
-                    .frame(maxWidth: 430, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 bookPreview
-                    .frame(width: 400, height: 320)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 320)
             }
             .padding(56)
             .frame(maxWidth: 980)
@@ -143,19 +144,26 @@ struct WelcomeView: View {
     }
 
     private var bookPreview: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 28)
-                .fill(Color.accentColor.opacity(0.10))
-                .frame(width: 330, height: 260)
-                .rotationEffect(.degrees(5))
-            HStack(spacing: 3) {
-                previewPage(alignment: .trailing)
-                previewPage(alignment: .leading)
+        GeometryReader { geometry in
+            let scale = min(geometry.size.width / 400, geometry.size.height / 320)
+
+            ZStack {
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(Color.accentColor.opacity(0.10))
+                    .frame(width: 330, height: 260)
+                    .rotationEffect(.degrees(5))
+                HStack(spacing: 3) {
+                    previewPage(alignment: .trailing)
+                    previewPage(alignment: .leading)
+                }
+                .padding(14)
+                .background(.background, in: RoundedRectangle(cornerRadius: 8))
+                .shadow(color: .black.opacity(0.16), radius: 22, y: 12)
+                .rotationEffect(.degrees(-3))
             }
-            .padding(14)
-            .background(.background, in: RoundedRectangle(cornerRadius: 8))
-            .shadow(color: .black.opacity(0.16), radius: 22, y: 12)
-            .rotationEffect(.degrees(-3))
+            .frame(width: 400, height: 320)
+            .scaleEffect(scale)
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityHidden(true)
     }
