@@ -51,8 +51,11 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.0.1"
+    # CFBundleVersion (Sparkle's update-comparison identity) tracks the marketing
+    # version so it increments every release. Frozen at "1" before, it made every
+    # build look identical to Sparkle and broke auto-update.
+    CURRENT_PROJECT_VERSION: $(MARKETING_VERSION)
 
 # Both app flavors share sources, packages, bundle identity, and Info.plist
 # metadata via this template. They differ only on the DISTRIBUTION axis:
@@ -83,6 +86,10 @@ targetTemplates:
         # Wire the About-panel version to MARKETING_VERSION (else xcodegen
         # defaults it to a stale literal "1.0").
         CFBundleShortVersionString: $(MARKETING_VERSION)
+        # Sparkle compares CFBundleVersion (not the short string) to the appcast's
+        # sparkle:version. Pin it to the marketing version so the two always match
+        # and every release is a distinct, monotonically newer build.
+        CFBundleVersion: $(MARKETING_VERSION)
         # App Store metadata (harmless in the Direct build too).
         LSApplicationCategoryType: public.app-category.photography
         NSHumanReadableCopyright: © 2026 graphicmeat.com. All rights reserved.
