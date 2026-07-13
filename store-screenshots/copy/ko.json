@@ -1,0 +1,46 @@
+{
+  "locale": "ko",
+  "state": "translated",
+  "screenshots": {
+    "01-welcome": {
+      "headline": "소중한 사진을 한 권의 책으로",
+      "subtext": "좋아하는 순간을 Mac에서 아름답게 구성된 포토북으로 완성하세요."
+    },
+    "02-choose-photos": {
+      "headline": "사진이 있는 곳에서 바로 시작",
+      "subtext": "Apple 사진 앨범을 선택하거나 Mac의 폴더를 가져오세요."
+    },
+    "03-refine-selection": {
+      "headline": "이야기를 담은 순간만 간직하세요",
+      "subtext": "균형 잡힌 추천을 살펴보고 즐겨찾기를 되살려 책에 담을 사진을 직접 고르세요."
+    },
+    "04-smart-layout": {
+      "headline": "몇 초 만에 완성되는 멋진 첫 시안",
+      "subtext": "PhotoBooks가 균형 잡힌 페이지를 자동으로 구성해 빈 화면이 아닌 책에서 시작할 수 있습니다."
+    },
+    "05-photo-tools": {
+      "headline": "중요한 순간을 더 돋보이게",
+      "subtext": "방해되지 않는 도구로 사진을 강조하고 교체하거나 추가하고 삭제하세요."
+    },
+    "06-crop": {
+      "headline": "모든 자르기를 완벽하게",
+      "subtext": "사진을 정확히 확대하고 배치한 뒤 마음에 들면 프레임을 잠그세요."
+    },
+    "07-photo-tray": {
+      "headline": "모든 가능성을 가까이에",
+      "subtext": "배치하지 않은 사진을 트레이에서 보고 영감이 떠오를 때 언제든 책으로 가져오세요."
+    },
+    "08-cover": {
+      "headline": "간직하고 싶은 표지를 만드세요",
+      "subtext": "전체를 감싸는 표지와 편집 가능한 제목으로 이야기를 인상적으로 시작하세요."
+    },
+    "09-format": {
+      "headline": "이야기에 꼭 맞는 책을 선택하세요",
+      "subtext": "크기와 형식을 바꾸면 PhotoBooks가 레이아웃을 세심하게 다시 구성합니다."
+    },
+    "10-export": {
+      "headline": "Mac에서 인쇄된 페이지까지",
+      "subtext": "완성된 페이지를 미리 보고 Blurb용 또는 범용 PDF 인쇄 파일로 내보내세요."
+    }
+  }
+}

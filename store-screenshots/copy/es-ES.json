@@ -1,0 +1,46 @@
+{
+  "locale": "es-ES",
+  "state": "translated",
+  "screenshots": {
+    "01-welcome": {
+      "headline": "Tus fotos merecen un libro",
+      "subtext": "Convierte tus momentos favoritos en un fotolibro perfectamente diseñado desde tu Mac."
+    },
+    "02-choose-photos": {
+      "headline": "Empieza donde estén tus fotos",
+      "subtext": "Elige un álbum de Fotos de Apple o importa una carpeta desde tu Mac."
+    },
+    "03-refine-selection": {
+      "headline": "Conserva los momentos que cuentan tu historia",
+      "subtext": "Revisa una selección equilibrada, recupera tus favoritas y decide qué incluir en el libro."
+    },
+    "04-smart-layout": {
+      "headline": "Un primer borrador impecable en segundos",
+      "subtext": "PhotoBooks crea páginas equilibradas automáticamente para que empieces con un libro, no con un lienzo vacío."
+    },
+    "05-photo-tools": {
+      "headline": "Haz destacar los momentos importantes",
+      "subtext": "Resalta, sustituye, añade o elimina fotos con controles precisos que no estorban."
+    },
+    "06-crop": {
+      "headline": "Perfecciona cada encuadre",
+      "subtext": "Amplía y coloca cada foto con precisión, y bloquea el encuadre cuando esté perfecto."
+    },
+    "07-photo-tray": {
+      "headline": "Ten todas las opciones a mano",
+      "subtext": "Consulta las fotos sin colocar y devuélvelas al libro cuando llegue la inspiración."
+    },
+    "08-cover": {
+      "headline": "Crea una portada inolvidable",
+      "subtext": "Abre tu historia con una portada envolvente y un título totalmente editable."
+    },
+    "09-format": {
+      "headline": "Elige el libro para tu historia",
+      "subtext": "Cambia el tamaño y el formato mientras PhotoBooks reconstruye cuidadosamente la composición."
+    },
+    "10-export": {
+      "headline": "De tu Mac a la página impresa",
+      "subtext": "Previsualiza las páginas terminadas y exporta archivos listos para Blurb o un PDF universal."
+    }
+  }
+}

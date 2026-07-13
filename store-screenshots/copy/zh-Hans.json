@@ -1,0 +1,46 @@
+{
+  "locale": "zh-Hans",
+  "state": "translated",
+  "screenshots": {
+    "01-welcome": {
+      "headline": "让珍贵照片成为一本书",
+      "subtext": "直接在 Mac 上将喜爱的瞬间制作成精美排版的照片书。"
+    },
+    "02-choose-photos": {
+      "headline": "从照片所在的位置开始",
+      "subtext": "选择 Apple“照片”中的相簿，或从 Mac 导入文件夹。"
+    },
+    "03-refine-selection": {
+      "headline": "留下讲述故事的精彩瞬间",
+      "subtext": "查看均衡的推荐，找回喜爱的照片，并决定哪些内容属于这本书。"
+    },
+    "04-smart-layout": {
+      "headline": "片刻生成精美初稿",
+      "subtext": "PhotoBooks 自动创建均衡页面，让你从一本书开始，而不是面对空白画布。"
+    },
+    "05-photo-tools": {
+      "headline": "让重要瞬间更加出彩",
+      "subtext": "使用简洁专注的工具突出、替换、添加或移除照片。"
+    },
+    "06-crop": {
+      "headline": "精确调整每一次裁剪",
+      "subtext": "精确缩放并定位照片，满意后即可锁定画框。"
+    },
+    "07-photo-tray": {
+      "headline": "让所有可能触手可及",
+      "subtext": "在照片托盘中查看未放置的照片，灵感出现时随时将其放回书中。"
+    },
+    "08-cover": {
+      "headline": "创作值得珍藏的封面",
+      "subtext": "用完整环绕封面和可编辑标题，为你的故事打造难忘开篇。"
+    },
+    "09-format": {
+      "headline": "选择适合故事的书籍",
+      "subtext": "切换尺寸和格式，PhotoBooks 会为你仔细重建页面布局。"
+    },
+    "10-export": {
+      "headline": "从 Mac 到印刷页面",
+      "subtext": "预览完成页面，然后导出适用于 Blurb 或通用 PDF 的印刷文件。"
+    }
+  }
+}
