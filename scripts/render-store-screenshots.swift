@@ -209,8 +209,8 @@ private func drawPDFPreview(_ document: PDFDocument?, pageNumbers: [Int],
 private func drawLogo(_ image: NSImage, in rect: NSRect) {
     let scale = min(rect.width / image.size.width, rect.height / image.size.height)
     let size = NSSize(width: image.size.width * scale, height: image.size.height * scale)
-    let destination = NSRect(x: rect.midX - size.width / 2,
-                             y: rect.midY - size.height / 2,
+    let destination = NSRect(x: rect.maxX - size.width,
+                             y: rect.minY,
                              width: size.width, height: size.height)
     image.draw(in: destination, from: .zero, operation: .sourceOver, fraction: 1)
 }
