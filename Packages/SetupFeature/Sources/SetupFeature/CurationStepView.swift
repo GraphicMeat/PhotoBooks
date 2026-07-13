@@ -47,10 +47,10 @@ struct CurationStepView: View {
         VStack(spacing: 14) {
             ScrollView {
                 VStack(spacing: 18) {
-                    Text("How much of the story should we keep?")
+                    Text("How much of the story should we keep?", bundle: .module)
                         .font(.title2.bold())
                         .multilineTextAlignment(.center)
-                    Text("We found \(photos.count) photos. Pick a starting point; you can review every choice before creating the book.")
+                    Text("We found \(photos.count) photos. Pick a starting point; you can review every choice before creating the book.", bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -67,14 +67,14 @@ struct CurationStepView: View {
 
             Divider()
             HStack {
-                Button("Keep every photo") { onUseAll() }
-                    .help("Skip analysis and include every one of these photos in the book")
+                Button(String(localized: "Keep every photo", bundle: .module)) { onUseAll() }
+                    .help(Text("Skip analysis and include every one of these photos in the book", bundle: .module))
                     .accessibilityIdentifier("curation-use-all")
                 Spacer()
-                Button("Create a balanced selection") { selectBestTapped() }
+                Button(String(localized: "Create a balanced selection", bundle: .module)) { selectBestTapped() }
                     .buttonStyle(.borderedProminent)
                     .disabled(photos.isEmpty)
-                    .help("Analyze on-device and keep a balanced selection of about \(model.resolvedPhotoCount) photos")
+                    .help(Text("Analyze on-device and keep a balanced selection of about \(model.resolvedPhotoCount) photos", bundle: .module))
                     .accessibilityIdentifier("curation-select-best")
             }
         }
@@ -83,33 +83,33 @@ struct CurationStepView: View {
 
     private var targetControls: some View {
         VStack(spacing: 12) {
-                Picker("Measure by", selection: $model.unit) {
-                    Text("Book length").tag(CurationStepModel.Unit.pages)
-                    Text("Photo count").tag(CurationStepModel.Unit.photos)
+                Picker(String(localized: "Measure by", bundle: .module), selection: $model.unit) {
+                    Text("Book length", bundle: .module).tag(CurationStepModel.Unit.pages)
+                    Text("Photo count", bundle: .module).tag(CurationStepModel.Unit.photos)
                 }
                 .pickerStyle(.segmented)
-                .help("Choose by approximate book length or by how selective the photo edit should be")
+                .help(Text("Choose by approximate book length or by how selective the photo edit should be", bundle: .module))
                 .onChange(of: model.unit) { _, unit in
                     model.targetValue = unit == .pages ? 36 : 50
                 }
 
-                Picker("Story length", selection: targetSelection) {
+                Picker(String(localized: "Story length", bundle: .module), selection: targetSelection) {
                     ForEach(targetChoices, id: \.value) { choice in
                         Text(choice.label).tag(choice.value)
                     }
-                    Label("Custom", systemImage: "slider.horizontal.3").tag(-1)
+                    Label(String(localized: "Custom", bundle: .module), systemImage: "slider.horizontal.3").tag(-1)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-                .help("Choose a suggested length or set an exact custom target")
+                .help(Text("Choose a suggested length or set an exact custom target", bundle: .module))
 
                 if isCustomTarget {
                     VStack(spacing: 8) {
                         HStack {
-                            Text(model.unit == .pages ? "Pages" : "Photos")
+                            Text(model.unit == .pages ? String(localized: "Pages", bundle: .module) : String(localized: "Photos", bundle: .module))
                                 .font(.subheadline.weight(.medium))
                             Spacer()
-                            Text("\(model.targetValue)")
+                            Text(verbatim: "\(model.targetValue)")
                                 .font(.subheadline.monospacedDigit().weight(.semibold))
                                 .foregroundStyle(Color.accentColor)
                         }
@@ -117,13 +117,13 @@ struct CurationStepView: View {
                                in: customTargetRange,
                                step: 1)
                             .accessibilityLabel(model.unit == .pages
-                                                ? "Desired number of pages"
-                                                : "Desired number of photos")
+                                                ? Text("Desired number of pages", bundle: .module)
+                                                : Text("Desired number of photos", bundle: .module))
                             .accessibilityValue("\(model.targetValue)")
                         HStack {
-                            Text("\(Int(customTargetRange.lowerBound))")
+                            Text(verbatim: "\(Int(customTargetRange.lowerBound))")
                             Spacer()
-                            Text("\(Int(customTargetRange.upperBound))")
+                            Text(verbatim: "\(Int(customTargetRange.upperBound))")
                         }
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.tertiary)
@@ -132,7 +132,7 @@ struct CurationStepView: View {
                     .background(Color.secondary.opacity(0.07),
                                 in: RoundedRectangle(cornerRadius: 12))
                 } else {
-                    Label("Choose Custom to set an exact value with a slider",
+                    Label(String(localized: "Choose Custom to set an exact value with a slider", bundle: .module),
                           systemImage: "slider.horizontal.3")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -250,9 +250,9 @@ struct CurationStepView: View {
                 }
 
                 VStack(spacing: 5) {
-                    Text("Building a balanced selection")
+                    Text("Building a balanced selection", bundle: .module)
                         .font(.title3.bold())
-                    Text("Comparing moments and looking for the strongest photos. Everything stays on this device.")
+                    Text("Comparing moments and looking for the strongest photos. Everything stays on this device.", bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -262,15 +262,15 @@ struct CurationStepView: View {
                     .progressViewStyle(.linear)
 
                 HStack {
-                    Text("Analyzing photos")
+                    Text("Analyzing photos", bundle: .module)
                     Spacer()
-                    Text("\(done) of \(total)")
+                    Text("\(done) of \(total)", bundle: .module)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-                Button("Cancel") { model.cancelAnalysis() }
-                    .help("Stop analyzing and go back to choose a different target")
+                Button(String(localized: "Cancel", bundle: .module)) { model.cancelAnalysis() }
+                    .help(Text("Stop analyzing and go back to choose a different target", bundle: .module))
                     .accessibilityIdentifier("curation-cancel")
             }
             .frame(maxWidth: 520)
@@ -289,15 +289,15 @@ struct CurationStepView: View {
 
     private var reviewGrid: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("\(model.pickedCount) photos included")
+            Text("\(model.pickedCount) photos included", bundle: .module)
                 .font(.title2.bold())
-            Text("Review the selection below. Tap any photo to include or remove it.")
+            Text("Review the selection below. Tap any photo to include or remove it.", bundle: .module)
                 .font(.callout)
                 .foregroundStyle(.secondary)
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Recommended · \(recommendedIDs.filter { model.pickedIDs.contains($0) }.count) selected")
+                        Text("Recommended · \(recommendedIDs.filter { model.pickedIDs.contains($0) }.count) selected", bundle: .module)
                             .font(.headline)
                         MasonryReviewLayout(minimumColumnWidth: 116, spacing: 10) {
                             ForEach(recommendedCandidates) { candidate in
@@ -308,7 +308,7 @@ struct CurationStepView: View {
 
                     if !model.leftOutByCluster.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Left out").font(.headline)
+                            Text("Left out", bundle: .module).font(.headline)
                             MasonryReviewLayout(minimumColumnWidth: 116, spacing: 10) {
                                 ForEach(leftOutCandidates) { candidate in
                                     thumbnail(for: candidate)
@@ -320,10 +320,10 @@ struct CurationStepView: View {
             }
             HStack {
                 Spacer()
-                Button("Continue with \(model.pickedCount) photos") { onContinue(analyzedPhotos, model.pickedIDs) }
+                Button(String(localized: "Continue with \(model.pickedCount) photos", bundle: .module)) { onContinue(analyzedPhotos, model.pickedIDs) }
                     .buttonStyle(.borderedProminent)
                     .disabled(model.pickedCount == 0)
-                    .help("Continue to choose a book format with the picked photos")
+                    .help(Text("Continue to choose a book format with the picked photos", bundle: .module))
                     .accessibilityIdentifier("curation-continue")
             }
         }

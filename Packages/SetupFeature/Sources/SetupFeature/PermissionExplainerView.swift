@@ -19,21 +19,19 @@ struct PermissionExplainerView: View {
             Image(systemName: "photo.badge.exclamationmark")
                 .font(.system(size: 44))
                 .foregroundStyle(.secondary)
-            Text("PhotoBooks Can't See Your Photos")
+            Text("PhotoBooks Can't See Your Photos", bundle: .module)
                 .font(.title2)
-            Text("PhotoBooks lays out books from photos you pick in your library. "
-                 + "Access is currently denied — you can grant it in Settings, or "
-                 + "build your book from a folder instead.")
+            Text("PhotoBooks lays out books from photos you pick in your library. Access is currently denied — you can grant it in Settings, or build your book from a folder instead.", bundle: .module)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 380)
             HStack(spacing: 12) {
-                Button("Open Settings") { openPhotosSettings() }
+                Button(String(localized: "Open Settings", bundle: .module)) { openPhotosSettings() }
                     .buttonStyle(.borderedProminent)
-                    .help("Open System Settings to grant Photos access")
+                    .help(Text("Open System Settings to grant Photos access", bundle: .module))
                     .accessibilityIdentifier("permission-open-settings")
-                Button("Use Folder Instead") { onUseFolder() }
-                    .help("Build your book from a folder instead of Photos")
+                Button(String(localized: "Use Folder Instead", bundle: .module)) { onUseFolder() }
+                    .help(Text("Build your book from a folder instead of Photos", bundle: .module))
                     .accessibilityIdentifier("permission-use-folder")
             }
         }

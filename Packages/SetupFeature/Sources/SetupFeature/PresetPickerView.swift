@@ -22,9 +22,8 @@ public struct PresetPickerView: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Book Format").font(.title2)
-            Text("Switching to a different shape relays out unlocked pages; "
-                 + "locked pages and the cover keep their layout and get a review badge.")
+            Text("Book Format", bundle: .module).font(.title2)
+            Text("Switching to a different shape relays out unlocked pages; locked pages and the cover keep their layout and get a review badge.", bundle: .module)
                 .font(.callout)
                 .foregroundStyle(.secondary)
             ScrollView {
@@ -49,8 +48,8 @@ public struct PresetPickerView: View {
                                     .buttonStyle(.plain)
                                     .disabled(preset.id == editor.preset.id)
                                     .help(preset.id == editor.preset.id
-                                          ? "Current format"
-                                          : "Switch the book to this format")
+                                          ? Text("Current format", bundle: .module)
+                                          : Text("Switch the book to this format", bundle: .module))
                                     .accessibilityIdentifier("format-preset-\(preset.id)")
                                 }
                             }
@@ -61,7 +60,7 @@ public struct PresetPickerView: View {
             }
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }
+                Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                     .focused($focus, equals: .cancel)
                     .accessibilityIdentifier("format-cancel")
             }

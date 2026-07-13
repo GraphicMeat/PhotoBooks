@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "SetupFeature",
+    defaultLocalization: "en",
     platforms: [.iOS(.v18), .macOS(.v15)],
     products: [
         .library(name: "SetupFeature", targets: ["SetupFeature"])
@@ -21,7 +22,8 @@ let package = Package(
                 "AppSupport",
                 .product(name: "PhotoBookCore", package: "PhotoBookCore"),
                 .product(name: "PhotoBookImport", package: "PhotoBookImport")
-            ]
+            ],
+            resources: [.process("Localizable.xcstrings")]
         ),
         .testTarget(
             name: "SetupFeatureTests",

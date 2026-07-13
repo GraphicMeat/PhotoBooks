@@ -105,10 +105,10 @@ public struct NewBookSetupView: View {
     /// Borderless chevron "Back" — the bare push-button looked clunky on macOS.
     private func backButton(_ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Label("Back", systemImage: "chevron.backward")
+            Label(String(localized: "Back", bundle: .module), systemImage: "chevron.backward")
         }
         .buttonStyle(.borderless)
-        .help("Go back to the previous step")
+        .help(Text("Go back to the previous step", bundle: .module))
     }
 
     // MARK: Step 1 — source
@@ -120,7 +120,7 @@ public struct NewBookSetupView: View {
             }
             Spacer()
             VStack(alignment: .leading, spacing: 16) {
-                Text("Where are your photos?")
+                Text("Where are your photos?", bundle: .module)
                     .font(.title2.bold())
                 HStack(spacing: 20) {
                     Button {
@@ -130,7 +130,7 @@ public struct NewBookSetupView: View {
                                    subtitle: "Albums from your Apple Photos library")
                     }
                     .buttonStyle(.plain)
-                    .help("Pick photos from your Apple Photos library")
+                    .help(Text("Pick photos from your Apple Photos library", bundle: .module))
                     .accessibilityIdentifier("source-photos")
 
                     Button {
@@ -140,7 +140,7 @@ public struct NewBookSetupView: View {
                                    subtitle: "JPEG, HEIC, PNG, TIFF, RAW")
                     }
                     .buttonStyle(.plain)
-                    .help("Pick photos from a folder of image files")
+                    .help(Text("Pick photos from a folder of image files", bundle: .module))
                     .accessibilityIdentifier("source-folder")
                 }
             }
@@ -162,7 +162,7 @@ public struct NewBookSetupView: View {
                 .multilineTextAlignment(.leading)
             Spacer()
             HStack {
-                Text("Choose source").font(.caption.weight(.semibold))
+                Text("Choose source", bundle: .module).font(.caption.weight(.semibold))
                 Spacer()
                 Image(systemName: "arrow.right").font(.caption)
             }
@@ -243,11 +243,11 @@ public struct NewBookSetupView: View {
                         Text(collection.title)
                         Spacer()
                         if let count = collection.estimatedCount {
-                            Text("\(count)").foregroundStyle(.secondary)
+                            Text(verbatim: "\(count)").foregroundStyle(.secondary)
                         }
                     }
                 }
-                .help("Use photos from this album")
+                .help(Text("Use photos from this album", bundle: .module))
             }
         }
         .padding(28)
@@ -280,12 +280,12 @@ public struct NewBookSetupView: View {
             }
             limitedAccessBanner
             HStack {
-                Text("\(selectedPhotoIDs.count) of \(availablePhotos.count) selected")
+                Text("\(selectedPhotoIDs.count) of \(availablePhotos.count) selected", bundle: .module)
                     .font(.headline)
                 Spacer()
-                Button("Clear") { selectedPhotoIDs.removeAll() }
+                Button(String(localized: "Clear", bundle: .module)) { selectedPhotoIDs.removeAll() }
                     .disabled(selectedPhotoIDs.isEmpty)
-                Button("Select all") { selectedPhotoIDs = Set(availablePhotos.map(\.id)) }
+                Button(String(localized: "Select all", bundle: .module)) { selectedPhotoIDs = Set(availablePhotos.map(\.id)) }
                     .disabled(selectedPhotoIDs.count == availablePhotos.count)
             }
             ScrollView {
@@ -307,14 +307,14 @@ public struct NewBookSetupView: View {
             }
             HStack {
                 Spacer()
-                Button("Continue with \(selectedPhotoIDs.count) photos") {
+                Button(String(localized: "Continue with \(selectedPhotoIDs.count) photos", bundle: .module)) {
                     curationModel = defaultCurationModel(availableCount: selectedPhotoIDs.count)
                     curationOrigin = .photoGrid
                     step = .curation
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(selectedPhotoIDs.isEmpty)
-                .help("Continue to choose how many photos to keep")
+                .help(Text("Continue to choose how many photos to keep", bundle: .module))
             }
         }
         .padding(28)
@@ -362,12 +362,12 @@ public struct NewBookSetupView: View {
     private var limitedAccessBanner: some View {
         if isLimitedAccess {
             HStack {
-                Label("Showing only photos you've granted access to.",
+                Label(String(localized: "Showing only photos you've granted access to.", bundle: .module),
                       systemImage: "info.circle")
                     .font(.callout)
                 Spacer()
                 #if os(iOS)
-                Button("Manage...") { presentLimitedLibraryPicker() }
+                Button(String(localized: "Manage...", bundle: .module)) { presentLimitedLibraryPicker() }
                     .accessibilityIdentifier("limited-access-manage")
                 #endif
             }
@@ -418,7 +418,7 @@ public struct NewBookSetupView: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Continue") { step = .bookFormat }
+                Button(String(localized: "Continue", bundle: .module)) { step = .bookFormat }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                     .disabled(selectedAspectClass == nil)
@@ -447,7 +447,7 @@ public struct NewBookSetupView: View {
                             PresetCard(preset: preset, isCurrent: selectedPreset?.id == preset.id)
                         }
                         .buttonStyle(.plain)
-                        .help("Choose this book size")
+                        .help(Text("Choose this book size", bundle: .module))
                         .accessibilityIdentifier("preset-\(preset.id)")
                     }
                 }
@@ -455,16 +455,16 @@ public struct NewBookSetupView: View {
             }
             HStack {
                 if let selectedPreset {
-                    Text("\(selectedPreset.displayName) selected")
+                    Text("\(selectedPreset.displayName) selected", bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("Select a format to continue")
+                    Text("Select a format to continue", bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Continue") {
+                Button(String(localized: "Continue", bundle: .module)) {
                     step = .style
                 }
                 .buttonStyle(.borderedProminent)
@@ -486,19 +486,19 @@ public struct NewBookSetupView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     standoutSpacingPicker
                     edgeStylePicker
-                        .help("Framed: photos sit inside a page margin with gaps. Tiled: photos fill to the page edge but keep gaps between them. Borderless: photos tile edge-to-edge with no gaps.")
+                        .help(Text("Framed: photos sit inside a page margin with gaps. Tiled: photos fill to the page edge but keep gaps between them. Borderless: photos tile edge-to-edge with no gaps.", bundle: .module))
                         .accessibilityIdentifier("setup-edge-style-picker")
                 }
                 .padding(.bottom, 8)
             }
             HStack {
                 if let selectedPreset {
-                    Text("\(selectedPreset.displayName) · \(edgeStyleDefault.title)")
+                    Text("\(selectedPreset.displayName) · \(edgeStyleDefault.title)", bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Create my book") {
+                Button(String(localized: "Create my book", bundle: .module)) {
                     if let selectedPreset { generate(with: selectedPreset) }
                 }
                 .buttonStyle(.borderedProminent)
@@ -514,8 +514,8 @@ public struct NewBookSetupView: View {
     /// understandable before the book is generated.
     private var edgeStylePicker: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Photo edges").font(.headline)
-            Text("Choose how photos meet each other and the edge of the page.")
+            Text("Photo edges", bundle: .module).font(.headline)
+            Text("Choose how photos meet each other and the edge of the page.", bundle: .module)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
@@ -535,8 +535,8 @@ public struct NewBookSetupView: View {
 
     private var standoutSpacingPicker: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Photo emphasis").font(.headline)
-            Text("Choose an even rhythm or let the strongest moments lead.")
+            Text("Photo emphasis", bundle: .module).font(.headline)
+            Text("Choose an even rhythm or let the strongest moments lead.", bundle: .module)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: 12)], spacing: 12) {
@@ -544,14 +544,14 @@ public struct NewBookSetupView: View {
                     EmphasisCard(emphasized: false, isSelected: !analyzeImportance)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Balanced pages")
+                .accessibilityLabel(Text("Balanced pages", bundle: .module))
                 .accessibilityValue(!analyzeImportance ? "Selected" : "Not selected")
 
                 Button { analyzeImportance = true } label: {
                     EmphasisCard(emphasized: true, isSelected: analyzeImportance)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Give standout photos more space")
+                .accessibilityLabel(Text("Give standout photos more space", bundle: .module))
                 .accessibilityValue(analyzeImportance ? "Selected" : "Not selected")
                 .accessibilityIdentifier("setup-smart-spacing-toggle")
             }
@@ -631,7 +631,7 @@ public struct NewBookSetupView: View {
             HStack {
                 backButton(onBack)
                 Spacer()
-                Text("STEP \(number) OF 5")
+                Text("STEP \(number) OF 5", bundle: .module)
                     .font(.caption2.weight(.semibold))
                     .tracking(1.2)
                     .foregroundStyle(.secondary)
@@ -784,12 +784,12 @@ private struct EmphasisCard: View {
             .frame(width: 92, height: 68)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(emphasized ? "Emphasize standouts" : "Balanced pages")
+                Text(emphasized ? String(localized: "Emphasize standouts", bundle: .module) : String(localized: "Balanced pages", bundle: .module))
                     .font(.subheadline.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
                 Text(emphasized
-                     ? "Strong photos get larger, quieter pages"
-                     : "Photos share the page more evenly")
+                     ? String(localized: "Strong photos get larger, quieter pages", bundle: .module)
+                     : String(localized: "Photos share the page more evenly", bundle: .module))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -928,8 +928,8 @@ struct ProviderThumbnailCell: View {
             }
         }
         .buttonStyle(.plain)
-        .help(isSelected ? "Selected — click to remove from the book"
-                         : "Click to include this photo")
+        .help(isSelected ? Text("Selected — click to remove from the book", bundle: .module)
+                         : Text("Click to include this photo", bundle: .module))
         .task(id: ref.id) {
             image = try? await provider.thumbnail(for: ref, maxPixelSize: 192)
         }

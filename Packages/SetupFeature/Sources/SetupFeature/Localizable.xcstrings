@@ -1,0 +1,736 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ selected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ selected"
+          }
+        }
+      }
+    },
+    "%@ · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@"
+          }
+        }
+      }
+    },
+    "%lld of %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld"
+          }
+        }
+      }
+    },
+    "%lld of %lld selected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld selected"
+          }
+        }
+      }
+    },
+    "%lld photos included": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld photos included"
+          }
+        }
+      }
+    },
+    "Analyze on-device and keep a balanced selection of about %lld photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyze on-device and keep a balanced selection of about %lld photos"
+          }
+        }
+      }
+    },
+    "Analyzing photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing photos"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "Balanced pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanced pages"
+          }
+        }
+      }
+    },
+    "Book Format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book Format"
+          }
+        }
+      }
+    },
+    "Book length": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book length"
+          }
+        }
+      }
+    },
+    "Build your book from a folder instead of Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build your book from a folder instead of Photos"
+          }
+        }
+      }
+    },
+    "Building a balanced selection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Building a balanced selection"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Choose Custom to set an exact value with a slider": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Custom to set an exact value with a slider"
+          }
+        }
+      }
+    },
+    "Choose a suggested length or set an exact custom target": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a suggested length or set an exact custom target"
+          }
+        }
+      }
+    },
+    "Choose an even rhythm or let the strongest moments lead.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose an even rhythm or let the strongest moments lead."
+          }
+        }
+      }
+    },
+    "Choose by approximate book length or by how selective the photo edit should be": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose by approximate book length or by how selective the photo edit should be"
+          }
+        }
+      }
+    },
+    "Choose how photos meet each other and the edge of the page.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose how photos meet each other and the edge of the page."
+          }
+        }
+      }
+    },
+    "Choose source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose source"
+          }
+        }
+      }
+    },
+    "Choose this book size": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose this book size"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "Click to include this photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to include this photo"
+          }
+        }
+      }
+    },
+    "Comparing moments and looking for the strongest photos. Everything stays on this device.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparing moments and looking for the strongest photos. Everything stays on this device."
+          }
+        }
+      }
+    },
+    "Continue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "Continue to choose a book format with the picked photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue to choose a book format with the picked photos"
+          }
+        }
+      }
+    },
+    "Continue to choose how many photos to keep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue to choose how many photos to keep"
+          }
+        }
+      }
+    },
+    "Continue with %lld photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with %lld photos"
+          }
+        }
+      }
+    },
+    "Create a balanced selection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a balanced selection"
+          }
+        }
+      }
+    },
+    "Create my book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create my book"
+          }
+        }
+      }
+    },
+    "Current format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current format"
+          }
+        }
+      }
+    },
+    "Custom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        }
+      }
+    },
+    "Desired number of pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desired number of pages"
+          }
+        }
+      }
+    },
+    "Desired number of photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desired number of photos"
+          }
+        }
+      }
+    },
+    "Emphasize standouts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emphasize standouts"
+          }
+        }
+      }
+    },
+    "Framed: photos sit inside a page margin with gaps. Tiled: photos fill to the page edge but keep gaps between them. Borderless: photos tile edge-to-edge with no gaps.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framed: photos sit inside a page margin with gaps. Tiled: photos fill to the page edge but keep gaps between them. Borderless: photos tile edge-to-edge with no gaps."
+          }
+        }
+      }
+    },
+    "Give standout photos more space": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Give standout photos more space"
+          }
+        }
+      }
+    },
+    "Go back to the previous step": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to the previous step"
+          }
+        }
+      }
+    },
+    "How much of the story should we keep?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How much of the story should we keep?"
+          }
+        }
+      }
+    },
+    "Keep every photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep every photo"
+          }
+        }
+      }
+    },
+    "Left out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left out"
+          }
+        }
+      }
+    },
+    "Manage...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage..."
+          }
+        }
+      }
+    },
+    "Measure by": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Measure by"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "Open System Settings to grant Photos access": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings to grant Photos access"
+          }
+        }
+      }
+    },
+    "Pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pages"
+          }
+        }
+      }
+    },
+    "Photo count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo count"
+          }
+        }
+      }
+    },
+    "Photo edges": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo edges"
+          }
+        }
+      }
+    },
+    "Photo emphasis": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo emphasis"
+          }
+        }
+      }
+    },
+    "PhotoBooks Can't See Your Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks Can't See Your Photos"
+          }
+        }
+      }
+    },
+    "PhotoBooks lays out books from photos you pick in your library. Access is currently denied — you can grant it in Settings, or build your book from a folder instead.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks lays out books from photos you pick in your library. Access is currently denied — you can grant it in Settings, or build your book from a folder instead."
+          }
+        }
+      }
+    },
+    "Photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos"
+          }
+        }
+      }
+    },
+    "Photos share the page more evenly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos share the page more evenly"
+          }
+        }
+      }
+    },
+    "Pick photos from a folder of image files": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick photos from a folder of image files"
+          }
+        }
+      }
+    },
+    "Pick photos from your Apple Photos library": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick photos from your Apple Photos library"
+          }
+        }
+      }
+    },
+    "Recommended · %lld selected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommended · %lld selected"
+          }
+        }
+      }
+    },
+    "Review the selection below. Tap any photo to include or remove it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review the selection below. Tap any photo to include or remove it."
+          }
+        }
+      }
+    },
+    "STEP %lld OF 5": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STEP %lld OF 5"
+          }
+        }
+      }
+    },
+    "Select a format to continue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a format to continue"
+          }
+        }
+      }
+    },
+    "Select all": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select all"
+          }
+        }
+      }
+    },
+    "Selected — click to remove from the book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected — click to remove from the book"
+          }
+        }
+      }
+    },
+    "Showing only photos you've granted access to.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing only photos you've granted access to."
+          }
+        }
+      }
+    },
+    "Skip analysis and include every one of these photos in the book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip analysis and include every one of these photos in the book"
+          }
+        }
+      }
+    },
+    "Stop analyzing and go back to choose a different target": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop analyzing and go back to choose a different target"
+          }
+        }
+      }
+    },
+    "Story length": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Story length"
+          }
+        }
+      }
+    },
+    "Strong photos get larger, quieter pages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong photos get larger, quieter pages"
+          }
+        }
+      }
+    },
+    "Switch the book to this format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch the book to this format"
+          }
+        }
+      }
+    },
+    "Switching to a different shape relays out unlocked pages; locked pages and the cover keep their layout and get a review badge.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching to a different shape relays out unlocked pages; locked pages and the cover keep their layout and get a review badge."
+          }
+        }
+      }
+    },
+    "Use Folder Instead": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Folder Instead"
+          }
+        }
+      }
+    },
+    "Use photos from this album": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use photos from this album"
+          }
+        }
+      }
+    },
+    "We found %lld photos. Pick a starting point; you can review every choice before creating the book.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We found %lld photos. Pick a starting point; you can review every choice before creating the book."
+          }
+        }
+      }
+    },
+    "Where are your photos?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where are your photos?"
+          }
+        }
+      }
+    },
+    "·": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "·"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
