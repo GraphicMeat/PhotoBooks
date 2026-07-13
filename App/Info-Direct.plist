@@ -49,6 +49,8 @@
 	<string>PhotoBooks lays out books from photos you choose in your library. Originals stay in Photos; the app only reads them to arrange pages and export your book.</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
 	<key>SUFeedURL</key>
 	<string>https://github.com/GraphicMeat/PhotoBooks/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
