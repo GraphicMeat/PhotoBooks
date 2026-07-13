@@ -10,13 +10,13 @@
       "headline": "Start wherever your photos live",
       "subtext": "Choose an album from Apple Photos or bring in a folder from your Mac."
     },
-    "03-smart-layout": {
+    "03-refine-selection": {
+      "headline": "Keep the moments that tell the story",
+      "subtext": "Review a balanced selection, bring favorites back in, and decide exactly what belongs in your book."
+    },
+    "04-smart-layout": {
       "headline": "A polished first draft in moments",
       "subtext": "PhotoBooks builds balanced pages automatically, so you can begin with a book—not a blank canvas."
-    },
-    "04-layout-options": {
-      "headline": "Explore layouts made for your story",
-      "subtext": "Try thoughtful alternatives for any page while keeping every photo in place."
     },
     "05-photo-tools": {
       "headline": "Make the moments that matter stand out",

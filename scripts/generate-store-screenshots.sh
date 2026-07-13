@@ -163,6 +163,7 @@ for entry in "${selected[@]}"; do
   fi
 
   print "Composing $store at 2880 x 1800…"
+  find "$OUTPUT/$store" -type f -name '*.png' -delete
   mkdir -p "$DERIVED/swift-module-cache" "$DERIVED/clang-module-cache"
   SWIFT_MODULECACHE_PATH="$DERIVED/swift-module-cache" \
   CLANG_MODULE_CACHE_PATH="$DERIVED/clang-module-cache" \

@@ -69,18 +69,7 @@ final class ScreenshotTests: XCTestCase {
 
     @MainActor
     func testCaptureStoreViews() throws {
-        // 1–2: the empty-document welcome and the first guided setup screen.
-        let app = XCUIApplication()
-        app.launchArguments = ["-ScreenshotMode", "YES", "-ApplePersistenceIgnoreState", "YES"]
-        app.launch()
-        XCTAssertTrue(app.buttons["welcome-create"].waitForExistence(timeout: 12))
-        try capture("01-welcome", app: app)
-        app.buttons["welcome-create"].click()
-        XCTAssertTrue(app.buttons["source-folder"].waitForExistence(timeout: 8))
-        try capture("02-choose-photos", app: app)
-        app.terminate()
-
-        // 3–10: relaunch into a deterministic, permission-free fixture book.
+        // Prepare the permission-free photo set used by setup and the editor.
         let stagedFixture = URL(fileURLWithPath: "/private/tmp/PhotoBooksScreenshotFixture",
                                 isDirectory: true)
         let stagedFiles = (try? FileManager.default.contentsOfDirectory(
@@ -99,6 +88,32 @@ final class ScreenshotTests: XCTestCase {
         }
         defer { if !usesStagedPhotos { try? FileManager.default.removeItem(at: fixture) } }
 
+        // 1–2: the empty-document welcome and the first guided setup screen.
+        let app = XCUIApplication()
+        app.launchArguments = ["-ScreenshotMode", "YES", "-ApplePersistenceIgnoreState", "YES"]
+        app.launch()
+        XCTAssertTrue(app.buttons["welcome-create"].waitForExistence(timeout: 12))
+        try capture("01-welcome", app: app)
+        app.buttons["welcome-create"].click()
+        XCTAssertTrue(app.buttons["source-folder"].waitForExistence(timeout: 8))
+        try capture("02-choose-photos", app: app)
+        app.terminate()
+
+        // 3: deterministic setup review using the same real photo folder.
+        app.launchArguments = [
+            "-ScreenshotMode", "YES",
+            "-ScreenshotSetupFixtureFolder", fixture.path,
+            "-ScreenshotReview", "YES",
+            "-ApplePersistenceIgnoreState", "YES"
+        ]
+        app.launch()
+        XCTAssertTrue(app.buttons["curation-continue"].waitForExistence(timeout: 15))
+        app.windows.firstMatch.coordinate(
+            withNormalizedOffset: CGVector(dx: 0.02, dy: 0.95)).hover()
+        try capture("03-refine-selection", app: app)
+        app.terminate()
+
+        // 4–10: relaunch into the deterministic fixture book.
         app.launchArguments = [
             "-ScreenshotMode", "YES", "-newBookFromFixtureFolder", fixture.path,
             "-ApplePersistenceIgnoreState", "YES",
@@ -113,12 +128,7 @@ final class ScreenshotTests: XCTestCase {
         let slots = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'slot-photo-'"))
         waitForCount(slots, atLeast: 1)
-        try capture("03-smart-layout", app: app)
-
-        let templates = app.descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH 'template-strip-'"))
-        if templates.count > 1 { templates.element(boundBy: 1).click() }
-        try capture("04-layout-options", app: app)
+        try capture("04-smart-layout", app: app)
 
         slots.element(boundBy: 0).click()
         XCTAssertTrue(app.descendants(matching: .any)["photo-actions-popover"]
@@ -147,6 +157,8 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(format.waitForExistence(timeout: 6))
         format.click()
         XCTAssertTrue(app.buttons["format-cancel"].waitForExistence(timeout: 6))
+        app.windows.firstMatch.coordinate(
+            withNormalizedOffset: CGVector(dx: 0.05, dy: 0.95)).hover()
         try capture("09-format", app: app)
         app.buttons["format-cancel"].click()
 

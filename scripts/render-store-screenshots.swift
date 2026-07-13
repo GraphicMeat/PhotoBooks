@@ -124,7 +124,7 @@ private func drawAppImage(_ imageURL: URL, in rect: NSRect, label: String, accen
     path.addClip()
     if let image = NSImage(contentsOf: imageURL) {
         let sourceSize = image.size
-        let scale = max(rect.width / sourceSize.width, rect.height / sourceSize.height)
+        let scale = min(rect.width / sourceSize.width, rect.height / sourceSize.height)
         let size = CGSize(width: sourceSize.width * scale, height: sourceSize.height * scale)
         let destination = NSRect(x: rect.midX - size.width / 2, y: rect.midY - size.height / 2,
                                  width: size.width, height: size.height)
@@ -158,10 +158,13 @@ private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: 
     NSGraphicsContext.current = context
     NSGradient(starting: start, ending: end)?.draw(in: NSRect(origin: .zero, size: canvas), angle: -28)
 
-    let appWidth: CGFloat = 1840
-    let appHeight: CGFloat = 1150
-    let appX: CGFloat = template.layout == "left" ? -170 : 1210
-    let appRect = topRect(x: appX, y: 325, width: appWidth, height: appHeight)
+    // Keep the complete 16:10 app window inside the final image. Earlier
+    // compositions intentionally bled it past the canvas edge, which hid the
+    // sidebar/tray and made modal screenshots difficult to read.
+    let appWidth: CGFloat = 1580
+    let appHeight: CGFloat = 988
+    let appX: CGFloat = template.layout == "left" ? 100 : 1200
+    let appRect = topRect(x: appX, y: 406, width: appWidth, height: appHeight)
     drawAppImage(raw.appendingPathComponent(template.source), in: appRect,
                  label: template.id, accent: accent)
 

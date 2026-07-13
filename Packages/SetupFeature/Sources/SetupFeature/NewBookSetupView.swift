@@ -100,7 +100,37 @@ public struct NewBookSetupView: View {
                       allowedContentTypes: [.folder]) { result in
             handleFolderPick(result)
         }
+        #if DEBUG
+        .task { await loadScreenshotReviewFixtureIfRequested() }
+        #endif
     }
+
+    #if DEBUG
+    /// Bypasses the file importer only for deterministic store captures. The
+    /// normal setup flow remains unchanged; the screenshot runner supplies a
+    /// temporary, permission-free folder through a launch argument.
+    @MainActor
+    private func loadScreenshotReviewFixtureIfRequested() async {
+        guard step == .source,
+              let path = UserDefaults.standard.string(forKey: "ScreenshotSetupFixtureFolder"),
+              !path.isEmpty else { return }
+        do {
+            let url = URL(fileURLWithPath: path, isDirectory: true)
+            let collection = try providers.fileSystem.makeCollection(fromFolder: url)
+            let refs = try await providers.fileSystem.photoRefs(in: collection)
+            guard !refs.isEmpty else { return }
+            bookTitle = "Summer Stories"
+            availablePhotos = refs
+            selectedPhotoIDs = Set(refs.map(\.id))
+            activeProvider = providers.fileSystem
+            curationModel = defaultCurationModel(availableCount: refs.count)
+            curationOrigin = .source
+            step = .curation
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    #endif
 
     /// Borderless chevron "Back" — the bare push-button looked clunky on macOS.
     private func backButton(_ action: @escaping () -> Void) -> some View {

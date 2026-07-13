@@ -44,6 +44,11 @@ public struct ContentView: View {
     public init(document: BookDocument) {
         self.document = document
         _session = StateObject(wrappedValue: BookSession(document: document))
+        #if DEBUG
+        let startsInSetup = UserDefaults.standard.string(
+            forKey: "ScreenshotSetupFixtureFolder") != nil
+        _isCreating = State(initialValue: startsInSetup)
+        #endif
     }
 
     public var body: some View {

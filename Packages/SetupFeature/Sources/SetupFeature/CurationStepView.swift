@@ -39,7 +39,32 @@ struct CurationStepView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        #if DEBUG
+        .task { prepareScreenshotReviewIfRequested() }
+        #endif
     }
+
+    #if DEBUG
+    /// Produces a representative review grid without running Vision during a
+    /// store capture. The real product path still uses `startAnalysis`.
+    @MainActor
+    private func prepareScreenshotReviewIfRequested() {
+        guard UserDefaults.standard.bool(forKey: "ScreenshotReview"),
+              model.phase == .pickingTarget, !photos.isEmpty else { return }
+        analyzedPhotos = photos
+        let candidates = photos.enumerated().map { index, photo in
+            CurationCandidate(id: photo.id,
+                              quality: 1 - Double(index) / Double(max(photos.count, 1)),
+                              captureDate: photo.captureDate,
+                              clusterID: index / 3,
+                              isUtility: false)
+        }
+        let selectedCount = max(1, Int(Double(photos.count) * 0.72))
+        let picked = Array(candidates.prefix(selectedCount).map(\.id))
+        recommendedIDs = Set(candidates.prefix(selectedCount).map(\.id))
+        model.applyResults(candidates: candidates, picked: picked)
+    }
+    #endif
 
     // MARK: - Target picking
 

@@ -4,7 +4,7 @@ import SwiftUI
 
 /// Makes App Store screenshot captures deterministic without changing normal
 /// app windows. `-ScreenshotMode YES` fixes the content area at 1440 x 900
-/// points and forces light appearance; on a Retina display that is the App
+/// points and forces one consistent appearance; on a Retina display that is the App
 /// Store's accepted 2880 x 1800 pixel size.
 struct ScreenshotWindowConfigurator: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
@@ -21,7 +21,7 @@ struct ScreenshotWindowConfigurator: NSViewRepresentable {
 
     private func configure(_ window: NSWindow?) {
         guard let window else { return }
-        window.appearance = NSAppearance(named: .aqua)
+        window.appearance = NSAppearance(named: .darkAqua)
         window.setContentSize(NSSize(width: 1440, height: 900))
         window.center()
         window.titleVisibility = .visible

@@ -41,8 +41,21 @@ public enum DebugFixtureBook {
         let preset = PresetLibrary.preset(id: "blurb-small-square") ?? PresetLibrary.all()[0]
         let title = UserDefaults.standard.bool(forKey: "ScreenshotMode")
             ? "Summer Stories" : "Fixture Book"
-        return BookEngine().makeBook(title: title, photos: refs, preset: preset,
-                                     style: .standard, seed: 1)
+        guard UserDefaults.standard.bool(forKey: "ScreenshotMode"), refs.count >= 12 else {
+            return BookEngine().makeBook(title: title, photos: refs, preset: preset,
+                                         style: .standard, seed: 1)
+        }
+
+        // Keep a handful deliberately unplaced so the screenshot tray shows
+        // real choices. They remain in the library (and resolve normally via
+        // AppImageStore) but are not handed to the initial layout engine.
+        let unplacedCount = min(8, max(4, refs.count / 6))
+        let placed = Array(refs.dropLast(unplacedCount))
+        let unplaced = Array(refs.suffix(unplacedCount))
+        var book = BookEngine().makeBook(title: title, photos: placed, preset: preset,
+                                         style: .standard, seed: 1)
+        book.photoLibrary.append(contentsOf: unplaced)
+        return book
     }
 }
 #endif
