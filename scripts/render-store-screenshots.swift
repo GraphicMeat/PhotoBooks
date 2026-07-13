@@ -207,7 +207,12 @@ private func drawPDFPreview(_ document: PDFDocument?, pageNumbers: [Int],
 }
 
 private func drawLogo(_ image: NSImage, in rect: NSRect) {
-    image.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1)
+    let scale = min(rect.width / image.size.width, rect.height / image.size.height)
+    let size = NSSize(width: image.size.width * scale, height: image.size.height * scale)
+    let destination = NSRect(x: rect.midX - size.width / 2,
+                             y: rect.midY - size.height / 2,
+                             width: size.width, height: size.height)
+    image.draw(in: destination, from: .zero, operation: .sourceOver, fraction: 1)
 }
 
 private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: URL,
@@ -259,7 +264,9 @@ private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: 
     drawText("PHOTOBOOKS", in: topRect(x: copyX, y: 1510, width: copyWidth, height: 70),
              font: .systemFont(ofSize: 28, weight: .semibold), color: accent,
              lineHeight: 38, alignment: alignment)
-    drawLogo(logo, in: topRect(x: 2640, y: 1560, width: 190, height: 190))
+    // The app frame ends at y=1394 and the corner mark begins at y=1500,
+    // leaving a clear gutter from app imagery and all marketing copy.
+    drawLogo(logo, in: topRect(x: 2580, y: 1500, width: 250, height: 250))
 
     context.flushGraphics()
     NSGraphicsContext.restoreGraphicsState()
