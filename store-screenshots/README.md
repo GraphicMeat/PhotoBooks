@@ -29,6 +29,15 @@ scripts/generate-store-screenshots.sh --locale en-US \
   --photo-folder /Users/Rokas/Pictures/PhotoBooksDemo
 ```
 
+If that folder contains a file named `*-print.pdf`, the final screenshot
+automatically previews pages from it. You can also select the PDF explicitly:
+
+```sh
+scripts/generate-store-screenshots.sh --locale en-US \
+  --photo-folder /Users/Rokas/Pictures/PhotoBooksDemo \
+  --print-pdf /Users/Rokas/Pictures/PhotoBooksDemo/PhotoBooksDemo-print.pdf
+```
+
 Capture every configured UI language after localized marketing copy has been
 added under `copy/`:
 

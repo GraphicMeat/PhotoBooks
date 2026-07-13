@@ -19,9 +19,10 @@ locale="en-US"
 all_locales=0
 templates_only=0
 photo_folder=""
+print_pdf=""
 
 usage() {
-  print "Usage: $0 [--locale STORE_LOCALE | --all-locales] [--photo-folder DIR] [--templates-only]"
+  print "Usage: $0 [--locale STORE_LOCALE | --all-locales] [--photo-folder DIR] [--print-pdf FILE] [--templates-only]"
 }
 
 while (( $# > 0 )); do
@@ -44,6 +45,11 @@ while (( $# > 0 )); do
       photo_folder="$2"
       shift 2
       ;;
+    --print-pdf)
+      [[ $# -ge 2 ]] || { usage >&2; exit 2; }
+      print_pdf="$2"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -55,6 +61,17 @@ while (( $# > 0 )); do
       ;;
   esac
 done
+
+if [[ -z "$print_pdf" && -n "$photo_folder" ]]; then
+  for candidate in "$photo_folder"/*-print.pdf(N.); do
+    print_pdf="$candidate"
+    break
+  done
+fi
+if [[ -n "$print_pdf" && ! -f "$print_pdf" ]]; then
+  print -u2 "Print PDF not found: $print_pdf"
+  exit 1
+fi
 
 # store locale | Xcode language | Xcode region. Keep this in the same order as
 # store-screenshots/locales.json; the JSON is consumed by later translation
@@ -165,13 +182,16 @@ for entry in "${selected[@]}"; do
   print "Composing $store at 2880 x 1800…"
   find "$OUTPUT/$store" -type f -name '*.png' -delete
   mkdir -p "$DERIVED/swift-module-cache" "$DERIVED/clang-module-cache"
+  typeset -a renderer_args=(
+    --templates "$TEMPLATES"
+    --copy "$copy"
+    --raw "$RAW/$store"
+    --output "$OUTPUT/$store"
+  )
+  [[ -n "$print_pdf" ]] && renderer_args+=(--pdf "$print_pdf")
   SWIFT_MODULECACHE_PATH="$DERIVED/swift-module-cache" \
   CLANG_MODULE_CACHE_PATH="$DERIVED/clang-module-cache" \
-  swift "$RENDERER" \
-    --templates "$TEMPLATES" \
-    --copy "$copy" \
-    --raw "$RAW/$store" \
-    --output "$OUTPUT/$store"
+  swift "$RENDERER" "${renderer_args[@]}"
 
   count=$(find "$OUTPUT/$store" -type f -name '*.png' | wc -l | tr -d ' ')
   [[ "$count" == "10" ]] || { print -u2 "Expected 10 outputs, found $count"; exit 1; }

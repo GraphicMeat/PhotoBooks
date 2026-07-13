@@ -2,6 +2,7 @@
 
 import AppKit
 import Foundation
+import PDFKit
 
 private struct Template: Decodable {
     let id: String
@@ -9,6 +10,7 @@ private struct Template: Decodable {
     let layout: String
     let background: [String]
     let accent: String
+    let pdfPages: [Int]?
 }
 
 private struct CopyFile: Decodable {
@@ -24,7 +26,7 @@ private enum RenderError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .usage:
-            return "usage: render-store-screenshots.swift --templates DIR --copy FILE --raw DIR --output DIR"
+            return "usage: render-store-screenshots.swift --templates DIR --copy FILE --raw DIR --output DIR [--pdf FILE]"
         case .badColor(let value): return "invalid hex color: \(value)"
         case .missingCopy(let id): return "copy is missing screenshot id \(id)"
         case .invalidTemplate(let value): return "invalid template: \(value)"
@@ -139,7 +141,73 @@ private func drawAppImage(_ imageURL: URL, in rect: NSRect, label: String, accen
     path.stroke()
 }
 
-private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: URL) throws {
+private func drawPDFPage(_ page: PDFPage?, number: Int, in rect: NSRect,
+                         rotation: CGFloat, accent: NSColor) {
+    guard let graphics = NSGraphicsContext.current else { return }
+    let context = graphics.cgContext
+    context.saveGState()
+    context.translateBy(x: rect.midX, y: rect.midY)
+    context.rotate(by: rotation * .pi / 180)
+    let local = NSRect(x: -rect.width / 2, y: -rect.height / 2,
+                       width: rect.width, height: rect.height)
+
+    let shadow = NSShadow()
+    shadow.shadowColor = NSColor.black.withAlphaComponent(0.24)
+    shadow.shadowBlurRadius = 34
+    shadow.shadowOffset = NSSize(width: 0, height: -20)
+    NSGraphicsContext.saveGraphicsState()
+    shadow.set()
+    NSColor.white.setFill()
+    local.fill()
+    NSGraphicsContext.restoreGraphicsState()
+
+    if let page {
+        let bounds = page.bounds(for: .mediaBox)
+        let scale = min(local.width / bounds.width, local.height / bounds.height)
+        let width = bounds.width * scale
+        let height = bounds.height * scale
+        context.saveGState()
+        context.translateBy(x: local.midX - width / 2, y: local.midY - height / 2)
+        context.scaleBy(x: scale, y: scale)
+        context.translateBy(x: -bounds.minX, y: -bounds.minY)
+        page.draw(with: .mediaBox, to: context)
+        context.restoreGState()
+    } else {
+        NSColor.white.setFill()
+        local.fill()
+        accent.withAlphaComponent(0.12).setFill()
+        local.insetBy(dx: 34, dy: 34).fill()
+        drawText("PDF PAGE \(number)", in: local.insetBy(dx: 54, dy: 80),
+                 font: .systemFont(ofSize: 30, weight: .semibold), color: accent,
+                 lineHeight: 40, alignment: .center)
+    }
+
+    NSColor.black.withAlphaComponent(0.12).setStroke()
+    let outline = NSBezierPath(rect: local)
+    outline.lineWidth = 2
+    outline.stroke()
+    context.restoreGState()
+}
+
+private func drawPDFPreview(_ document: PDFDocument?, pageNumbers: [Int],
+                            in rect: NSRect, accent: NSColor) {
+    let requested = Array(pageNumbers.prefix(3))
+    let numbers = requested + Array(repeating: 1, count: max(0, 3 - requested.count))
+    let cards: [(NSRect, CGFloat)] = [
+        (NSRect(x: rect.minX + 35, y: rect.minY + 135, width: 520, height: 646), -5),
+        (NSRect(x: rect.midX - 292, y: rect.minY + 170, width: 584, height: 725), 0),
+        (NSRect(x: rect.maxX - 555, y: rect.minY + 115, width: 520, height: 646), 5)
+    ]
+    for index in [0, 2, 1] {
+        let number = numbers[index]
+        let page = number > 0 ? document?.page(at: number - 1) : nil
+        drawPDFPage(page, number: number, in: cards[index].0,
+                    rotation: cards[index].1, accent: accent)
+    }
+}
+
+private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: URL,
+                    pdf: PDFDocument?) throws {
     guard template.background.count == 2 else { throw RenderError.invalidTemplate(template.id) }
     let start = try NSColor(hex: template.background[0])
     let end = try NSColor(hex: template.background[1])
@@ -165,8 +233,12 @@ private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: 
     let appHeight: CGFloat = 988
     let appX: CGFloat = template.layout == "left" ? 100 : 1200
     let appRect = topRect(x: appX, y: 406, width: appWidth, height: appHeight)
-    drawAppImage(raw.appendingPathComponent(template.source), in: appRect,
-                 label: template.id, accent: accent)
+    if let pdfPages = template.pdfPages {
+        drawPDFPreview(pdf, pageNumbers: pdfPages, in: appRect, accent: accent)
+    } else {
+        drawAppImage(raw.appendingPathComponent(template.source), in: appRect,
+                     label: template.id, accent: accent)
+    }
 
     let copyX: CGFloat = template.layout == "left" ? 1780 : 170
     let copyWidth: CGFloat = 900
@@ -211,11 +283,12 @@ do {
     }
     let rawURL = URL(fileURLWithPath: rawPath, isDirectory: true)
     let outputURL = URL(fileURLWithPath: outputPath, isDirectory: true)
+    let pdf = argument("--pdf").flatMap { PDFDocument(url: URL(fileURLWithPath: $0)) }
     for templateURL in templateURLs {
         let template = try decoder.decode(Template.self, from: Data(contentsOf: templateURL))
         guard let entry = copy.screenshots[template.id] else { throw RenderError.missingCopy(template.id) }
         let destination = outputURL.appendingPathComponent("\(template.id).png")
-        try render(template: template, copy: entry, raw: rawURL, output: destination)
+        try render(template: template, copy: entry, raw: rawURL, output: destination, pdf: pdf)
         print("rendered \(destination.path)")
     }
 } catch {
