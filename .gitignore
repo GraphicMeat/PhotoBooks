@@ -1,5 +1,6 @@
-# Docs
-docs/
+# Generated and internal documentation. Keep only the README preview image.
+docs/*
+!docs/app-workspace.webp
 
 # Xcode
 #
