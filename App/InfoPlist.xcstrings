@@ -1,9 +1,180 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "CFBundleDisplayName" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PhotoBooks" } } } },
-    "NSPhotoLibraryUsageDescription" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PhotoBooks lays out books from photos you choose in your library. Originals stay in Photos; the app only reads them to arrange pages and export your book." } } } },
-    "UTTypeDescription" : { "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "PhotoBooks Book" } } } }
+  "sourceLanguage": "en",
+  "strings": {
+    "CFBundleDisplayName": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks"
+          }
+        }
+      }
+    },
+    "NSPhotoLibraryUsageDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks lays out books from photos you choose in your library. Originals stay in Photos; the app only reads them to arrange pages and export your book."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks gestaltet Bücher aus Fotos, die du in deiner Mediathek auswählst. Die Originale bleiben in Fotos; die App liest sie nur, um Seiten zu gestalten und dein Buch zu exportieren."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks compose des livres à partir des photos que vous choisissez dans votre photothèque. Les originaux restent dans Photos ; l'app ne fait que les lire pour organiser les pages et exporter votre livre."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks compone libros a partir de las fotos que eliges en tu biblioteca. Los originales permanecen en Fotos; la app solo los lee para organizar las páginas y exportar tu libro."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks compone libri con le foto che scegli nella tua libreria. Gli originali restano in Foto; l'app li legge soltanto per organizzare le pagine ed esportare il tuo libro."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooksは、ライブラリから選んだ写真でブックを作成します。オリジナルは写真アプリに保存されたままで、アプリはページの構成とブックの書き出しのために読み取るだけです。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks는 라이브러리에서 선택한 사진으로 책을 구성합니다. 원본은 사진 앱에 그대로 유지되며, 앱은 페이지를 구성하고 책을 내보내기 위해서만 읽어옵니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks 会使用你在照片图库中选择的照片来排版图书。原图仍保留在“照片”中；本应用仅读取它们以编排页面并导出你的图书。"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O PhotoBooks monta livros a partir das fotos que você escolhe na sua biblioteca. Os originais permanecem no Fotos; o app apenas os lê para organizar as páginas e exportar seu livro."
+          }
+        }
+      }
+    },
+    "UTTypeDescription": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks Book"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks-Buch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Livre PhotoBooks"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Libro de PhotoBooks"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Libro PhotoBooks"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks ブック"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks 책"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks 图书"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Livro PhotoBooks"
+          }
+        }
+      }
+    }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
