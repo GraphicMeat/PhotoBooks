@@ -32,8 +32,10 @@ struct PresetCard: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 14))
         .overlay {
             RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(isCurrent ? Color.accentColor : Color.secondary.opacity(isHovered ? 0.34 : 0.18),
-                              lineWidth: isCurrent ? 2 : 1)
+                .strokeBorder(
+                    Color.secondary.opacity(isHovered ? 0.34 : isCurrent ? 0.26 : 0.18),
+                    lineWidth: 1
+                )
         }
         .shadow(color: .black.opacity(isHovered ? 0.10 : 0), radius: 10, y: 5)
         .animation(.easeOut(duration: 0.2), value: isHovered)

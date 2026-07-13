@@ -46,6 +46,7 @@ public struct PresetPickerView: View {
                                         PresetCard(preset: preset, isCurrent: preset.id == editor.preset.id)
                                     }
                                     .buttonStyle(.plain)
+                                    .focusEffectDisabled()
                                     .disabled(preset.id == editor.preset.id)
                                     .help(preset.id == editor.preset.id
                                           ? Text("Current format", bundle: .module)
