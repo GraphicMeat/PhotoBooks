@@ -39,7 +39,9 @@ public enum DebugFixtureBook {
         }
 
         let preset = PresetLibrary.preset(id: "blurb-small-square") ?? PresetLibrary.all()[0]
-        return BookEngine().makeBook(title: "Fixture Book", photos: refs, preset: preset,
+        let title = UserDefaults.standard.bool(forKey: "ScreenshotMode")
+            ? "Summer Stories" : "Fixture Book"
+        return BookEngine().makeBook(title: title, photos: refs, preset: preset,
                                      style: .standard, seed: 1)
     }
 }

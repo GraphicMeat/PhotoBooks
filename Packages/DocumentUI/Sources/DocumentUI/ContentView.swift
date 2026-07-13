@@ -47,15 +47,20 @@ public struct ContentView: View {
     }
 
     public var body: some View {
-        switch contentRoute(pagesEmpty: document.book.pages.isEmpty, isCreating: isCreating) {
-        case .welcome:
-            WelcomeView(onCreate: { isCreating = true })
-        case .setup:
-            NewBookSetupView(document: document, providers: session.providers,
-                             onExitToWelcome: { isCreating = false })
-        case .browser:
-            BookBrowserView(document: document, imageStore: session.imageStore,
-                            editor: session.editor, exportModel: session.exportModel)
+        Group {
+            switch contentRoute(pagesEmpty: document.book.pages.isEmpty, isCreating: isCreating) {
+            case .welcome:
+                WelcomeView(onCreate: { isCreating = true })
+            case .setup:
+                NewBookSetupView(document: document, providers: session.providers,
+                                 onExitToWelcome: { isCreating = false })
+            case .browser:
+                BookBrowserView(document: document, imageStore: session.imageStore,
+                                editor: session.editor, exportModel: session.exportModel)
+            }
         }
+        #if os(macOS) && DEBUG
+        .background(ScreenshotWindowConfigurator())
+        #endif
     }
 }

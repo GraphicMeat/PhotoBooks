@@ -1,0 +1,13 @@
+{
+  "locales": [
+    { "app": "en", "region": "US", "store": "en-US" },
+    { "app": "de", "region": "DE", "store": "de-DE" },
+    { "app": "es", "region": "ES", "store": "es-ES" },
+    { "app": "fr", "region": "FR", "store": "fr-FR" },
+    { "app": "it", "region": "IT", "store": "it" },
+    { "app": "ja", "region": "JP", "store": "ja" },
+    { "app": "ko", "region": "KR", "store": "ko" },
+    { "app": "pt-BR", "region": "BR", "store": "pt-BR" },
+    { "app": "zh-Hans", "region": "CN", "store": "zh-Hans" }
+  ]
+}

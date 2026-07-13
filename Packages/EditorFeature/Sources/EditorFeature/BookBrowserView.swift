@@ -640,6 +640,7 @@ public struct BookBrowserView: View {
                 Label(String(localized: "Book", bundle: .module), systemImage: "book.closed")
             }
             .help(Text("Settings that affect the whole book", bundle: .module))
+            .accessibilityIdentifier("toolbar-book-menu")
 
             Button {
                 showTray.toggle()
@@ -731,6 +732,7 @@ public struct BookBrowserView: View {
             Menu {
                 ForEach(ExportModel.ExportTarget.allCases, id: \.self) { target in
                     Button(target.menuTitle) { exportModel.begin(target) }
+                        .accessibilityIdentifier("toolbar-export-\(target.rawValue)")
                 }
             } label: {
                 Label(String(localized: "Export", bundle: .module), systemImage: "square.and.arrow.up")
