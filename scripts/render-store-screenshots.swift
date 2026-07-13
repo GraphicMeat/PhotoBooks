@@ -26,7 +26,7 @@ private enum RenderError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .usage:
-            return "usage: render-store-screenshots.swift --templates DIR --copy FILE --raw DIR --output DIR [--pdf FILE]"
+            return "usage: render-store-screenshots.swift --templates DIR --copy FILE --raw DIR --output DIR --logo FILE [--pdf FILE]"
         case .badColor(let value): return "invalid hex color: \(value)"
         case .missingCopy(let id): return "copy is missing screenshot id \(id)"
         case .invalidTemplate(let value): return "invalid template: \(value)"
@@ -206,8 +206,30 @@ private func drawPDFPreview(_ document: PDFDocument?, pageNumbers: [Int],
     }
 }
 
+private func drawLogo(_ image: NSImage, in rect: NSRect) {
+    let path = NSBezierPath(roundedRect: rect, xRadius: 24, yRadius: 24)
+    let shadow = NSShadow()
+    shadow.shadowColor = NSColor.black.withAlphaComponent(0.24)
+    shadow.shadowBlurRadius = 22
+    shadow.shadowOffset = NSSize(width: 0, height: -10)
+    NSGraphicsContext.saveGraphicsState()
+    shadow.set()
+    NSColor.white.withAlphaComponent(0.72).setFill()
+    path.fill()
+    NSGraphicsContext.restoreGraphicsState()
+
+    NSGraphicsContext.saveGraphicsState()
+    path.addClip()
+    image.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1)
+    NSGraphicsContext.restoreGraphicsState()
+
+    NSColor.white.withAlphaComponent(0.42).setStroke()
+    path.lineWidth = 2
+    path.stroke()
+}
+
 private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: URL,
-                    pdf: PDFDocument?) throws {
+                    pdf: PDFDocument?, logo: NSImage) throws {
     guard template.background.count == 2 else { throw RenderError.invalidTemplate(template.id) }
     let start = try NSColor(hex: template.background[0])
     let end = try NSColor(hex: template.background[1])
@@ -255,6 +277,7 @@ private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: 
     drawText("PHOTOBOOKS", in: topRect(x: copyX, y: 1510, width: copyWidth, height: 70),
              font: .systemFont(ofSize: 28, weight: .semibold), color: accent,
              lineHeight: 38, alignment: alignment)
+    drawLogo(logo, in: topRect(x: 2640, y: 1560, width: 190, height: 190))
 
     context.flushGraphics()
     NSGraphicsContext.restoreGraphicsState()
@@ -268,7 +291,9 @@ private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: 
 
 do {
     guard let templatesPath = argument("--templates"), let copyPath = argument("--copy"),
-          let rawPath = argument("--raw"), let outputPath = argument("--output") else {
+          let rawPath = argument("--raw"), let outputPath = argument("--output"),
+          let logoPath = argument("--logo"),
+          let logo = NSImage(contentsOfFile: logoPath) else {
         throw RenderError.usage
     }
     let decoder = JSONDecoder()
@@ -288,7 +313,8 @@ do {
         let template = try decoder.decode(Template.self, from: Data(contentsOf: templateURL))
         guard let entry = copy.screenshots[template.id] else { throw RenderError.missingCopy(template.id) }
         let destination = outputURL.appendingPathComponent("\(template.id).png")
-        try render(template: template, copy: entry, raw: rawURL, output: destination, pdf: pdf)
+        try render(template: template, copy: entry, raw: rawURL, output: destination,
+                   pdf: pdf, logo: logo)
         print("rendered \(destination.path)")
     }
 } catch {

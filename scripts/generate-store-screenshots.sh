@@ -7,6 +7,7 @@ TEMPLATES="$SCREENSHOTS/templates"
 RAW="$SCREENSHOTS/raw"
 OUTPUT="$SCREENSHOTS/output"
 DERIVED="$SCREENSHOTS/.derived-data"
+LOGO="$SCREENSHOTS/assets/GraphicMeatLogo.png"
 RENDERER="$ROOT/scripts/render-store-screenshots.swift"
 staged_fixture=""
 
@@ -187,6 +188,7 @@ for entry in "${selected[@]}"; do
     --copy "$copy"
     --raw "$RAW/$store"
     --output "$OUTPUT/$store"
+    --logo "$LOGO"
   )
   [[ -n "$print_pdf" ]] && renderer_args+=(--pdf "$print_pdf")
   SWIFT_MODULECACHE_PATH="$DERIVED/swift-module-cache" \

@@ -6,6 +6,7 @@ screenshots. Final images are always 2880 x 1800 pixels.
 - `copy/en-US.json` contains the approved English headline and subtext.
 - `templates/*.json` defines the composition and the predefined app view used
   by each screenshot.
+- `assets/GraphicMeatLogo.png` is the shared corner brand mark.
 - `locales.json` maps the app's languages to App Store Connect locale folders.
 - `raw/<locale>/` and `output/<locale>/` are generated and ignored by Git.
 
