@@ -175,3 +175,8 @@ jobs:
               --generate-notes \
               $DRAFT_FLAG
           fi
+
+      - name: Clean up signing keychain
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/app-signing.keychain-db" || true
