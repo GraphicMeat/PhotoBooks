@@ -148,9 +148,13 @@ struct CurationStepView: View {
     private var targetChoices: [(label: String, value: Int)] {
         switch model.unit {
         case .pages:
-            [("Short", 20), ("Standard", 36), ("Full story", 56)]
+            [(String(localized: "Short", bundle: .module), 20),
+             (String(localized: "Standard", bundle: .module), 36),
+             (String(localized: "Full story", bundle: .module), 56)]
         case .photos:
-            [("Selective", 25), ("Balanced", 50), ("Inclusive", 100)]
+            [(String(localized: "Selective", bundle: .module), 25),
+             (String(localized: "Balanced", bundle: .module), 50),
+             (String(localized: "Inclusive", bundle: .module), 100)]
         }
     }
 
@@ -190,9 +194,9 @@ struct CurationStepView: View {
 
     private var selectionSummary: String {
         if model.unit == .pages {
-            return "About \(model.targetValue) pages · \(model.resolvedPhotoCount) photos"
+            return String(localized: "About \(model.targetValue) pages · \(model.resolvedPhotoCount) photos", bundle: .module)
         }
-        return "About \(model.resolvedPhotoCount) photos"
+        return String(localized: "About \(model.resolvedPhotoCount) photos", bundle: .module)
     }
 
     private var bookLengthPreview: some View {

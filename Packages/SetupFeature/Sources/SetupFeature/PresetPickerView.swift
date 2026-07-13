@@ -31,7 +31,7 @@ public struct PresetPickerView: View {
                     let presets = PresetLibrary.all().filter { $0.aspectClass == aspectClass }
                     if !presets.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(aspectClass.rawValue.capitalized)
+                            Text(aspectClass.displayTitle)
                                 .font(.headline)
                             LazyVGrid(
                                 columns: [GridItem(.adaptive(minimum: 150), spacing: 12)],

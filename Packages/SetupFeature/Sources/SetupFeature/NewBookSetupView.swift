@@ -48,7 +48,7 @@ public struct NewBookSetupView: View {
     @State private var collections: [PhotoCollection] = []
     @State private var availablePhotos: [PhotoRef] = []
     @State private var selectedPhotoIDs: Set<PhotoID> = []
-    @State private var bookTitle = "My Book"
+    @State private var bookTitle = String(localized: "My Book", bundle: .module)
     @State private var showFolderImporter = false
     @State private var errorMessage: String?
     @State private var isLimitedAccess = false
@@ -83,8 +83,8 @@ public struct NewBookSetupView: View {
             case .style: styleStep
             case .generating:
                 ProgressView(analysisTotal > 0 && analysisDone < analysisTotal
-                             ? "Analyzing photos… (\(analysisDone)/\(analysisTotal))"
-                             : "Laying out your book…")
+                             ? String(localized: "Analyzing photos… (\(analysisDone)/\(analysisTotal))", bundle: .module)
+                             : String(localized: "Laying out your book…", bundle: .module))
                     .padding(40)
             }
             if let errorMessage {
@@ -115,7 +115,9 @@ public struct NewBookSetupView: View {
 
     private var sourceStep: some View {
         VStack(spacing: 28) {
-            setupHeader(step: 1, title: "Choose photos", subtitle: "Start with Apple Photos or a folder on this device") {
+            setupHeader(step: 1,
+                        title: String(localized: "Choose photos", bundle: .module),
+                        subtitle: String(localized: "Start with Apple Photos or a folder on this device", bundle: .module)) {
                 onExitToWelcome()
             }
             Spacer()
@@ -126,8 +128,9 @@ public struct NewBookSetupView: View {
                     Button {
                         loadPhotoCollections()
                     } label: {
-                        sourceCard(systemImage: "photo.on.rectangle.angled", title: "From Photos",
-                                   subtitle: "Albums from your Apple Photos library")
+                        sourceCard(systemImage: "photo.on.rectangle.angled",
+                                   title: String(localized: "From Photos", bundle: .module),
+                                   subtitle: String(localized: "Albums from your Apple Photos library", bundle: .module))
                     }
                     .buttonStyle(.plain)
                     .help(Text("Pick photos from your Apple Photos library", bundle: .module))
@@ -136,8 +139,9 @@ public struct NewBookSetupView: View {
                     Button {
                         showFolderImporter = true
                     } label: {
-                        sourceCard(systemImage: "folder", title: "From Folder",
-                                   subtitle: "JPEG, HEIC, PNG, TIFF, RAW")
+                        sourceCard(systemImage: "folder",
+                                   title: String(localized: "From Folder", bundle: .module),
+                                   subtitle: String(localized: "JPEG, HEIC, PNG, TIFF, RAW", bundle: .module))
                     }
                     .buttonStyle(.plain)
                     .help(Text("Pick photos from a folder of image files", bundle: .module))
@@ -193,7 +197,7 @@ public struct NewBookSetupView: View {
                     collections = try await providers.photoKit.collections()
                     step = .photoCollections
                 } catch {
-                    errorMessage = "Could not load your Photos albums: \(error.localizedDescription)"
+                    errorMessage = String(localized: "Could not load your Photos albums: \(error.localizedDescription)", bundle: .module)
                 }
             }
         }
@@ -210,7 +214,7 @@ public struct NewBookSetupView: View {
                     let collection = try providers.fileSystem.makeCollection(fromFolder: url)
                     let refs = try await providers.fileSystem.photoRefs(in: collection)
                     guard !refs.isEmpty else {
-                        errorMessage = "No importable images found in \"\(collection.title)\"."
+                        errorMessage = String(localized: "No importable images found in \"\(collection.title)\".", bundle: .module)
                         return
                     }
                     bookTitle = collection.title
@@ -221,7 +225,7 @@ public struct NewBookSetupView: View {
                     curationOrigin = .source
                     step = .curation
                 } catch {
-                    errorMessage = "Could not read that folder: \(error.localizedDescription)"
+                    errorMessage = String(localized: "Could not read that folder: \(error.localizedDescription)", bundle: .module)
                 }
             }
         }
@@ -231,7 +235,9 @@ public struct NewBookSetupView: View {
 
     private var collectionsStep: some View {
         VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 1, title: "Choose an album", subtitle: "Select where your story lives") {
+            setupHeader(step: 1,
+                        title: String(localized: "Choose an album", bundle: .module),
+                        subtitle: String(localized: "Select where your story lives", bundle: .module)) {
                 step = .source
             }
             limitedAccessBanner
@@ -259,7 +265,7 @@ public struct NewBookSetupView: View {
             do {
                 let refs = try await providers.photoKit.photoRefs(in: collection)
                 guard !refs.isEmpty else {
-                    errorMessage = "\"\(collection.title)\" has no photos."
+                    errorMessage = String(localized: "\"\(collection.title)\" has no photos.", bundle: .module)
                     return
                 }
                 bookTitle = collection.title
@@ -268,14 +274,14 @@ public struct NewBookSetupView: View {
                 activeProvider = providers.photoKit
                 step = .photoGrid
             } catch {
-                errorMessage = "Could not load photos: \(error.localizedDescription)"
+                errorMessage = String(localized: "Could not load photos: \(error.localizedDescription)", bundle: .module)
             }
         }
     }
 
     private var photoGridStep: some View {
         VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 1, title: bookTitle, subtitle: "Choose the moments to include") {
+            setupHeader(step: 1, title: bookTitle, subtitle: String(localized: "Choose the moments to include", bundle: .module)) {
                 step = .photoCollections
             }
             limitedAccessBanner
@@ -331,8 +337,8 @@ public struct NewBookSetupView: View {
 
     private var curationStep: some View {
         VStack(spacing: 16) {
-            setupHeader(step: 2, title: "Refine your selection",
-                        subtitle: "Keep every photo or let us build a balanced story") {
+            setupHeader(step: 2, title: String(localized: "Refine your selection", bundle: .module),
+                        subtitle: String(localized: "Keep every photo or let us build a balanced story", bundle: .module)) {
                 step = curationOrigin
             }
             CurationStepView(
@@ -393,8 +399,8 @@ public struct NewBookSetupView: View {
 
     private var bookShapeStep: some View {
         VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 3, title: "Choose a book shape",
-                        subtitle: "Start with the silhouette that best fits your photos") {
+            setupHeader(step: 3, title: String(localized: "Choose a book shape", bundle: .module),
+                        subtitle: String(localized: "Start with the silhouette that best fits your photos", bundle: .module)) {
                 step = .curation
             }
             Spacer()
@@ -414,7 +420,7 @@ public struct NewBookSetupView: View {
             .frame(maxWidth: .infinity)
             Spacer()
             HStack {
-                Text(selectedAspectClass?.displayTitle ?? "Select a shape to continue")
+                Text(selectedAspectClass?.displayTitle ?? String(localized: "Select a shape to continue", bundle: .module))
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -430,8 +436,8 @@ public struct NewBookSetupView: View {
 
     private var bookFormatStep: some View {
         VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 4, title: "Choose a book size",
-                        subtitle: "Now choose the physical scale of your \(selectedAspectClass?.displayTitle.lowercased() ?? "book")") {
+            setupHeader(step: 4, title: String(localized: "Choose a book size", bundle: .module),
+                        subtitle: String(localized: "Now choose the physical scale of your \(selectedAspectClass?.displayTitle.lowercased() ?? String(localized: "book", bundle: .module))", bundle: .module)) {
                 step = .bookShape
             }
             ScrollView {
@@ -478,8 +484,8 @@ public struct NewBookSetupView: View {
 
     private var styleStep: some View {
         VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 5, title: "Make it yours",
-                        subtitle: "Choose how your photos should feel on the page") {
+            setupHeader(step: 5, title: String(localized: "Make it yours", bundle: .module),
+                        subtitle: String(localized: "Choose how your photos should feel on the page", bundle: .module)) {
                 step = .bookFormat
             }
             ScrollView {
@@ -527,7 +533,9 @@ public struct NewBookSetupView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(style.title)
-                    .accessibilityValue(edgeStyleDefault == style ? "Selected" : "Not selected")
+                    .accessibilityValue(edgeStyleDefault == style
+                                        ? Text("Selected", bundle: .module)
+                                        : Text("Not selected", bundle: .module))
                 }
             }
         }
@@ -545,14 +553,18 @@ public struct NewBookSetupView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Balanced pages", bundle: .module))
-                .accessibilityValue(!analyzeImportance ? "Selected" : "Not selected")
+                .accessibilityValue(!analyzeImportance
+                                    ? Text("Selected", bundle: .module)
+                                    : Text("Not selected", bundle: .module))
 
                 Button { analyzeImportance = true } label: {
                     EmphasisCard(emphasized: true, isSelected: analyzeImportance)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Give standout photos more space", bundle: .module))
-                .accessibilityValue(analyzeImportance ? "Selected" : "Not selected")
+                .accessibilityValue(analyzeImportance
+                                    ? Text("Selected", bundle: .module)
+                                    : Text("Not selected", bundle: .module))
                 .accessibilityIdentifier("setup-smart-spacing-toggle")
             }
         }
@@ -718,12 +730,13 @@ private struct BookShapeCard: View {
     }
 }
 
-private extension AspectClass {
+/// Not `private`: also used by `PresetPickerView`'s format-switch sheet.
+extension AspectClass {
     var displayTitle: String {
         switch self {
-        case .landscape: "Landscape"
-        case .square: "Square"
-        case .portrait: "Portrait"
+        case .landscape: String(localized: "Landscape", bundle: .module)
+        case .square: String(localized: "Square", bundle: .module)
+        case .portrait: String(localized: "Portrait", bundle: .module)
         }
     }
 
@@ -737,9 +750,9 @@ private extension AspectClass {
 
     var shapeExplanation: String {
         switch self {
-        case .landscape: "Wide and cinematic"
-        case .square: "Balanced and versatile"
-        case .portrait: "Tall and editorial"
+        case .landscape: String(localized: "Wide and cinematic", bundle: .module)
+        case .square: String(localized: "Balanced and versatile", bundle: .module)
+        case .portrait: String(localized: "Tall and editorial", bundle: .module)
         }
     }
 }
@@ -873,17 +886,17 @@ private struct EdgeStyleCard: View {
 private extension EdgeStyle {
     var title: String {
         switch self {
-        case .framed: "Framed"
-        case .tiled: "Tiled"
-        case .borderless: "Borderless"
+        case .framed: String(localized: "Framed", bundle: .module)
+        case .tiled: String(localized: "Tiled", bundle: .module)
+        case .borderless: String(localized: "Borderless", bundle: .module)
         }
     }
 
     var explanation: String {
         switch self {
-        case .framed: "Margin and space between photos"
-        case .tiled: "To the page edge, with space"
-        case .borderless: "Edge-to-edge, without gaps"
+        case .framed: String(localized: "Margin and space between photos", bundle: .module)
+        case .tiled: String(localized: "To the page edge, with space", bundle: .module)
+        case .borderless: String(localized: "Edge-to-edge, without gaps", bundle: .module)
         }
     }
 }
