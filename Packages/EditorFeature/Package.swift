@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "EditorFeature",
+    defaultLocalization: "en",
     platforms: [.iOS(.v18), .macOS(.v15)],
     products: [
         .library(name: "EditorFeature", targets: ["EditorFeature"])
@@ -17,7 +18,8 @@ let package = Package(
     targets: [
         .target(
             name: "EditorFeature",
-            dependencies: ["ModelLayer", "EditCore", "AppSupport", "SetupFeature", "ExportFeature"]
+            dependencies: ["ModelLayer", "EditCore", "AppSupport", "SetupFeature", "ExportFeature"],
+            resources: [.process("Localizable.xcstrings")]
         ),
         .testTarget(
             name: "EditorFeatureTests",

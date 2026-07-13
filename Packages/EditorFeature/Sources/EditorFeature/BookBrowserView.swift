@@ -245,12 +245,12 @@ public struct BookBrowserView: View {
         NavigationSplitView {
             List(selection: pageSelection) {
                 if let cover = book.pages.first, cover.role == .cover {
-                    Section("Cover") {
+                    Section(String(localized: "Cover", bundle: .module)) {
                         sidebarRow(index: 0, page: cover)
                             .tag(cover.id)
                     }
                 }
-                Section("Pages") {
+                Section(String(localized: "Pages", bundle: .module)) {
                     ForEach(standardPages) { page in
                         let index = book.pages.firstIndex(where: { $0.id == page.id }) ?? 0
                         sidebarRow(index: index, page: page)
@@ -333,23 +333,23 @@ public struct BookBrowserView: View {
                 }
             VStack(alignment: .leading, spacing: 2) {
                 if page.role == .cover {
-                    Text("Cover")
+                    Text("Cover", bundle: .module)
                         .font(.caption.bold())
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color.accentColor.opacity(0.2), in: Capsule())
                 } else {
-                    Text("Page \(index)")
+                    Text("Page \(index)", bundle: .module)
                         .font(.caption)
                 }
                 if book.missingPhotoCount(on: page) > 0 {
-                    Label("Missing", systemImage: "exclamationmark.triangle")
+                    Label(String(localized: "Missing", bundle: .module), systemImage: "exclamationmark.triangle")
                         .font(.caption2)
                         .foregroundStyle(.orange)
                         .labelStyle(.titleAndIcon)
                 }
                 if editor.pageIndexesWithWarnings.contains(index) {
-                    Label("Warning", systemImage: "exclamationmark.triangle.fill")
+                    Label(String(localized: "Warning", bundle: .module), systemImage: "exclamationmark.triangle.fill")
                         .font(.caption2)
                         .foregroundStyle(.yellow)
                         .labelStyle(.titleAndIcon)
@@ -360,7 +360,9 @@ public struct BookBrowserView: View {
         }
         .padding(.vertical, 5)
         .contextMenu {
-            Button(page.isLocked ? "Unlock Page" : "Lock Page",
+            Button(page.isLocked
+                       ? String(localized: "Unlock Page", bundle: .module)
+                       : String(localized: "Lock Page", bundle: .module),
                    systemImage: page.isLocked ? "lock.open" : "lock") {
                 editor.togglePageLock(page.id)
             }
@@ -432,7 +434,7 @@ public struct BookBrowserView: View {
                                       })
                 }
             } else {
-                Text("No pages")
+                Text("No pages", bundle: .module)
                     .foregroundStyle(.secondary)
             }
         }
@@ -446,8 +448,8 @@ public struct BookBrowserView: View {
                                             pageIsLocked: editor.selectedPageIsLocked))
         .modifier(TextActionsInlineOverlay(editor: editor))
         .snackbar(editor.isReplacing
-            ? SnackbarConfig(message: "Select a photo to swap in",
-                             actionTitle: "Cancel",
+            ? SnackbarConfig(message: String(localized: "Select a photo to swap in", bundle: .module),
+                             actionTitle: String(localized: "Cancel", bundle: .module),
                              isPresented: Binding(get: { editor.isReplacing },
                                                   set: { show in if !show { editor.cancelReplace() } }),
                              action: { editor.cancelReplace() })
@@ -520,7 +522,7 @@ public struct BookBrowserView: View {
                 Button {
                     editor.tryAnotherSelectedLayout()
                 } label: {
-                    Label("Try Another Layout", systemImage: "arrow.triangle.2.circlepath")
+                    Label(String(localized: "Try Another Layout", bundle: .module), systemImage: "arrow.triangle.2.circlepath")
                 }
                 .disabled(!editor.canTryAnotherSelectedLayout)
                 .accessibilityIdentifier("toolbar-reshuffle-page")
@@ -528,145 +530,149 @@ public struct BookBrowserView: View {
                 Button {
                     editor.toggleSelectedPageLock()
                 } label: {
-                    Label(editor.selectedPageIsLocked ? "Unlock Page" : "Lock Page",
+                    Label(editor.selectedPageIsLocked
+                              ? String(localized: "Unlock Page", bundle: .module)
+                              : String(localized: "Lock Page", bundle: .module),
                           systemImage: editor.selectedPageIsLocked ? "lock.open" : "lock")
                 }
                 .disabled(editor.selectedPageID == nil)
                 .accessibilityIdentifier("toolbar-lock-page")
 
                 Divider()
-                Button("Merge Facing Pages", systemImage: "rectangle.split.2x1") {
+                Button(String(localized: "Merge Facing Pages", bundle: .module), systemImage: "rectangle.split.2x1") {
                     editor.convertSelectedSpread()
                 }
                 .disabled(!editor.canConvertSelectedToSpread)
                 .accessibilityIdentifier("spread-merge")
 
-                Button("Split Spread", systemImage: "rectangle.split.2x1.slash") {
+                Button(String(localized: "Split Spread", bundle: .module), systemImage: "rectangle.split.2x1.slash") {
                     editor.revertSelectedSpread()
                 }
                 .disabled(!editor.canRevertSelectedSpread)
                 .accessibilityIdentifier("spread-split")
 
                 Divider()
-                Button("Add One Photo", systemImage: "plus.rectangle") {
+                Button(String(localized: "Add One Photo", bundle: .module), systemImage: "plus.rectangle") {
                     editor.increaseSelectedPageDensity()
                 }
                 .disabled(!editor.canIncreaseSelectedPageDensity)
                 .accessibilityIdentifier("density-increase")
 
-                Button("Remove One Photo", systemImage: "minus.rectangle") {
+                Button(String(localized: "Remove One Photo", bundle: .module), systemImage: "minus.rectangle") {
                     editor.decreaseSelectedPageDensity()
                 }
                 .disabled(!editor.canDecreaseSelectedPageDensity)
                 .accessibilityIdentifier("density-decrease")
 
                 Divider()
-                Picker("Photo Edges", selection: Binding(
+                Picker(String(localized: "Photo Edges", bundle: .module), selection: Binding(
                     get: { editor.selectedPageEdgeStyle },
                     set: { editor.setSelectedPageEdgeStyle($0) }
                 )) {
-                    Text("Framed").tag(EdgeStyle.framed)
-                    Text("Tiled").tag(EdgeStyle.tiled)
-                    Text("Borderless").tag(EdgeStyle.borderless)
+                    Text("Framed", bundle: .module).tag(EdgeStyle.framed)
+                    Text("Tiled", bundle: .module).tag(EdgeStyle.tiled)
+                    Text("Borderless", bundle: .module).tag(EdgeStyle.borderless)
                 }
                 .accessibilityIdentifier("toolbar-edge-style-page")
 
-                ColorPicker("Page Background", selection: Binding(
+                ColorPicker(String(localized: "Page Background", bundle: .module), selection: Binding(
                     get: { Color(hex: editor.selectedPageEffectiveBackgroundHex) },
                     set: { editor.setSelectedPageBackground($0.rgbHexString) }
                 ), supportsOpacity: false)
                 .disabled(editor.selectedPageID == nil)
                 .accessibilityIdentifier("page-bg-color")
 
-                Button("Reset Page Style", systemImage: "arrow.uturn.backward") {
+                Button(String(localized: "Reset Page Style", bundle: .module), systemImage: "arrow.uturn.backward") {
                     editor.resetSelectedPageToDefault()
                 }
                 .disabled(editor.selectedPageID == nil)
             } label: {
-                Label("Page", systemImage: "doc")
+                Label(String(localized: "Page", bundle: .module), systemImage: "doc")
             }
-            .help("Layout and appearance for the selected page")
+            .help(Text("Layout and appearance for the selected page", bundle: .module))
 
             Menu {
-                Button("Add Text", systemImage: "textbox") {
+                Button(String(localized: "Add Text", bundle: .module), systemImage: "textbox") {
                     editor.addTextSlotToSelectedPage()
                 }
                 .disabled(!editor.canAddTextToSelectedPage)
                 .accessibilityIdentifier("toolbar-add-text")
 
-                Button("Place Remaining Photos", systemImage: "rectangle.stack.badge.plus") {
+                Button(String(localized: "Place Remaining Photos", bundle: .module), systemImage: "rectangle.stack.badge.plus") {
                     editor.placeRemaining()
                 }
                 .disabled(editor.unplacedPhotoIDs.isEmpty)
                 .accessibilityIdentifier("toolbar-place-remaining")
             } label: {
-                Label("Add", systemImage: "plus")
+                Label(String(localized: "Add", bundle: .module), systemImage: "plus")
             }
-            .help("Add content to the book")
+            .help(Text("Add content to the book", bundle: .module))
 
             Menu {
-                Button("Rebuild Unlocked Pages", systemImage: "shuffle") {
+                Button(String(localized: "Rebuild Unlocked Pages", bundle: .module), systemImage: "shuffle") {
                     editor.reshuffleBook()
                 }
                 .accessibilityIdentifier("toolbar-reshuffle-book")
 
                 Divider()
-                ColorPicker("Book Background", selection: Binding(
+                ColorPicker(String(localized: "Book Background", bundle: .module), selection: Binding(
                     get: { Color(hex: editor.bookBackgroundHex) },
                     set: { editor.setBookBackground($0.rgbHexString) }
                 ), supportsOpacity: false)
                 .accessibilityIdentifier("book-bg-color")
 
-                Picker("Default Photo Edges", selection: Binding(
+                Picker(String(localized: "Default Photo Edges", bundle: .module), selection: Binding(
                     get: { editor.bookEdgeStyle },
                     set: { editor.setBookEdgeStyle($0) }
                 )) {
-                    Text("Framed").tag(EdgeStyle.framed)
-                    Text("Tiled").tag(EdgeStyle.tiled)
-                    Text("Borderless").tag(EdgeStyle.borderless)
+                    Text("Framed", bundle: .module).tag(EdgeStyle.framed)
+                    Text("Tiled", bundle: .module).tag(EdgeStyle.tiled)
+                    Text("Borderless", bundle: .module).tag(EdgeStyle.borderless)
                 }
                 .accessibilityIdentifier("toolbar-edge-style-book")
 
                 Divider()
-                Button("Book Size and Format…", systemImage: "aspectratio") {
+                Button(String(localized: "Book Size and Format…", bundle: .module), systemImage: "aspectratio") {
                     showPresetPicker = true
                 }
                 .accessibilityIdentifier("toolbar-book-format")
             } label: {
-                Label("Book", systemImage: "book.closed")
+                Label(String(localized: "Book", bundle: .module), systemImage: "book.closed")
             }
-            .help("Settings that affect the whole book")
+            .help(Text("Settings that affect the whole book", bundle: .module))
 
             Button {
                 showTray.toggle()
             } label: {
-                Label("Photos", systemImage: showTray ? "tray.full.fill" : "tray.full")
+                Label(String(localized: "Photos", bundle: .module), systemImage: showTray ? "tray.full.fill" : "tray.full")
             }
-            .help(showTray ? "Hide unplaced photos" : "Show unplaced photos")
+            .help(showTray
+                      ? Text("Hide unplaced photos", bundle: .module)
+                      : Text("Show unplaced photos", bundle: .module))
             .accessibilityIdentifier("tray-toggle")
 
             Menu {
-                canvasBackgroundChoice("White", systemImage: "square.fill", mode: "white")
-                canvasBackgroundChoice("Black", systemImage: "square.fill", mode: "black")
-                canvasBackgroundChoice("Transparent", systemImage: "square.grid.3x3.square", mode: "clear")
+                canvasBackgroundChoice(String(localized: "White", bundle: .module), systemImage: "square.fill", mode: "white")
+                canvasBackgroundChoice(String(localized: "Black", bundle: .module), systemImage: "square.fill", mode: "black")
+                canvasBackgroundChoice(String(localized: "Transparent", bundle: .module), systemImage: "square.grid.3x3.square", mode: "clear")
                 Divider()
-                Button("Custom Color…", systemImage: "paintpalette") {
+                Button(String(localized: "Custom Color…", bundle: .module), systemImage: "paintpalette") {
                     showCanvasColorPicker = true
                 }
             } label: {
-                Label("Canvas", systemImage: canvasBackgroundMode == "clear"
+                Label(String(localized: "Canvas", bundle: .module), systemImage: canvasBackgroundMode == "clear"
                       ? "square.grid.3x3.square" : "circle.lefthalf.filled")
             }
-            .help("Change the workspace color behind the book")
+            .help(Text("Change the workspace color behind the book", bundle: .module))
             .accessibilityIdentifier("canvas-background-menu")
             .popover(isPresented: $showCanvasColorPicker, arrowEdge: .bottom) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Canvas Color")
+                    Text("Canvas Color", bundle: .module)
                         .font(.headline)
-                    Text("This changes only the workspace behind the book.")
+                    Text("This changes only the workspace behind the book.", bundle: .module)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    ColorPicker("Custom color", selection: Binding(
+                    ColorPicker(String(localized: "Custom color", bundle: .module), selection: Binding(
                         get: { Color(hex: canvasBackgroundHex) },
                         set: { color in
                             canvasBackgroundHex = color.rgbHexString
@@ -676,7 +682,7 @@ public struct BookBrowserView: View {
                     .accessibilityIdentifier("canvas-custom-color-picker")
                     HStack {
                         Spacer()
-                        Button("Done") { showCanvasColorPicker = false }
+                        Button(String(localized: "Done", bundle: .module)) { showCanvasColorPicker = false }
                             .keyboardShortcut(.defaultAction)
                     }
                 }
@@ -688,30 +694,34 @@ public struct BookBrowserView: View {
                 Button { zoomOut() } label: {
                     Image(systemName: "minus")
                 }
-                .help("Zoom out")
+                .help(Text("Zoom out", bundle: .module))
                 .keyboardShortcut("-", modifiers: .command)
                 .accessibilityIdentifier("canvas-zoom-out")
 
                 Menu {
-                    Button("Fit Spread") { zoomMode = .fitSpread }
+                    Button(String(localized: "Fit Spread", bundle: .module)) { zoomMode = .fitSpread }
                         .keyboardShortcut("0", modifiers: .command)
-                    Button("Actual Print Size") { zoomMode = .printSize }
+                    Button(String(localized: "Actual Print Size", bundle: .module)) { zoomMode = .printSize }
                     Divider()
                     ForEach([25, 50, 75, 100, 125, 150, 200, 400], id: \.self) { percent in
-                        Button("\(percent)%") { zoomMode = .percentage(percent) }
+                        Button {
+                            zoomMode = .percentage(percent)
+                        } label: {
+                            Text(verbatim: "\(percent)%")
+                        }
                     }
                 } label: {
                     Text(zoomLabel)
                         .monospacedDigit()
                         .frame(minWidth: 42)
                 }
-                .help("Choose a zoom level")
+                .help(Text("Choose a zoom level", bundle: .module))
                 .accessibilityIdentifier("canvas-zoom-menu")
 
                 Button { zoomIn() } label: {
                     Image(systemName: "plus")
                 }
-                .help("Zoom in")
+                .help(Text("Zoom in", bundle: .module))
                 .keyboardShortcut("+", modifiers: .command)
                 .accessibilityIdentifier("canvas-zoom-in")
             }
@@ -723,9 +733,9 @@ public struct BookBrowserView: View {
                     Button(target.menuTitle) { exportModel.begin(target) }
                 }
             } label: {
-                Label("Export", systemImage: "square.and.arrow.up")
+                Label(String(localized: "Export", bundle: .module), systemImage: "square.and.arrow.up")
             }
-            .help("Export or print your finished book")
+            .help(Text("Export or print your finished book", bundle: .module))
             .accessibilityIdentifier("toolbar-export")
         }
     }
@@ -747,8 +757,8 @@ public struct BookBrowserView: View {
 
     private var zoomLabel: String {
         switch zoomMode {
-        case .fitSpread: "Fit"
-        case .printSize: "Print"
+        case .fitSpread: String(localized: "Fit", bundle: .module)
+        case .printSize: String(localized: "Print", bundle: .module)
         case .percentage(let percent): "\(percent)%"
         }
     }
@@ -774,137 +784,141 @@ public struct BookBrowserView: View {
             Button {
                 editor.reshuffleSelectedPage()
             } label: {
-                Label("Reshuffle Page", systemImage: "arrow.triangle.2.circlepath")
+                Label(String(localized: "Reshuffle Page", bundle: .module), systemImage: "arrow.triangle.2.circlepath")
             }
             .disabled(editor.selectedPageID == nil)
-            .help("Regenerate the selected page's layout (locked content survives)")
+            .help(Text("Regenerate the selected page's layout (locked content survives)", bundle: .module))
             .accessibilityIdentifier("toolbar-reshuffle-page")
 
             Button {
                 editor.reshuffleBook()
             } label: {
-                Label("Reshuffle Book", systemImage: "shuffle")
+                Label(String(localized: "Reshuffle Book", bundle: .module), systemImage: "shuffle")
             }
-            .help("Regenerate every unlocked page")
+            .help(Text("Regenerate every unlocked page", bundle: .module))
             .accessibilityIdentifier("toolbar-reshuffle-book")
 
             Button {
                 editor.toggleSelectedPageLock()
             } label: {
-                Label(editor.selectedPageIsLocked ? "Unlock Page" : "Lock Page",
+                Label(editor.selectedPageIsLocked
+                          ? String(localized: "Unlock Page", bundle: .module)
+                          : String(localized: "Lock Page", bundle: .module),
                       systemImage: editor.selectedPageIsLocked ? "lock.fill" : "lock.open")
             }
             .disabled(editor.selectedPageID == nil)
             .help(editor.selectedPageIsLocked
-                  ? "Unlock this page so reshuffle can re-lay it"
-                  : "Lock this page so reshuffle skips it")
+                  ? Text("Unlock this page so reshuffle can re-lay it", bundle: .module)
+                  : Text("Lock this page so reshuffle skips it", bundle: .module))
             .accessibilityIdentifier("toolbar-lock-page")
 
             Button {
                 editor.convertSelectedSpread()
             } label: {
-                Label("Merge into Spread", systemImage: "rectangle.split.2x1")
+                Label(String(localized: "Merge into Spread", bundle: .module), systemImage: "rectangle.split.2x1")
             }
             .disabled(!editor.canConvertSelectedToSpread)
-            .help("Merge this facing pair into a single panoramic spread")
+            .help(Text("Merge this facing pair into a single panoramic spread", bundle: .module))
             .accessibilityIdentifier("spread-merge")
 
             Button {
                 editor.revertSelectedSpread()
             } label: {
-                Label("Split Spread", systemImage: "rectangle.split.2x1.slash")
+                Label(String(localized: "Split Spread", bundle: .module), systemImage: "rectangle.split.2x1.slash")
             }
             .disabled(!editor.canRevertSelectedSpread)
-            .help("Split this spread back into two independent pages")
+            .help(Text("Split this spread back into two independent pages", bundle: .module))
             .accessibilityIdentifier("spread-split")
 
             Button {
                 editor.increaseSelectedPageDensity()
             } label: {
-                Label("More Photos", systemImage: "plus.rectangle")
+                Label(String(localized: "More Photos", bundle: .module), systemImage: "plus.rectangle")
             }
             .disabled(!editor.canIncreaseSelectedPageDensity)
-            .help("Move one more photo onto this page from the next page")
+            .help(Text("Move one more photo onto this page from the next page", bundle: .module))
             .accessibilityIdentifier("density-increase")
 
             Button {
                 editor.decreaseSelectedPageDensity()
             } label: {
-                Label("Fewer Photos", systemImage: "minus.rectangle")
+                Label(String(localized: "Fewer Photos", bundle: .module), systemImage: "minus.rectangle")
             }
             .disabled(!editor.canDecreaseSelectedPageDensity)
-            .help("Move one photo from this page onto the next page")
+            .help(Text("Move one photo from this page onto the next page", bundle: .module))
             .accessibilityIdentifier("density-decrease")
 
             Menu {
-                Picker("Photo edges", selection: Binding(
+                Picker(String(localized: "Photo edges", bundle: .module), selection: Binding(
                     get: { editor.selectedPageEdgeStyle },
                     set: { editor.setSelectedPageEdgeStyle($0) }
                 )) {
-                    Text("Framed").tag(EdgeStyle.framed)
-                    Text("Tiled").tag(EdgeStyle.tiled)
-                    Text("Borderless").tag(EdgeStyle.borderless)
+                    Text("Framed", bundle: .module).tag(EdgeStyle.framed)
+                    Text("Tiled", bundle: .module).tag(EdgeStyle.tiled)
+                    Text("Borderless", bundle: .module).tag(EdgeStyle.borderless)
                 }
             } label: {
                 Label(edgeStyleLabel(editor.selectedPageEdgeStyle),
                       systemImage: edgeStyleIcon(editor.selectedPageEdgeStyle))
             }
             .disabled(editor.selectedPageID == nil)
-            .help("Photo edges for this page — Framed (margin + gaps), Tiled (fills to edge, keeps gaps), or Borderless (edge-to-edge, no gaps).")
+            .help(Text("Photo edges for this page — Framed (margin + gaps), Tiled (fills to edge, keeps gaps), or Borderless (edge-to-edge, no gaps).", bundle: .module))
             .accessibilityIdentifier("toolbar-edge-style-page")
 
-            ColorPicker("Page background", selection: Binding(
+            ColorPicker(String(localized: "Page background", bundle: .module), selection: Binding(
                 get: { Color(hex: editor.selectedPageEffectiveBackgroundHex) },
                 set: { editor.setSelectedPageBackground($0.rgbHexString) }
             ), supportsOpacity: false)
             .disabled(editor.selectedPageID == nil)
-            .help("Set the background color of the selected page")
+            .help(Text("Set the background color of the selected page", bundle: .module))
             .accessibilityIdentifier("page-bg-color")
 
-            Button("Reset to book default") { editor.resetSelectedPageToDefault() }
+            Button(String(localized: "Reset to book default", bundle: .module)) { editor.resetSelectedPageToDefault() }
                 .disabled(editor.selectedPageID == nil)
-                .help("Reset this page: clear its color, edge style, and photo sizing back to the book default")
+                .help(Text("Reset this page: clear its color, edge style, and photo sizing back to the book default", bundle: .module))
 
-            ColorPicker("Book background", selection: Binding(
+            ColorPicker(String(localized: "Book background", bundle: .module), selection: Binding(
                 get: { Color(hex: editor.bookBackgroundHex) },
                 set: { editor.setBookBackground($0.rgbHexString) }
             ), supportsOpacity: false)
-            .help("Set the default background color for every page")
+            .help(Text("Set the default background color for every page", bundle: .module))
             .accessibilityIdentifier("book-bg-color")
 
             Menu {
-                Picker("Photo edges (all pages)", selection: Binding(
+                Picker(String(localized: "Photo edges (all pages)", bundle: .module), selection: Binding(
                     get: { editor.bookEdgeStyle },
                     set: { editor.setBookEdgeStyle($0) }
                 )) {
-                    Text("Framed").tag(EdgeStyle.framed)
-                    Text("Tiled").tag(EdgeStyle.tiled)
-                    Text("Borderless").tag(EdgeStyle.borderless)
+                    Text("Framed", bundle: .module).tag(EdgeStyle.framed)
+                    Text("Tiled", bundle: .module).tag(EdgeStyle.tiled)
+                    Text("Borderless", bundle: .module).tag(EdgeStyle.borderless)
                 }
             } label: {
-                Label("All pages: \(edgeStyleLabel(editor.bookEdgeStyle))",
+                Label(String(localized: "All pages: \(edgeStyleLabel(editor.bookEdgeStyle))", bundle: .module),
                       systemImage: edgeStyleIcon(editor.bookEdgeStyle))
             }
-            .help("Photo edges for the whole book — sets every page's default. Pages you've set individually keep their own choice.")
+            .help(Text("Photo edges for the whole book — sets every page's default. Pages you've set individually keep their own choice.", bundle: .module))
             .accessibilityIdentifier("toolbar-edge-style-book")
 
             Button {
                 editor.toggleSelectedSlotLock()
             } label: {
-                Label(editor.selectedSlotIsLocked ? "Unlock Frame" : "Lock Frame",
+                Label(editor.selectedSlotIsLocked
+                          ? String(localized: "Unlock Frame", bundle: .module)
+                          : String(localized: "Lock Frame", bundle: .module),
                       systemImage: editor.selectedSlotIsLocked ? "lock.square.fill" : "lock.square")
             }
             .disabled(editor.selectedSlotID == nil)
-            .help("Locked frames are skipped by reshuffle; unlocking returns the frame to the engine")
+            .help(Text("Locked frames are skipped by reshuffle; unlocking returns the frame to the engine", bundle: .module))
             .accessibilityIdentifier("toolbar-lock-slot")
 
             Button {
                 editor.addTextSlotToSelectedPage()
             } label: {
-                Label("Add Text", systemImage: "textbox")
+                Label(String(localized: "Add Text", bundle: .module), systemImage: "textbox")
             }
             .disabled(!editor.canAddTextToSelectedPage)
-            .help("Add a text box to the selected page")
+            .help(Text("Add a text box to the selected page", bundle: .module))
             .accessibilityIdentifier("toolbar-add-text")
 
             Button {
@@ -912,45 +926,45 @@ public struct BookBrowserView: View {
                     editor.beginTextEditing(slotID)
                 }
             } label: {
-                Label("Edit Text", systemImage: "character.cursor.ibeam")
+                Label(String(localized: "Edit Text", bundle: .module), systemImage: "character.cursor.ibeam")
             }
             .disabled(editor.selectedTextSlotID == nil)
-            .help("Edit the caption in the selected text frame")
+            .help(Text("Edit the caption in the selected text frame", bundle: .module))
             .accessibilityIdentifier("toolbar-edit-text")
 
             Button {
                 editor.removeSelectedTextSlot()
             } label: {
-                Label("Delete Text", systemImage: "trash.slash")
+                Label(String(localized: "Delete Text", bundle: .module), systemImage: "trash.slash")
             }
             .disabled(editor.selectedTextSlotID == nil)
-            .help("Delete the selected text box")
+            .help(Text("Delete the selected text box", bundle: .module))
             .accessibilityIdentifier("toolbar-delete-text")
 
             Button {
                 editor.removeSelectedPhoto()
             } label: {
-                Label("Remove Photo", systemImage: "trash")
+                Label(String(localized: "Remove Photo", bundle: .module), systemImage: "trash")
             }
             .disabled(!editor.selectedSlotHasPhoto)
-            .help("Empty the selected frame; the photo returns to the tray")
+            .help(Text("Empty the selected frame; the photo returns to the tray", bundle: .module))
             .accessibilityIdentifier("toolbar-remove-photo")
 
             Button {
                 editor.placeRemaining()
             } label: {
-                Label("Place Remaining", systemImage: "rectangle.stack.badge.plus")
+                Label(String(localized: "Place Remaining", bundle: .module), systemImage: "rectangle.stack.badge.plus")
             }
             .disabled(editor.unplacedPhotoIDs.isEmpty)
-            .help("Lay out every unplaced photo on new pages at the end")
+            .help(Text("Lay out every unplaced photo on new pages at the end", bundle: .module))
             .accessibilityIdentifier("toolbar-place-remaining")
 
             Button {
                 showTray.toggle()
             } label: {
-                Label("Photo Tray", systemImage: "tray.full")
+                Label(String(localized: "Photo Tray", bundle: .module), systemImage: "tray.full")
             }
-            .help("Show or hide the tray of unplaced photos")
+            .help(Text("Show or hide the tray of unplaced photos", bundle: .module))
             .accessibilityIdentifier("tray-toggle")
 
             Menu {
@@ -958,17 +972,17 @@ public struct BookBrowserView: View {
                     Button(target.menuTitle) { exportModel.begin(target) }
                 }
             } label: {
-                Label("Export", systemImage: "square.and.arrow.up")
+                Label(String(localized: "Export", bundle: .module), systemImage: "square.and.arrow.up")
             }
-            .help("Export the book to a PDF or print service")
+            .help(Text("Export the book to a PDF or print service", bundle: .module))
             .accessibilityIdentifier("toolbar-export")
 
             Button {
                 showPresetPicker = true
             } label: {
-                Label("Book Format…", systemImage: "aspectratio")
+                Label(String(localized: "Book Format…", bundle: .module), systemImage: "aspectratio")
             }
-            .help("Switch the print preset; a cross-shape switch relays out unlocked pages")
+            .help(Text("Switch the print preset; a cross-shape switch relays out unlocked pages", bundle: .module))
             .accessibilityIdentifier("toolbar-book-format")
         }
     }
@@ -980,12 +994,11 @@ public struct BookBrowserView: View {
         let missingCount = pages.reduce(0) { $0 + book.missingPhotoCount(on: $1) }
         if missingCount > 0 {
             HStack {
-                Label(missingCount == 1 ? "1 photo is missing."
-                                        : "\(missingCount) photos are missing.",
+                Label(String(localized: "\(missingCount) photos are missing.", bundle: .module),
                       systemImage: "exclamationmark.triangle.fill")
                 Spacer()
-                Button("Relink…") { showRelinkSheet = true }
-                    .help("Find the missing photos or remove them from the book")
+                Button(String(localized: "Relink…", bundle: .module)) { showRelinkSheet = true }
+                    .help(Text("Find the missing photos or remove them from the book", bundle: .module))
                     .accessibilityIdentifier("relink-banner-button")
             }
             .font(.callout)
@@ -1000,9 +1013,9 @@ public struct BookBrowserView: View {
 
     private func edgeStyleLabel(_ style: EdgeStyle) -> String {
         switch style {
-        case .framed: return "Framed"
-        case .tiled: return "Tiled"
-        case .borderless: return "Borderless"
+        case .framed: return String(localized: "Framed", bundle: .module)
+        case .tiled: return String(localized: "Tiled", bundle: .module)
+        case .borderless: return String(localized: "Borderless", bundle: .module)
         }
     }
 
@@ -1063,7 +1076,7 @@ public struct BookBrowserView: View {
                                     }
                             }
                             HStack(spacing: 12) {
-                                Text(page.role == .cover ? "Cover" : "Page \(index)")
+                                Text(page.role == .cover ? "Cover" : "Page \(index)", bundle: .module)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 if page.isLocked {
@@ -1105,7 +1118,7 @@ public struct BookBrowserView: View {
                     Button {
                         showReorderSheet = true
                     } label: {
-                        Label("Reorder", systemImage: "arrow.up.arrow.down")
+                        Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
                     }
                     .accessibilityIdentifier("reorder-toggle")
                 }
@@ -1126,8 +1139,8 @@ public struct BookBrowserView: View {
                 reorderSheet
             }
             .snackbar(editor.isReplacing
-                ? SnackbarConfig(message: "Select a photo to swap in",
-                                 actionTitle: "Cancel",
+                ? SnackbarConfig(message: String(localized: "Select a photo to swap in", bundle: .module),
+                                 actionTitle: String(localized: "Cancel", bundle: .module),
                                  isPresented: Binding(get: { editor.isReplacing },
                                                       set: { show in if !show { editor.cancelReplace() } }),
                                  action: { editor.cancelReplace() })
@@ -1141,15 +1154,15 @@ public struct BookBrowserView: View {
         NavigationStack {
             List {
                 if let cover = book.pages.first, cover.role == .cover {
-                    Section("Cover") {
-                        Label("Cover stays first", systemImage: "lock")
+                    Section(String(localized: "Cover", bundle: .module)) {
+                        Label(String(localized: "Cover stays first", bundle: .module), systemImage: "lock")
                             .foregroundStyle(.secondary)
                     }
                 }
-                Section("Pages") {
+                Section(String(localized: "Pages", bundle: .module)) {
                     ForEach(standardPages) { page in
                         let index = book.pages.firstIndex(where: { $0.id == page.id }) ?? 0
-                        Text("Page \(index)")
+                        Text("Page \(index)", bundle: .module)
                     }
                     .onMove { source, destination in
                         editor.movePages(fromStandardOffsets: source, toStandardOffset: destination)
@@ -1157,11 +1170,11 @@ public struct BookBrowserView: View {
                 }
             }
             .environment(\.editMode, .constant(.active))
-            .navigationTitle("Reorder Pages")
+            .navigationTitle(String(localized: "Reorder Pages", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showReorderSheet = false }
+                    Button(String(localized: "Done", bundle: .module)) { showReorderSheet = false }
                 }
             }
         }
