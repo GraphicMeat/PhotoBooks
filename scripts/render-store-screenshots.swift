@@ -207,25 +207,7 @@ private func drawPDFPreview(_ document: PDFDocument?, pageNumbers: [Int],
 }
 
 private func drawLogo(_ image: NSImage, in rect: NSRect) {
-    let path = NSBezierPath(roundedRect: rect, xRadius: 24, yRadius: 24)
-    let shadow = NSShadow()
-    shadow.shadowColor = NSColor.black.withAlphaComponent(0.24)
-    shadow.shadowBlurRadius = 22
-    shadow.shadowOffset = NSSize(width: 0, height: -10)
-    NSGraphicsContext.saveGraphicsState()
-    shadow.set()
-    NSColor.white.withAlphaComponent(0.72).setFill()
-    path.fill()
-    NSGraphicsContext.restoreGraphicsState()
-
-    NSGraphicsContext.saveGraphicsState()
-    path.addClip()
     image.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1)
-    NSGraphicsContext.restoreGraphicsState()
-
-    NSColor.white.withAlphaComponent(0.42).setStroke()
-    path.lineWidth = 2
-    path.stroke()
 }
 
 private func render(template: Template, copy: CopyFile.Entry, raw: URL, output: URL,
