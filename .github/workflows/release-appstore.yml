@@ -24,18 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # NOTE: this workflow archives on GitHub's runner, which currently tops out
+      # at Xcode 26.3 — that version crashes actool compiling the Liquid Glass
+      # Icon.icon (CompileAssetCatalogVariant / AssetCatalogAgent). Until the
+      # runner image ships Xcode 26.6+, archive LOCALLY and use this workflow only
+      # once CI can build the .icon. No PNG fallback — Icon.icon is required.
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
-
-      - name: Use PNG app icon (CI actool workaround)
-        # actool's AssetCatalogAgent crashes compiling the Liquid Glass
-        # Icon.icon on headless runners (no Xcode > 26.3 on the image fixes it).
-        # Drop the .icon and fall back to the shared AppIconDirect PNG appiconset
-        # (the Archive step overrides ASSETCATALOG_COMPILER_APPICON_NAME). CI-only;
-        # committed project keeps the Liquid Glass icon.
-        run: rm -rf App/Icon.icon
 
       - name: Install tooling
         run: brew install xcodegen fastlane
@@ -96,8 +93,7 @@ jobs:
             -authenticationKeyPath "$ASC_P8" \
             -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
             -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            ASSETCATALOG_COMPILER_APPICON_NAME=AppIconDirect
+            DEVELOPMENT_TEAM="$TEAM_ID"
 
       - name: Export (App Store)
         run: |
