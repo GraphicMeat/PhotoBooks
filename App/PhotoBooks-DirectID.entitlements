@@ -5,6 +5,12 @@
 	<!-- Same sandbox surface as the App Store build, for behavior parity. -->
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
+	<!-- Sparkle's in-process appcast fetch (SPUUpdater) makes an outbound HTTPS
+	     request; a sandboxed host is blocked without this, which surfaces as
+	     "An error occurred in retrieving update information." Required by
+	     Sparkle's sandboxing guide. -->
+	<key>com.apple.security.network.client</key>
+	<true/>
 	<key>com.apple.security.files.user-selected.read-write</key>
 	<true/>
 	<key>com.apple.security.files.bookmarks.app-scope</key>
