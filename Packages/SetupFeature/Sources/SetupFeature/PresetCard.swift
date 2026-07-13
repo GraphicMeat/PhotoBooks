@@ -21,7 +21,7 @@ struct PresetCard: View {
                 .multilineTextAlignment(.center)
             HStack(spacing: 5) {
                 Text(preset.trimSize.inchLabel)
-                Text("·", bundle: .module)
+                Text(verbatim: "·")
                 Text(preset.trimSize.centimeterLabel)
             }
             .font(.caption2)

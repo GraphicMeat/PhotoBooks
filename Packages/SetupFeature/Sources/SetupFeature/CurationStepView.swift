@@ -119,7 +119,7 @@ struct CurationStepView: View {
                             .accessibilityLabel(model.unit == .pages
                                                 ? Text("Desired number of pages", bundle: .module)
                                                 : Text("Desired number of photos", bundle: .module))
-                            .accessibilityValue("\(model.targetValue)")
+                            .accessibilityValue(Text(verbatim: "\(model.targetValue)"))
                         HStack {
                             Text(verbatim: "\(Int(customTargetRange.lowerBound))")
                             Spacer()
