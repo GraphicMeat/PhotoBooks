@@ -60,14 +60,14 @@ struct WelcomeView: View {
 
     private var heroCopy: some View {
         VStack(alignment: .leading, spacing: 22) {
-            Text("PHOTOBOOKS")
+            Text("PHOTOBOOKS", bundle: .module)
                 .font(.caption.weight(.semibold))
                 .tracking(2.4)
                 .foregroundStyle(.secondary)
-            Text("Turn your photos\ninto a book.")
+            Text("Turn your photos\ninto a book.", bundle: .module)
                 .font(.system(size: 46, weight: .bold, design: .rounded))
                 .tracking(-1.2)
-            Text("Choose the moments you love. We’ll arrange them into a polished book you can refine and print.")
+            Text("Choose the moments you love. We’ll arrange them into a polished book you can refine and print.", bundle: .module)
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -75,7 +75,7 @@ struct WelcomeView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Button(action: onCreate) {
                     HStack {
-                        Label("Create a new book", systemImage: "plus")
+                        Label(String(localized: "Create a new book", bundle: .module), systemImage: "plus")
                         Spacer()
                         Image(systemName: "arrow.right")
                     }
@@ -92,7 +92,7 @@ struct WelcomeView: View {
                 Button {
                     showOpenImporter = true
                 } label: {
-                    Label("Open an existing book", systemImage: "folder")
+                    Label(String(localized: "Open an existing book", bundle: .module), systemImage: "folder")
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
@@ -113,10 +113,10 @@ struct WelcomeView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Made by Graphic Meat")
+                        Text("Made by Graphic Meat", bundle: .module)
                             .font(.callout.weight(.semibold))
                             .foregroundStyle(.primary)
-                        Text("graphicmeat.com")
+                        Text(verbatim: "graphicmeat.com")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -124,8 +124,8 @@ struct WelcomeView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help("Visit graphicmeat.com")
-            .accessibilityLabel("Visit Graphic Meat website")
+            .help(Text("Visit graphicmeat.com", bundle: .module))
+            .accessibilityLabel(Text("Visit Graphic Meat website", bundle: .module))
         }
     }
 

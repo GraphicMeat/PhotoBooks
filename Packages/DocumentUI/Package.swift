@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "DocumentUI",
+    defaultLocalization: "en",
     platforms: [.iOS(.v18), .macOS(.v15)],
     products: [
         .library(name: "DocumentUI", targets: ["DocumentUI"])
@@ -18,7 +19,7 @@ let package = Package(
         .target(
             name: "DocumentUI",
             dependencies: ["ModelLayer", "EditorFeature", "SetupFeature", "ExportFeature", "AppSupport"],
-            resources: [.process("Resources")]
+            resources: [.process("Resources"), .process("Localizable.xcstrings")]
         ),
         .testTarget(
             name: "DocumentUITests",
