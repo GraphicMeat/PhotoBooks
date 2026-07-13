@@ -80,8 +80,3 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
-
-# Generated App Store screenshot inputs, previews, and Xcode test products.
-store-screenshots/raw/
-store-screenshots/output/
-store-screenshots/.derived-data/
