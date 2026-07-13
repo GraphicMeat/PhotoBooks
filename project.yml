@@ -52,7 +52,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "1.0.5"
+    MARKETING_VERSION: "1.0.6"
     # CFBundleVersion (Sparkle's update-comparison identity) tracks the marketing
     # version so it increments every release. Frozen at "1" before, it made every
     # build look identical to Sparkle and broke auto-update.

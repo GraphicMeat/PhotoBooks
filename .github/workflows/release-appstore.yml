@@ -1,0 +1,132 @@
+name: Release macOS (App Store)
+
+# Archives the App Store flavor (PhotoBooks scheme, sandboxed, no Sparkle),
+# exports a signed .pkg with automatic signing, then uploads it to App Store
+# Connect and submits for review via fastlane deliver. Manual trigger only.
+#
+# Signing: automatic. The imported Apple Distribution cert provides the identity;
+# the App Store provisioning profile is created/downloaded on the runner via
+# -allowProvisioningUpdates using the App Store Connect API key.
+on:
+  workflow_dispatch:
+    inputs:
+      submit:
+        description: "Submit for App Store review after upload (off = upload only)"
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    runs-on: macos-15
+    env:
+      SCHEME: "PhotoBooks"
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install tooling
+        run: brew install xcodegen fastlane
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Derive version
+        id: version
+        run: |
+          VERSION=$(grep -E '^\s+MARKETING_VERSION:' project.yml | head -1 | sed -E 's/.*: *"?([0-9.]+)"?.*/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Import Apple Distribution certificate
+        env:
+          APPLE_DISTRIBUTION_CERT: ${{ secrets.APPLE_DISTRIBUTION_CERT }}
+          APPLE_DISTRIBUTION_CERT_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          echo "$APPLE_DISTRIBUTION_CERT" | base64 --decode > $RUNNER_TEMP/cert.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import $RUNNER_TEMP/cert.p12 -P "$APPLE_DISTRIBUTION_CERT_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+          rm $RUNNER_TEMP/cert.p12
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          # .p8 for xcodebuild -authenticationKeyPath (must be an absolute path)
+          P8="$RUNNER_TEMP/asc_key.p8"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$P8"
+          echo "ASC_P8=$P8" >> "$GITHUB_ENV"
+          # JSON for fastlane deliver --api_key_path (key = raw PEM contents)
+          jq -n --arg kid "$ASC_KEY_ID" --arg iss "$ASC_ISSUER_ID" --rawfile key "$P8" \
+            '{key_id:$kid, issuer_id:$iss, key:$key, duration:1200, in_house:false}' \
+            > "$RUNNER_TEMP/asc_key.json"
+          echo "ASC_JSON=$RUNNER_TEMP/asc_key.json" >> "$GITHUB_ENV"
+
+      - name: Archive
+        run: |
+          # No CODE_SIGN_IDENTITY pin — conflicts with automatic signing.
+          xcodebuild archive \
+            -project PhotoBooks.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath "$RUNNER_TEMP/PhotoBooks.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_P8" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" \
+            DEVELOPMENT_TEAM="$TEAM_ID"
+
+      - name: Export (App Store)
+        run: |
+          cat > "$RUNNER_TEMP/exportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/PhotoBooks.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/exportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_P8" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}"
+
+      - name: Upload to App Store Connect + submit
+        env:
+          # deliver reads the API key from this JSON; no Apple ID / 2FA needed.
+          SUBMIT: ${{ inputs.submit }}
+        run: |
+          PKG=$(ls "$RUNNER_TEMP/export"/*.pkg | head -1)
+          echo "Uploading $PKG"
+          # ponytail: single deliver call uploads + waits for processing + submits.
+          # Ceiling: build number = MARKETING_VERSION, so re-running without a
+          # version bump = "duplicate build" reject. Bump MARKETING_VERSION per release.
+          # If deliver's processing-wait ever flakes, split into altool upload + a
+          # poll loop + deliver submit.
+          fastlane deliver \
+            --api_key_path "$ASC_JSON" \
+            --pkg "$PKG" \
+            --skip_metadata true \
+            --skip_screenshots true \
+            --submit_for_review "$SUBMIT" \
+            --force true \
+            --precheck_include_in_app_purchases false
