@@ -67,7 +67,9 @@ public struct PresetPickerView: View {
             }
         }
         .padding()
+        #if os(macOS)
         .frame(minWidth: 540, minHeight: 380)
+        #endif
         .defaultFocus($focus, .cancel)
     }
 

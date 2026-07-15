@@ -78,7 +78,9 @@ struct RelinkView: View {
             }
         }
         .padding()
+        #if os(macOS)
         .frame(minWidth: 480, minHeight: 340)
+        #endif
         .fileImporter(isPresented: $showFolderImporter,
                       allowedContentTypes: [.folder]) { result in
             guard case .success(let url) = result else { return }   // cancel = no-op

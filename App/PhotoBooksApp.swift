@@ -24,7 +24,9 @@ struct PhotoBooksApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: { BookDocument.makeNewDocument() }) { configuration in
             ContentView(document: configuration.document)
+                #if os(macOS)
                 .frame(minWidth: 800, minHeight: 600)
+                #endif
         }
         .windowResizability(.contentMinSize)
         .commands {

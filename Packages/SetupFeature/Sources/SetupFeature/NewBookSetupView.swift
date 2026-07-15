@@ -95,7 +95,9 @@ public struct NewBookSetupView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.primary.opacity(0.025))
+        #if os(macOS)
         .frame(minWidth: 480, minHeight: 420)
+        #endif
         .fileImporter(isPresented: $showFolderImporter,
                       allowedContentTypes: [.folder]) { result in
             handleFolderPick(result)
@@ -154,33 +156,40 @@ public struct NewBookSetupView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Where are your photos?", bundle: .module)
                     .font(.title2.bold())
-                HStack(spacing: 20) {
-                    Button {
-                        loadPhotoCollections()
-                    } label: {
-                        sourceCard(systemImage: "photo.on.rectangle.angled",
-                                   title: String(localized: "From Photos", bundle: .module),
-                                   subtitle: String(localized: "Albums from your Apple Photos library", bundle: .module))
-                    }
-                    .buttonStyle(.plain)
-                    .help(Text("Pick photos from your Apple Photos library", bundle: .module))
-                    .accessibilityIdentifier("source-photos")
-
-                    Button {
-                        showFolderImporter = true
-                    } label: {
-                        sourceCard(systemImage: "folder",
-                                   title: String(localized: "From Folder", bundle: .module),
-                                   subtitle: String(localized: "JPEG, HEIC, PNG, TIFF, RAW", bundle: .module))
-                    }
-                    .buttonStyle(.plain)
-                    .help(Text("Pick photos from a folder of image files", bundle: .module))
-                    .accessibilityIdentifier("source-folder")
+                // Two fixed-width cards need 500pt; iPhone widths fall back
+                // to the vertical stack.
+                ViewThatFits {
+                    HStack(spacing: 20) { sourceCards }
+                    VStack(alignment: .leading, spacing: 20) { sourceCards }
                 }
             }
             Spacer()
         }
         .padding(28)
+    }
+
+    @ViewBuilder private var sourceCards: some View {
+        Button {
+            loadPhotoCollections()
+        } label: {
+            sourceCard(systemImage: "photo.on.rectangle.angled",
+                       title: String(localized: "From Photos", bundle: .module),
+                       subtitle: String(localized: "Albums from your Apple Photos library", bundle: .module))
+        }
+        .buttonStyle(.plain)
+        .help(Text("Pick photos from your Apple Photos library", bundle: .module))
+        .accessibilityIdentifier("source-photos")
+
+        Button {
+            showFolderImporter = true
+        } label: {
+            sourceCard(systemImage: "folder",
+                       title: String(localized: "From Folder", bundle: .module),
+                       subtitle: String(localized: "JPEG, HEIC, PNG, TIFF, RAW", bundle: .module))
+        }
+        .buttonStyle(.plain)
+        .help(Text("Pick photos from a folder of image files", bundle: .module))
+        .accessibilityIdentifier("source-folder")
     }
 
     private func sourceCard(systemImage: String, title: String, subtitle: String) -> some View {
