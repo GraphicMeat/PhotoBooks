@@ -3,7 +3,9 @@ import EditCore
 import ModelLayer
 import PhotoBookCore
 import PhotoBookRender
+import PhotosUI
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The photo tray: every library photo not placed in any slot, in stable
 /// library order. Presentational (D11): values + closures in. The browser
@@ -13,7 +15,18 @@ struct TrayView: View {
     let unplacedPhotos: [PhotoRef]
     let imageStore: any ImageStore
     let hasSelectedSlot: Bool
+    /// When true the book's photos are folder-sourced, so "Add from Library"
+    /// opens a file importer instead of the Photos picker.
+    let isFolderSourced: Bool
     let onTapPhoto: @MainActor (PhotoID) -> Void
+    /// Picked Photos-library identifiers (PhotoKit local IDs) to add.
+    let onAddIdentifiers: @MainActor ([String]) -> Void
+    /// Picked image file URLs to add (folder-sourced books).
+    let onAddFileURLs: @MainActor ([URL]) -> Void
+
+    @State private var showPhotosPicker = false
+    @State private var showFileImporter = false
+    @State private var pickerItems: [PhotosPickerItem] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -32,6 +45,17 @@ struct TrayView: View {
                 Text(hint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                Button {
+                    if isFolderSourced { showFileImporter = true } else { showPhotosPicker = true }
+                } label: {
+                    Label(String(localized: "Add from Library", bundle: .module), systemImage: "plus")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .padding(.top, 4)
+                .help(Text("Bring more photos into the book from your library", bundle: .module))
+                .accessibilityIdentifier("tray-add-from-library")
             }
             .padding(.horizontal, 12)
             .padding(.top, 12)
@@ -58,11 +82,22 @@ struct TrayView: View {
             }
         }
         .accessibilityIdentifier("photo-tray")
+        .photosPicker(isPresented: $showPhotosPicker, selection: $pickerItems,
+                      maxSelectionCount: nil, matching: .images, photoLibrary: .shared())
+        .onChange(of: pickerItems) { _, items in
+            let identifiers = items.compactMap(\.itemIdentifier)
+            pickerItems = []   // consume; re-picking starts fresh
+            if !identifiers.isEmpty { onAddIdentifiers(identifiers) }
+        }
+        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image],
+                      allowsMultipleSelection: true) { result in
+            if case .success(let urls) = result, !urls.isEmpty { onAddFileURLs(urls) }
+        }
     }
 
     private var hint: String {
         if unplacedPhotos.isEmpty {
-            return String(localized: "All available photos are in the book.", bundle: .module)
+            return String(localized: "All available photos are in the book. Add more from your library below.", bundle: .module)
         }
         if hasSelectedSlot {
             return String(localized: "Choose a photo to replace the selected image or fill its frame.", bundle: .module)

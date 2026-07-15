@@ -133,6 +133,17 @@ public final class BookEditorModel {
         return document.book.photoLibrary.filter { ids.contains($0.id) }
     }
 
+    /// True when every library photo is filesystem-sourced (folder import), so
+    /// "Add from Library" should open a file importer instead of the Photos
+    /// picker. Derived from the refs already in the book — no source flag on
+    /// the book itself. Empty or mixed → false (offer the Photos picker).
+    public var isFolderSourced: Bool {
+        let library = document.book.photoLibrary
+        return !library.isEmpty && library.allSatisfy {
+            if case .file = $0.source { return true } else { return false }
+        }
+    }
+
     public var selectedSlotHasPhoto: Bool {
         guard let slotID = selectedSlotID,
               let location = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return false }
@@ -247,6 +258,55 @@ public final class BookEditorModel {
         cancelReplace()
         guard let slotID = selectedSlotID else { return }
         apply { EditMutations.removePhoto(in: &$0, fromSlot: slotID) }
+    }
+
+    // MARK: Add photos to the library mid-edit (Replace dead-end fix)
+
+    /// Appends `refs` not already in the library (dedupe by PhotoID). When
+    /// Replace mode is armed and exactly one new photo arrives, swaps it into
+    /// the target slot in the same undoable step (the `assignFromTray` path).
+    /// Returns the IDs actually appended.
+    @discardableResult
+    public func addLibraryPhotos(_ refs: [PhotoRef]) -> [PhotoID] {
+        let existing = Set(document.book.photoLibrary.map(\.id))
+        let fresh = refs.filter { !existing.contains($0.id) }
+        guard !fresh.isEmpty else { return [] }
+        let replaceSlot = replaceSourceSlotID
+        let assignID: PhotoID? = (replaceSlot != nil && fresh.count == 1) ? fresh[0].id : nil
+        if assignID != nil { replaceSourceSlotID = nil }
+        let pageSize = pageSize
+        apply { book in
+            book.photoLibrary.append(contentsOf: fresh)
+            if let slotID = replaceSlot, let photoID = assignID {
+                EditMutations.assignPhoto(in: &book, photoID: photoID, toSlot: slotID, pageSize: pageSize)
+            }
+        }
+        return fresh.map(\.id)
+    }
+
+    /// Photos-library path: maps picker identifiers to refs off the concrete
+    /// PhotoKit provider (mirrors the setup flow's `photoRefs(forIdentifiers:)`
+    /// use) and appends them.
+    public func addLibraryPhotos(fromIdentifiers identifiers: [String]) async {
+        guard !identifiers.isEmpty,
+              let refs = try? await photoKitProvider.photoRefs(forIdentifiers: identifiers)
+        else { return }
+        addLibraryPhotos(refs)
+    }
+
+    /// Folder path: builds file-sourced refs for user-picked image files (the
+    /// same bookmark + metadata pipeline as relink) and appends them.
+    public func addLibraryPhotos(fromFileURLs urls: [URL]) {
+        var refs: [PhotoRef] = []
+        for url in urls {
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+            guard let bookmark = MissingPhotoSweep.makeBookmark(for: url),
+                  let ref = try? MetadataReader.photoRef(forFileAt: url, bookmark: bookmark)
+            else { continue }
+            refs.append(ref)
+        }
+        addLibraryPhotos(refs)
     }
 
     // MARK: Crop

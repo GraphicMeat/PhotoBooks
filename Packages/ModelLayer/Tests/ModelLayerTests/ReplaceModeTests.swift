@@ -109,4 +109,49 @@ import Testing
         model.selectPage(model.book.pages.first?.id)
         #expect(model.isReplacing == false)
     }
+
+    // MARK: Add from Library
+
+    private func newPhoto(_ name: String) -> PhotoRef {
+        PhotoRef(id: PhotoID(rawValue: name), source: .file(bookmark: Data([0x02])),
+                 pixelWidth: 1000, pixelHeight: 1000)
+    }
+
+    @Test func addLibraryPhotosDedupesByID() {
+        let model = makeModel()
+        let before = model.book.photoLibrary.count
+        // "p5" already exists in the fixture library; "new1" does not.
+        let added = model.addLibraryPhotos([newPhoto("p5"), newPhoto("new1")])
+        #expect(added == [PhotoID(rawValue: "new1")])
+        #expect(model.book.photoLibrary.count == before + 1)
+        #expect(model.book.photoLibrary.filter { $0.id.rawValue == "p5" }.count == 1)
+    }
+
+    @Test func addSingleLibraryPhotoWhileReplacingAutoAssigns() {
+        let model = makeModel()
+        let (a, _) = twoBoundSlots(model)
+        model.tapPhotoSlot(a)
+        model.beginReplaceSelectedPhoto()
+        #expect(model.isReplacing == true)
+        model.addLibraryPhotos([newPhoto("swapIn")])
+        #expect(model.isReplacing == false)        // replace completed
+        let placed = model.book.pages.flatMap { $0.photoSlots }
+            .first { $0.id == a }!.photoID
+        #expect(placed == PhotoID(rawValue: "swapIn"))
+    }
+
+    @Test func addMultipleLibraryPhotosWhileReplacingKeepsReplaceArmed() {
+        let model = makeModel()
+        let (a, _) = twoBoundSlots(model)
+        model.tapPhotoSlot(a)
+        model.beginReplaceSelectedPhoto()
+        model.addLibraryPhotos([newPhoto("n1"), newPhoto("n2")])
+        // More than one picked → user chooses which to swap; still armed.
+        #expect(model.isReplacing == true)
+    }
+
+    @Test func fileFixtureIsFolderSourced() {
+        let model = makeModel()
+        #expect(model.isFolderSourced == true)   // fixture photos are .file-sourced
+    }
 }

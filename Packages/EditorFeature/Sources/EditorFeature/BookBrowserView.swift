@@ -187,6 +187,11 @@ public struct BookBrowserView: View {
         .environment(editor)
         .onAppear { editor.undoManager = undoManager }
         .onChange(of: undoManager) { editor.undoManager = $1 }
+        // Replace mode is a dead end if the tray is hidden — surface it so the
+        // user can pick a swap-in photo (or pull a new one from the library).
+        .onChange(of: editor.isReplacing) { _, replacing in
+            if replacing { showTray = true }
+        }
         .task { await editor.runMissingPhotoSweep() }
         .task { editor.runPreflightNow() }
         .onChange(of: document.book) { editor.schedulePreflight() }
@@ -271,7 +276,10 @@ public struct BookBrowserView: View {
             TrayView(unplacedPhotos: editor.unplacedPhotos,
                      imageStore: imageStore,
                      hasSelectedSlot: editor.selectedSlotID != nil,
-                     onTapPhoto: { editor.assignFromTray($0) })
+                     isFolderSourced: editor.isFolderSourced,
+                     onTapPhoto: { editor.assignFromTray($0) },
+                     onAddIdentifiers: { ids in Task { await editor.addLibraryPhotos(fromIdentifiers: ids) } },
+                     onAddFileURLs: { editor.addLibraryPhotos(fromFileURLs: $0) })
                 .inspectorColumnWidth(min: 200, ideal: 248)
         }
         .toolbar { editingToolbar }
@@ -448,7 +456,7 @@ public struct BookBrowserView: View {
                                             pageIsLocked: editor.selectedPageIsLocked))
         .modifier(TextActionsInlineOverlay(editor: editor))
         .snackbar(editor.isReplacing
-            ? SnackbarConfig(message: String(localized: "Select a photo to swap in", bundle: .module),
+            ? SnackbarConfig(message: String(localized: "Pick a photo from the tray to swap it in", bundle: .module),
                              actionTitle: String(localized: "Cancel", bundle: .module),
                              isPresented: Binding(get: { editor.isReplacing },
                                                   set: { show in if !show { editor.cancelReplace() } }),
@@ -921,7 +929,10 @@ public struct BookBrowserView: View {
                 TrayView(unplacedPhotos: editor.unplacedPhotos,
                          imageStore: imageStore,
                          hasSelectedSlot: editor.selectedSlotID != nil,
-                         onTapPhoto: { editor.assignFromTray($0) })
+                         isFolderSourced: editor.isFolderSourced,
+                         onTapPhoto: { editor.assignFromTray($0) },
+                         onAddIdentifiers: { ids in Task { await editor.addLibraryPhotos(fromIdentifiers: ids) } },
+                         onAddFileURLs: { editor.addLibraryPhotos(fromFileURLs: $0) })
                     .presentationDetents([.height(160), .medium])
                     .presentationBackgroundInteraction(.enabled(upThrough: .height(160)))
             }
@@ -929,7 +940,7 @@ public struct BookBrowserView: View {
                 reorderSheet
             }
             .snackbar(editor.isReplacing
-                ? SnackbarConfig(message: String(localized: "Select a photo to swap in", bundle: .module),
+                ? SnackbarConfig(message: String(localized: "Pick a photo from the tray to swap it in", bundle: .module),
                                  actionTitle: String(localized: "Cancel", bundle: .module),
                                  isPresented: Binding(get: { editor.isReplacing },
                                                       set: { show in if !show { editor.cancelReplace() } }),
