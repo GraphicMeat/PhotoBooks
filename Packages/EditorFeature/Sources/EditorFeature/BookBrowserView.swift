@@ -283,6 +283,21 @@ public struct BookBrowserView: View {
                 .inspectorColumnWidth(min: 200, ideal: 248)
         }
         .toolbar { editingToolbar }
+        #if os(iOS)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showReorderSheet = true
+                } label: {
+                    Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
+                }
+                .accessibilityIdentifier("reorder-toggle")
+            }
+        }
+        .sheet(isPresented: $showReorderSheet) {
+            reorderSheet
+        }
+        #endif
     }
 
     private var standardPages: [Page] {
