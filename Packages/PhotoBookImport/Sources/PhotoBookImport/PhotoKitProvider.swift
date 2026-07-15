@@ -87,6 +87,38 @@ public struct PhotoKitProvider: PhotoProvider {
         return refs
     }
 
+    /// Maps a set of PhotoKit local identifiers (e.g. from the native
+    /// `PhotosPicker`) to `PhotoRef`s, preserving the caller's order.
+    /// `PHFetchResult` does not guarantee input order, so build a lookup and
+    /// map `identifiers` through it; identifiers with no matching asset are
+    /// skipped. Not part of `PhotoProvider` — the picker path calls the
+    /// concrete `PhotoKitProvider`.
+    public func photoRefs(forIdentifiers identifiers: [String]) async throws -> [PhotoRef] {
+        let fetch = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+        var byID: [String: PHAsset] = [:]
+        byID.reserveCapacity(fetch.count)
+        for index in 0..<fetch.count {
+            let asset = fetch.object(at: index)
+            byID[asset.localIdentifier] = asset
+        }
+
+        var refs: [PhotoRef] = []
+        refs.reserveCapacity(identifiers.count)
+        for identifier in identifiers {
+            if Task.isCancelled { throw PhotoProviderError.cancelled }
+            guard let asset = byID[identifier] else { continue }
+            refs.append(PhotoRef(
+                id: PhotoID(rawValue: asset.localIdentifier),
+                source: .photoKit(localIdentifier: asset.localIdentifier),
+                pixelWidth: asset.pixelWidth,
+                pixelHeight: asset.pixelHeight,
+                captureDate: asset.creationDate,
+                isMissing: false
+            ))
+        }
+        return refs
+    }
+
     public func thumbnail(for ref: PhotoRef, maxPixelSize: Int) async throws -> CGImage {
         let asset = try Self.asset(for: ref)
 

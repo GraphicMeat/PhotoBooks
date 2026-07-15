@@ -48,7 +48,9 @@ struct TextEditorOverlay: View {
             }
         }
         .padding()
+        #if os(macOS)
         .frame(minWidth: 460)
+        #endif
     }
 
     private var styleBar: some View {

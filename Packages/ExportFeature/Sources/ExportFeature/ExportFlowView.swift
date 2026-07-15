@@ -40,7 +40,9 @@ public struct ExportFlowView: View {
                 finishedStep(urls)
             }
         }
+        #if os(macOS)
         .frame(minWidth: 380, minHeight: 280)
+        #endif
         .padding()
         .fileImporter(isPresented: $showFolderPicker,
                       allowedContentTypes: [.folder]) { result in

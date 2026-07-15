@@ -935,7 +935,9 @@ public struct BookBrowserView: View {
                                                       set: { show in if !show { editor.cancelReplace() } }),
                                  action: { editor.cancelReplace() })
                 : nil)
-            .modifier(PhotoActionsInlineOverlay(editor: editor))
+            .modifier(PhotoActionsInlineOverlay(editor: editor,
+                                                slotIsLocked: editor.selectedSlotIsLocked,
+                                                pageIsLocked: editor.selectedPageIsLocked))
             .modifier(TextActionsInlineOverlay(editor: editor))
         }
     }

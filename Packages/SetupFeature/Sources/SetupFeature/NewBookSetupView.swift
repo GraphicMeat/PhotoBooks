@@ -4,14 +4,11 @@ import ModelLayer
 import PhotoBookCore
 import PhotoBookImport
 import Photos
+import PhotosUI   // PhotosPicker + PhotosPickerItem (available on iOS and macOS)
 import SwiftUI
-#if os(iOS)
-import PhotosUI   // presentLimitedLibraryPicker(from:) lives in PhotosUI, not Photos
-import UIKit
-#endif
 
 /// New-document experience, three steps:
-///   1. source — Apple Photos (permission → collections → multi-select grid)
+///   1. source — Apple Photos (permission → native `PhotosPicker` multi-select)
 ///      or a folder (file importer → all images auto-selected),
 ///   2. preset — cards from `PresetLibrary`, grouped by aspect class,
 ///   3. generate — `BookEngine.makeBook` off the main actor, then the
@@ -35,8 +32,6 @@ public struct NewBookSetupView: View {
     enum Step {
         case source
         case permissionExplainer
-        case photoCollections
-        case photoGrid
         case curation
         case bookShape
         case bookFormat
@@ -45,13 +40,13 @@ public struct NewBookSetupView: View {
     }
 
     @State private var step: Step = .source
-    @State private var collections: [PhotoCollection] = []
     @State private var availablePhotos: [PhotoRef] = []
     @State private var selectedPhotoIDs: Set<PhotoID> = []
     @State private var bookTitle = String(localized: "My Book", bundle: .module)
     @State private var showFolderImporter = false
+    @State private var pickerItems: [PhotosPickerItem] = []
+    @State private var showPhotosPicker = false
     @State private var errorMessage: String?
-    @State private var isLimitedAccess = false
     @State private var analyzeImportance = false
     @State private var activeProvider: (any PhotoProvider)?
     @State private var analysisDone = 0
@@ -62,9 +57,6 @@ public struct NewBookSetupView: View {
     // MARK: Curation step
 
     @State private var curationModel = CurationStepModel()
-    /// Where the curation step's Back button returns to — `.photoGrid` for
-    /// the Photos flow, `.source` for the folder flow (which has no grid).
-    @State private var curationOrigin: Step = .photoGrid
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -75,8 +67,6 @@ public struct NewBookSetupView: View {
                     step = .source
                     showFolderImporter = true   // the importer is attached to the outer VStack
                 })
-            case .photoCollections: collectionsStep
-            case .photoGrid: photoGridStep
             case .curation: curationStep
             case .bookShape: bookShapeStep
             case .bookFormat: bookFormatStep
@@ -95,10 +85,20 @@ public struct NewBookSetupView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.primary.opacity(0.025))
+        #if os(macOS)
         .frame(minWidth: 480, minHeight: 420)
+        #endif
         .fileImporter(isPresented: $showFolderImporter,
                       allowedContentTypes: [.folder]) { result in
             handleFolderPick(result)
+        }
+        .photosPicker(isPresented: $showPhotosPicker,
+                      selection: $pickerItems,
+                      maxSelectionCount: nil,
+                      matching: .images,
+                      photoLibrary: .shared())
+        .onChange(of: pickerItems) { _, newItems in
+            handlePickerSelection(newItems)
         }
         #if DEBUG
         .task { await loadScreenshotReviewFixtureIfRequested() }
@@ -124,7 +124,6 @@ public struct NewBookSetupView: View {
             selectedPhotoIDs = Set(refs.map(\.id))
             activeProvider = providers.fileSystem
             curationModel = defaultCurationModel(availableCount: refs.count)
-            curationOrigin = .source
             step = .curation
         } catch {
             errorMessage = error.localizedDescription
@@ -154,33 +153,40 @@ public struct NewBookSetupView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Where are your photos?", bundle: .module)
                     .font(.title2.bold())
-                HStack(spacing: 20) {
-                    Button {
-                        loadPhotoCollections()
-                    } label: {
-                        sourceCard(systemImage: "photo.on.rectangle.angled",
-                                   title: String(localized: "From Photos", bundle: .module),
-                                   subtitle: String(localized: "Albums from your Apple Photos library", bundle: .module))
-                    }
-                    .buttonStyle(.plain)
-                    .help(Text("Pick photos from your Apple Photos library", bundle: .module))
-                    .accessibilityIdentifier("source-photos")
-
-                    Button {
-                        showFolderImporter = true
-                    } label: {
-                        sourceCard(systemImage: "folder",
-                                   title: String(localized: "From Folder", bundle: .module),
-                                   subtitle: String(localized: "JPEG, HEIC, PNG, TIFF, RAW", bundle: .module))
-                    }
-                    .buttonStyle(.plain)
-                    .help(Text("Pick photos from a folder of image files", bundle: .module))
-                    .accessibilityIdentifier("source-folder")
+                // Two fixed-width cards need 500pt; iPhone widths fall back
+                // to the vertical stack.
+                ViewThatFits {
+                    HStack(spacing: 20) { sourceCards }
+                    VStack(alignment: .leading, spacing: 20) { sourceCards }
                 }
             }
             Spacer()
         }
         .padding(28)
+    }
+
+    @ViewBuilder private var sourceCards: some View {
+        Button {
+            requestPhotosAccessThenPick()
+        } label: {
+            sourceCard(systemImage: "photo.on.rectangle.angled",
+                       title: String(localized: "From Photos", bundle: .module),
+                       subtitle: String(localized: "Albums from your Apple Photos library", bundle: .module))
+        }
+        .buttonStyle(.plain)
+        .help(Text("Pick photos from your Apple Photos library", bundle: .module))
+        .accessibilityIdentifier("source-photos")
+
+        Button {
+            showFolderImporter = true
+        } label: {
+            sourceCard(systemImage: "folder",
+                       title: String(localized: "From Folder", bundle: .module),
+                       subtitle: String(localized: "JPEG, HEIC, PNG, TIFF, RAW", bundle: .module))
+        }
+        .buttonStyle(.plain)
+        .help(Text("Pick photos from a folder of image files", bundle: .module))
+        .accessibilityIdentifier("source-folder")
     }
 
     private func sourceCard(systemImage: String, title: String, subtitle: String) -> some View {
@@ -203,32 +209,56 @@ public struct NewBookSetupView: View {
             .foregroundStyle(Color.accentColor)
         }
         .padding(20)
-        .frame(width: 240, height: 190)
+        // Flexible frame: fixed 240×190 clipped subtitles on narrow iPhone
+        // widths. Grow the height with content; keep a width band so the two
+        // cards read well on macOS and ViewThatFits still falls back to the
+        // vertical stack on iPhone (the ~500pt HStack won't fit).
+        .frame(minWidth: 220, maxWidth: 260, minHeight: 190, alignment: .topLeading)
         .background(.background, in: RoundedRectangle(cornerRadius: 16))
         .overlay { RoundedRectangle(cornerRadius: 16).stroke(Color.secondary.opacity(0.18)) }
         .shadow(color: .black.opacity(0.05), radius: 12, y: 5)
     }
 
-    private func loadPhotoCollections() {
+    private func requestPhotosAccessThenPick() {
         errorMessage = nil
         Task {
             // requestAccess() collapses the status to a Bool (true for full
-            // AND limited — Plan 3), so it cannot drive the explainer/banner
-            // split: re-read the full status after the request and route
-            // through the tested decision function.
+            // AND limited), so it cannot drive the explainer split: re-read
+            // the full status after the request and route through the tested
+            // decision function. On access, present the native PhotosPicker.
             _ = await PhotoKitProvider.requestAccess()
             let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
             switch photosAccessUI(for: status) {
             case .explainer:
                 step = .permissionExplainer
             case .proceed, .proceedWithLimitedBanner:
-                isLimitedAccess = photosAccessUI(for: status) == .proceedWithLimitedBanner
-                do {
-                    collections = try await providers.photoKit.collections()
-                    step = .photoCollections
-                } catch {
-                    errorMessage = String(localized: "Could not load your Photos albums: \(error.localizedDescription)", bundle: .module)
+                showPhotosPicker = true
+            }
+        }
+    }
+
+    /// Native picker → PHAsset pipeline. Maps the picker's ordered selection
+    /// (via `itemIdentifier`, i.e. the PhotoKit local identifier) to PhotoRefs
+    /// and jumps straight to curation.
+    private func handlePickerSelection(_ items: [PhotosPickerItem]) {
+        guard !items.isEmpty else { return }
+        let identifiers = items.compactMap(\.itemIdentifier)
+        pickerItems = []   // consume; re-picking starts fresh
+        errorMessage = nil
+        Task {
+            do {
+                let refs = try await providers.photoKit.photoRefs(forIdentifiers: identifiers)
+                guard !refs.isEmpty else {
+                    errorMessage = String(localized: "Couldn't read the selected photos.", bundle: .module)
+                    return
                 }
+                availablePhotos = refs
+                selectedPhotoIDs = Set(refs.map(\.id))
+                activeProvider = providers.photoKit
+                curationModel = defaultCurationModel(availableCount: refs.count)
+                step = .curation
+            } catch {
+                errorMessage = String(localized: "Could not load the selected photos: \(error.localizedDescription)", bundle: .module)
             }
         }
     }
@@ -252,108 +282,12 @@ public struct NewBookSetupView: View {
                     selectedPhotoIDs = Set(refs.map(\.id))   // folder: all auto-selected
                     activeProvider = providers.fileSystem
                     curationModel = defaultCurationModel(availableCount: refs.count)
-                    curationOrigin = .source
                     step = .curation
                 } catch {
                     errorMessage = String(localized: "Could not read that folder: \(error.localizedDescription)", bundle: .module)
                 }
             }
         }
-    }
-
-    // MARK: Step 1b — Photos collections + grid
-
-    private var collectionsStep: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 1,
-                        title: String(localized: "Choose an album", bundle: .module),
-                        subtitle: String(localized: "Select where your story lives", bundle: .module)) {
-                step = .source
-            }
-            limitedAccessBanner
-            List(collections) { collection in
-                Button {
-                    loadPhotos(in: collection)
-                } label: {
-                    HStack {
-                        Text(collection.title)
-                        Spacer()
-                        if let count = collection.estimatedCount {
-                            Text(verbatim: "\(count)").foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .help(Text("Use photos from this album", bundle: .module))
-            }
-        }
-        .padding(28)
-    }
-
-    private func loadPhotos(in collection: PhotoCollection) {
-        errorMessage = nil
-        Task {
-            do {
-                let refs = try await providers.photoKit.photoRefs(in: collection)
-                guard !refs.isEmpty else {
-                    errorMessage = String(localized: "\"\(collection.title)\" has no photos.", bundle: .module)
-                    return
-                }
-                bookTitle = collection.title
-                availablePhotos = refs
-                selectedPhotoIDs = Set(refs.map(\.id))   // all selected; tap to deselect
-                activeProvider = providers.photoKit
-                step = .photoGrid
-            } catch {
-                errorMessage = String(localized: "Could not load photos: \(error.localizedDescription)", bundle: .module)
-            }
-        }
-    }
-
-    private var photoGridStep: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            setupHeader(step: 1, title: bookTitle, subtitle: String(localized: "Choose the moments to include", bundle: .module)) {
-                step = .photoCollections
-            }
-            limitedAccessBanner
-            HStack {
-                Text("\(selectedPhotoIDs.count) of \(availablePhotos.count) selected", bundle: .module)
-                    .font(.headline)
-                Spacer()
-                Button(String(localized: "Clear", bundle: .module)) { selectedPhotoIDs.removeAll() }
-                    .disabled(selectedPhotoIDs.isEmpty)
-                Button(String(localized: "Select all", bundle: .module)) { selectedPhotoIDs = Set(availablePhotos.map(\.id)) }
-                    .disabled(selectedPhotoIDs.count == availablePhotos.count)
-            }
-            ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 132), spacing: 10)], spacing: 10) {
-                    ForEach(availablePhotos) { ref in
-                        ProviderThumbnailCell(
-                            ref: ref,
-                            provider: providers.photoKit,
-                            isSelected: selectedPhotoIDs.contains(ref.id)
-                        ) {
-                            if selectedPhotoIDs.contains(ref.id) {
-                                selectedPhotoIDs.remove(ref.id)
-                            } else {
-                                selectedPhotoIDs.insert(ref.id)
-                            }
-                        }
-                    }
-                }
-            }
-            HStack {
-                Spacer()
-                Button(String(localized: "Continue with \(selectedPhotoIDs.count) photos", bundle: .module)) {
-                    curationModel = defaultCurationModel(availableCount: selectedPhotoIDs.count)
-                    curationOrigin = .photoGrid
-                    step = .curation
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(selectedPhotoIDs.isEmpty)
-                .help(Text("Continue to choose how many photos to keep", bundle: .module))
-            }
-        }
-        .padding(28)
     }
 
     // MARK: Step 1c — curation
@@ -369,7 +303,7 @@ public struct NewBookSetupView: View {
         VStack(spacing: 16) {
             setupHeader(step: 2, title: String(localized: "Refine your selection", bundle: .module),
                         subtitle: String(localized: "Keep every photo or let us build a balanced story", bundle: .module)) {
-                step = curationOrigin
+                step = .source
             }
             CurationStepView(
                 model: curationModel,
@@ -386,42 +320,6 @@ public struct NewBookSetupView: View {
         .padding(28)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
-
-    // MARK: Limited-library mode (spec: "limited mode functional")
-
-    /// `.limited` (iOS): everything works on the granted subset; this
-    /// banner explains why the grid may look sparse, and Manage… reopens
-    /// the system's limited-library picker. On macOS limited mode does not
-    /// exist: `isLimitedAccess` is never true, so the banner never shows —
-    /// and the picker API is iOS-only, hence the #if os.
-    @ViewBuilder
-    private var limitedAccessBanner: some View {
-        if isLimitedAccess {
-            HStack {
-                Label(String(localized: "Showing only photos you've granted access to.", bundle: .module),
-                      systemImage: "info.circle")
-                    .font(.callout)
-                Spacer()
-                #if os(iOS)
-                Button(String(localized: "Manage...", bundle: .module)) { presentLimitedLibraryPicker() }
-                    .accessibilityIdentifier("limited-access-manage")
-                #endif
-            }
-            .padding(10)
-            .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
-            .accessibilityIdentifier("limited-access-banner")
-        }
-    }
-
-    #if os(iOS)
-    private func presentLimitedLibraryPicker() {
-        guard let scene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first(where: { $0.activationState == .foregroundActive }),
-              let root = scene.keyWindow?.rootViewController else { return }
-        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: root)
-    }
-    #endif
 
     // MARK: Step 2 — preset
 
@@ -632,7 +530,7 @@ public struct NewBookSetupView: View {
             // so the (pure) engine can give important photos more room.
             var photos = selected
             // activeProvider is always set before the preset step is reachable
-            // (in loadPhotos(in:) and handleFolderPick(_:)), so the nil branch
+            // (in handlePickerSelection(_:) and handleFolderPick(_:)), so the nil branch
             // here is unreachable; assert in debug to catch a future regression
             // that would otherwise silently skip the opted-in analysis.
             assert(!shouldAnalyze || provider != nil,
