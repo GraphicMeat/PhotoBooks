@@ -107,7 +107,7 @@ struct WelcomeView: View {
 
             Link(destination: URL(string: "https://graphicmeat.com")!) {
                 HStack(spacing: 10) {
-                    graphicMeatLogo
+                    Self.graphicMeatLogo
                         .resizable()
                         .scaledToFit()
                         .frame(width: 64, height: 64)
@@ -130,7 +130,10 @@ struct WelcomeView: View {
         }
     }
 
-    private var graphicMeatLogo: Image {
+    /// `static let` (not a computed property): this used to hit the disk and
+    /// decode on the main thread on every body evaluation, which stalled the
+    /// welcome screen right after a new document is created.
+    private static let graphicMeatLogo: Image = {
         guard let url = Bundle.module.url(forResource: "GraphicMeatLogo", withExtension: "png") else {
             return Image(systemName: "globe")
         }
@@ -141,7 +144,7 @@ struct WelcomeView: View {
         guard let image = UIImage(contentsOfFile: url.path) else { return Image(systemName: "globe") }
         return Image(uiImage: image)
         #endif
-    }
+    }()
 
     private var bookPreview: some View {
         GeometryReader { geometry in
