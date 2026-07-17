@@ -71,6 +71,22 @@ targetTemplates:
       - package: DocumentUI
       - package: ExportFeature
       - package: ModelLayer
+    # Fail the build when project.yml has been edited but `xcodegen generate`
+    # hasn't been re-run — otherwise Xcode silently builds the stale project
+    # (this shipped an App Store binary missing UISupportedInterfaceOrientations
+    # and ASC rejected it: "No orientations were specified").
+    preBuildScripts:
+      - name: Check generated project is up to date
+        basedOnDependencyAnalysis: false
+        # ponytail: mtime compare, not a spec hash. A `git checkout project.yml`
+        # can trip it with nothing actually stale — cost is one needless
+        # `xcodegen generate`. Switch to `xcodegen generate --use-cache` (it
+        # hashes the spec + its includes) if the false alarms get annoying.
+        script: |
+          if [ "$SRCROOT/project.yml" -nt "$PROJECT_FILE_PATH/project.pbxproj" ]; then
+            echo "error: project.yml is newer than the generated Xcode project. Run 'xcodegen generate', then reopen the project in Xcode."
+            exit 1
+          fi
     settings:
       base:
         # Same bundle id for both flavors: a Developer ID install and its
