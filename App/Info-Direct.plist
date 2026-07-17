@@ -57,6 +57,13 @@
 	<string>Bm5DCgHKFl7d7su7dKBSi+gxrlUwNxlAzI2UkeH5Sjw=</string>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
 	<key>UTExportedTypeDeclarations</key>

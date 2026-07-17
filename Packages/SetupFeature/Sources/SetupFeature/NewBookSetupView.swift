@@ -331,22 +331,26 @@ public struct NewBookSetupView: View {
                         subtitle: String(localized: "Start with the silhouette that best fits your photos", bundle: .module)) {
                 step = .curation
             }
-            Spacer()
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 210), spacing: 16)], spacing: 16) {
-                ForEach([AspectClass.landscape, .square, .portrait], id: \.rawValue) { aspect in
-                    Button {
-                        selectedAspectClass = aspect
-                        if selectedPreset?.aspectClass != aspect { selectedPreset = nil }
-                    } label: {
-                        BookShapeCard(aspectClass: aspect,
-                                      isSelected: selectedAspectClass == aspect)
+            // ScrollView (not Spacer-padded) so three tall cards can't squeeze
+            // the Continue bar off a short iPhone screen — matches the format
+            // and style steps below.
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 210), spacing: 16)], spacing: 16) {
+                    ForEach([AspectClass.landscape, .square, .portrait], id: \.rawValue) { aspect in
+                        Button {
+                            selectedAspectClass = aspect
+                            if selectedPreset?.aspectClass != aspect { selectedPreset = nil }
+                        } label: {
+                            BookShapeCard(aspectClass: aspect,
+                                          isSelected: selectedAspectClass == aspect)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .frame(maxWidth: 820)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
             }
-            .frame(maxWidth: 820)
-            .frame(maxWidth: .infinity)
-            Spacer()
             HStack {
                 Text(selectedAspectClass?.displayTitle ?? String(localized: "Select a shape to continue", bundle: .module))
                     .font(.callout)

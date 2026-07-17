@@ -119,6 +119,13 @@ targetTemplates:
                 - photobookGraphicMeat
         # iOS document-app affordances (ignored on macOS).
         UILaunchScreen: {}
+        # All four orientations = iPad multitasking support. App Store Connect
+        # rejects an iPad-capable bundle that declares none.
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         UISupportsDocumentBrowser: true
         LSSupportsOpeningDocumentsInPlace: true
 
