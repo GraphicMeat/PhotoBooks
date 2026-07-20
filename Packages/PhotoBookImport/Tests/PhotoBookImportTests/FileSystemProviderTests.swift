@@ -380,4 +380,47 @@ import Testing
             _ = try FileSystemProvider().scanFolders(at: missing)
         }
     }
+
+    // MARK: - Multi-folder refs
+
+    @Test func photoRefsInFoldersMergesAndSortsByCaptureDate() async throws {
+        let root = try FixtureFactory.makeTempFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let early = root.appendingPathComponent("b-early", isDirectory: true)
+        let late = root.appendingPathComponent("a-late", isDirectory: true)
+        try FileManager.default.createDirectory(at: early, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: late, withIntermediateDirectories: true)
+        // Capture dates deliberately inverted vs folder-name order.
+        try FixtureFactory.writeImage(at: early.appendingPathComponent("e.tif"), pixelWidth: 8, pixelHeight: 8,
+                                      captureDate: Date(timeIntervalSince1970: 1_000))
+        try FixtureFactory.writeImage(at: late.appendingPathComponent("l.tif"), pixelWidth: 8, pixelHeight: 8,
+                                      captureDate: Date(timeIntervalSince1970: 2_000))
+        // No EXIF date: MetadataReader falls back to the file's actual
+        // creation date (today), which sorts after both fixture dates above
+        // — exercising the same "sorts last" path a true nil would take. A
+        // real nil captureDate is unreachable through this API on APFS (see
+        // MetadataReaderTests.fileCreationDateUsedWhenNoMetadataDates).
+        try FixtureFactory.writeImage(at: late.appendingPathComponent("undated.png"), pixelWidth: 8, pixelHeight: 8, type: .png)
+
+        let refs = try await FileSystemProvider().photoRefs(inFolders: [late, early], root: root)
+
+        #expect(refs.count == 3)
+        #expect(refs[0].captureDate == Date(timeIntervalSince1970: 1_000))
+        #expect(refs[1].captureDate == Date(timeIntervalSince1970: 2_000))
+        #expect((refs[2].captureDate ?? .distantPast) > Date(timeIntervalSince1970: 2_000))
+    }
+
+    @Test func photoRefsInFoldersReadsOnlyDirectFiles() async throws {
+        let root = try FixtureFactory.makeTempFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let sub = root.appendingPathComponent("sub", isDirectory: true)
+        let subsub = sub.appendingPathComponent("deeper", isDirectory: true)
+        try FileManager.default.createDirectory(at: subsub, withIntermediateDirectories: true)
+        try FixtureFactory.writeImage(at: sub.appendingPathComponent("direct.tif"), pixelWidth: 8, pixelHeight: 8)
+        try FixtureFactory.writeImage(at: subsub.appendingPathComponent("deep.tif"), pixelWidth: 8, pixelHeight: 8)
+
+        // Only `sub` selected: its direct file imports, `deeper`'s does not.
+        let refs = try await FileSystemProvider().photoRefs(inFolders: [sub], root: root)
+        #expect(refs.count == 1)
+    }
 }

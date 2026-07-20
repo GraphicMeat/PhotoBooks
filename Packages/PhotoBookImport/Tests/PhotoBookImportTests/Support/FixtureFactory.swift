@@ -68,6 +68,7 @@ enum FixtureFactory {
         type: UTType = .tiff,
         orientation: UInt32? = nil,
         exifDateTimeOriginal: String? = nil,
+        captureDate: Date? = nil,
         tiffDateTime: String? = nil
     ) throws -> URL {
         let image = try render(pixelWidth: pixelWidth, pixelHeight: pixelHeight)
@@ -79,6 +80,14 @@ enum FixtureFactory {
         if let exifDateTimeOriginal {
             properties[kCGImagePropertyExifDictionary] =
                 [kCGImagePropertyExifDateTimeOriginal: exifDateTimeOriginal]
+        }
+        if let captureDate {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.timeZone = TimeZone(identifier: "UTC")
+            properties[kCGImagePropertyExifDictionary] =
+                [kCGImagePropertyExifDateTimeOriginal: formatter.string(from: captureDate)]
         }
         if let tiffDateTime {
             properties[kCGImagePropertyTIFFDictionary] =

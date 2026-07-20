@@ -119,6 +119,39 @@ public struct FileSystemProvider: PhotoProvider {
         return refs
     }
 
+    /// Refs for the DIRECT image files of the given folders (subfolder
+    /// selection from `scanFolders` — each selected folder contributes only
+    /// its own files). Merged and sorted by capture date ascending, nil
+    /// dates last, stable. Security scope is held on `root` (the
+    /// user-granted folder) for the whole read.
+    public func photoRefs(inFolders urls: [URL], root: URL) async throws -> [PhotoRef] {
+        let rootURL = root.standardizedFileURL
+        let didStartScope = rootURL.startAccessingSecurityScopedResource()
+        defer { if didStartScope { rootURL.stopAccessingSecurityScopedResource() } }
+
+        var refs: [PhotoRef] = []
+        for folderURL in urls {
+            for fileURL in try imageFileURLs(in: folderURL) {
+                if Task.isCancelled { throw PhotoProviderError.cancelled }
+                // Same skip policy as photoRefs(in:): a broken file must
+                // not abort the import.
+                guard let bookmark = try? Self.makeBookmark(for: fileURL),
+                      let ref = try? MetadataReader.photoRef(forFileAt: fileURL, bookmark: bookmark)
+                else { continue }
+                refs.append(ref)
+            }
+        }
+        // Swift's sort is not documented stable — offset tiebreak keeps it so.
+        return refs.enumerated().sorted { a, b in
+            switch (a.element.captureDate, b.element.captureDate) {
+            case let (l?, r?): return l == r ? a.offset < b.offset : l < r
+            case (.some, nil): return true
+            case (nil, .some): return false
+            case (nil, nil): return a.offset < b.offset
+            }
+        }.map(\.element)
+    }
+
     // MARK: - Decode methods (added in Task 6)
 
     /// Downsampled decode via `CGImageSourceCreateThumbnailAtIndex` — the
