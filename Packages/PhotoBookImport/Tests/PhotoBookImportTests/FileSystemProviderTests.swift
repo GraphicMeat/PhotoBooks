@@ -335,7 +335,7 @@ import Testing
         try FixtureFactory.writeImage(at: nested.appendingPathComponent("a.tif"), pixelWidth: 8, pixelHeight: 8)
         try FixtureFactory.writeImage(at: nested.appendingPathComponent("b.tif"), pixelWidth: 8, pixelHeight: 8)
 
-        let folders = try FileSystemProvider().scanFolders(at: root)
+        let folders = try await FileSystemProvider().scanFolders(at: root)
 
         #expect(folders.map(\.relativePath) == ["", "2019/Summer Trip", "zebra"])
         #expect(folders.map(\.imageCount) == [1, 2, 1])
@@ -356,7 +356,7 @@ import Testing
         try FixtureFactory.writeImage(at: hidden.appendingPathComponent("h.tif"), pixelWidth: 8, pixelHeight: 8)
         try FixtureFactory.writeImage(at: good.appendingPathComponent("g.tif"), pixelWidth: 8, pixelHeight: 8)
 
-        let folders = try FileSystemProvider().scanFolders(at: root)
+        let folders = try await FileSystemProvider().scanFolders(at: root)
 
         // No root row (no loose images), no empty/text-only/hidden rows.
         #expect(folders.map(\.relativePath) == ["good"])
@@ -367,17 +367,17 @@ import Testing
         defer { try? FileManager.default.removeItem(at: root) }
         try FixtureFactory.writeImage(at: root.appendingPathComponent("a.tif"), pixelWidth: 8, pixelHeight: 8)
 
-        let folders = try FileSystemProvider().scanFolders(at: root)
+        let folders = try await FileSystemProvider().scanFolders(at: root)
 
         #expect(folders.count == 1)
         #expect(folders[0].relativePath.isEmpty)
         #expect(folders[0].imageCount == 1)
     }
 
-    @Test func scanFoldersMissingRootThrows() {
+    @Test func scanFoldersMissingRootThrows() async {
         let missing = URL(fileURLWithPath: "/nonexistent/folder-\(UUID().uuidString)")
-        #expect(throws: PhotoProviderError.self) {
-            _ = try FileSystemProvider().scanFolders(at: missing)
+        await #expect(throws: PhotoProviderError.self) {
+            _ = try await FileSystemProvider().scanFolders(at: missing)
         }
     }
 

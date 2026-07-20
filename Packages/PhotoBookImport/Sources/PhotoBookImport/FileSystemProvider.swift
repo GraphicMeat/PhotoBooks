@@ -289,7 +289,20 @@ public struct FileSystemProvider: PhotoProvider {
     /// contains ≥1 image file, sorted by relative path (root row "" first).
     /// Filenames only — no pixel decodes — so large trees scan fast.
     /// `.skipsPackageDescendants` keeps `.photoslibrary`/app bundles out.
-    public func scanFolders(at root: URL) throws -> [FolderInfo] {
+    ///
+    /// `async` (like `photoRefs(inFolders:root:)`): a nonisolated async
+    /// member hops off the caller's actor onto the global executor, so a
+    /// call from a `@MainActor` context does not enumerate an 80k-photo
+    /// tree on the main thread.
+    public func scanFolders(at root: URL) async throws -> [FolderInfo] {
+        // `FileManager.enumerator`'s NSFastEnumeration iteration is
+        // unavailable written directly inside an async function; the
+        // synchronous helper below does the actual walk (already off the
+        // main thread — this async function hopped to the global executor).
+        try scanFoldersSync(at: root)
+    }
+
+    private func scanFoldersSync(at root: URL) throws -> [FolderInfo] {
         let rootURL = root.standardizedFileURL
         let didStartScope = rootURL.startAccessingSecurityScopedResource()
         defer { if didStartScope { rootURL.stopAccessingSecurityScopedResource() } }

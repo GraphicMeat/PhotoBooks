@@ -295,7 +295,7 @@ public struct NewBookSetupView: View {
             Task {
                 do {
                     let collection = try providers.fileSystem.makeCollection(fromFolder: url)
-                    let folders = try providers.fileSystem.scanFolders(at: url)
+                    let folders = try await providers.fileSystem.scanFolders(at: url)
                     guard !folders.isEmpty else {
                         errorMessage = String(localized: "No importable images found in \"\(collection.title)\".", bundle: .module)
                         return
