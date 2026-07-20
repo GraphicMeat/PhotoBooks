@@ -4,28 +4,39 @@
     {
       "layers" : [
         {
-          "image-name" : "fashion_magazine_photo_book_icon_1024.png",
-          "name" : "fashion_magazine_photo_book_icon_1024",
-          "position" : {
-            "scale" : 1,
-            "translation-in-points" : [
-              -31,
-              -2
-            ]
-          }
+          "image-name" : "photobooks-light-1024.png",
+          "name" : "PhotoBooks Light",
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "dark",
+              "value" : 0
+            }
+          ]
         },
         {
-          "image-name" : "ios_icon_bg_dark_gradient_1024.png",
-          "name" : "ios_icon_bg_dark_gradient_1024"
+          "image-name" : "photobooks-dark-1024.png",
+          "name" : "PhotoBooks Dark",
+          "opacity-specializations" : [
+            {
+              "value" : 0
+            },
+            {
+              "appearance" : "dark",
+              "value" : 1
+            }
+          ]
         }
       ],
       "shadow" : {
         "kind" : "neutral",
-        "opacity" : 0.6
+        "opacity" : 0.25
       },
       "translucency" : {
-        "enabled" : true,
-        "value" : 0.2
+        "enabled" : false,
+        "value" : 0
       }
     }
   ],
