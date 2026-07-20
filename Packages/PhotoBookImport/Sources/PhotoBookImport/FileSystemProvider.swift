@@ -4,6 +4,20 @@ import ImageIO
 import PhotoBookCore
 import Synchronization
 
+/// One folder inside a user-picked import root that directly contains
+/// image files. `relativePath` is "" for the root itself.
+public struct FolderInfo: Sendable, Equatable {
+    public let url: URL
+    public let relativePath: String
+    public let imageCount: Int
+
+    public init(url: URL, relativePath: String, imageCount: Int) {
+        self.url = url
+        self.relativePath = relativePath
+        self.imageCount = imageCount
+    }
+}
+
 /// Folder-based photo source. Folder = collection. Security-scoped bookmarks
 /// re-locate files across moves and app relaunches; all pixel decodes go
 /// through ImageIO.
@@ -237,6 +251,44 @@ public struct FileSystemProvider: PhotoProvider {
     }
 
     // MARK: - Enumeration
+
+    /// Deep scan of a user-picked folder: every folder that directly
+    /// contains ≥1 image file, sorted by relative path (root row "" first).
+    /// Filenames only — no pixel decodes — so large trees scan fast.
+    /// `.skipsPackageDescendants` keeps `.photoslibrary`/app bundles out.
+    public func scanFolders(at root: URL) throws -> [FolderInfo] {
+        let rootURL = root.standardizedFileURL
+        let didStartScope = rootURL.startAccessingSecurityScopedResource()
+        defer { if didStartScope { rootURL.stopAccessingSecurityScopedResource() } }
+
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: rootURL.path, isDirectory: &isDirectory),
+              isDirectory.boolValue,
+              let enumerator = FileManager.default.enumerator(
+                  at: rootURL,
+                  includingPropertiesForKeys: [.isRegularFileKey],
+                  options: [.skipsHiddenFiles, .skipsPackageDescendants]
+              )
+        else {
+            throw PhotoProviderError.assetUnavailable(MetadataReader.photoID(forFileAt: rootURL))
+        }
+
+        var counts: [URL: Int] = [:]
+        for case let fileURL as URL in enumerator {
+            guard Self.imageExtensions.contains(fileURL.pathExtension.lowercased()),
+                  (try? fileURL.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true
+            else { continue }
+            counts[fileURL.deletingLastPathComponent().standardizedFileURL, default: 0] += 1
+        }
+
+        let rootPath = rootURL.path
+        return counts.map { folderURL, count in
+            var relative = String(folderURL.path.dropFirst(rootPath.count))
+            if relative.hasPrefix("/") { relative.removeFirst() }
+            return FolderInfo(url: folderURL, relativePath: relative, imageCount: count)
+        }
+        .sorted { $0.relativePath < $1.relativePath }
+    }
 
     /// Non-recursive enumeration of image files, sorted by filename — plain
     /// lexicographic comparison, stable across locales and runs.

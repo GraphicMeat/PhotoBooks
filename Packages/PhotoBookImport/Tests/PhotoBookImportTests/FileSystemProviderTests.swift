@@ -319,4 +319,65 @@ import Testing
                     "orientation \(orientation): pixels diverge from ImageIO transform")
         }
     }
+
+    // MARK: - Subfolder scan
+
+    @Test func scanFoldersGroupsByFolderAndSortsByRelativePath() async throws {
+        let root = try FixtureFactory.makeTempFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        // Root loose file + nested subfolders, created out of sort order.
+        try FixtureFactory.writeImage(at: root.appendingPathComponent("loose.tif"), pixelWidth: 8, pixelHeight: 8)
+        let zebra = root.appendingPathComponent("zebra", isDirectory: true)
+        let nested = root.appendingPathComponent("2019/Summer Trip", isDirectory: true)
+        try FileManager.default.createDirectory(at: zebra, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
+        try FixtureFactory.writeImage(at: zebra.appendingPathComponent("z.tif"), pixelWidth: 8, pixelHeight: 8)
+        try FixtureFactory.writeImage(at: nested.appendingPathComponent("a.tif"), pixelWidth: 8, pixelHeight: 8)
+        try FixtureFactory.writeImage(at: nested.appendingPathComponent("b.tif"), pixelWidth: 8, pixelHeight: 8)
+
+        let folders = try FileSystemProvider().scanFolders(at: root)
+
+        #expect(folders.map(\.relativePath) == ["", "2019/Summer Trip", "zebra"])
+        #expect(folders.map(\.imageCount) == [1, 2, 1])
+        #expect(folders[1].url.standardizedFileURL == nested.standardizedFileURL)
+    }
+
+    @Test func scanFoldersSkipsEmptyHiddenAndNonImageContent() async throws {
+        let root = try FixtureFactory.makeTempFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let empty = root.appendingPathComponent("empty", isDirectory: true)
+        let textOnly = root.appendingPathComponent("textOnly", isDirectory: true)
+        let hidden = root.appendingPathComponent(".hidden", isDirectory: true)
+        let good = root.appendingPathComponent("good", isDirectory: true)
+        for dir in [empty, textOnly, hidden, good] {
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        }
+        try Data("no".utf8).write(to: textOnly.appendingPathComponent("notes.txt"))
+        try FixtureFactory.writeImage(at: hidden.appendingPathComponent("h.tif"), pixelWidth: 8, pixelHeight: 8)
+        try FixtureFactory.writeImage(at: good.appendingPathComponent("g.tif"), pixelWidth: 8, pixelHeight: 8)
+
+        let folders = try FileSystemProvider().scanFolders(at: root)
+
+        // No root row (no loose images), no empty/text-only/hidden rows.
+        #expect(folders.map(\.relativePath) == ["good"])
+    }
+
+    @Test func scanFoldersRootOnlyYieldsSingleRootRow() async throws {
+        let root = try FixtureFactory.makeTempFolder()
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FixtureFactory.writeImage(at: root.appendingPathComponent("a.tif"), pixelWidth: 8, pixelHeight: 8)
+
+        let folders = try FileSystemProvider().scanFolders(at: root)
+
+        #expect(folders.count == 1)
+        #expect(folders[0].relativePath.isEmpty)
+        #expect(folders[0].imageCount == 1)
+    }
+
+    @Test func scanFoldersMissingRootThrows() {
+        let missing = URL(fileURLWithPath: "/nonexistent/folder-\(UUID().uuidString)")
+        #expect(throws: PhotoProviderError.self) {
+            _ = try FileSystemProvider().scanFolders(at: missing)
+        }
+    }
 }
