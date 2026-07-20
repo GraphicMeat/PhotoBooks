@@ -53,6 +53,9 @@ public struct NewBookSetupView: View {
     @State private var analysisTotal = 0
     @State private var selectedPreset: PrintPreset?
     @State private var selectedAspectClass: AspectClass?
+    @State private var subfolderModel: SubfolderSelectionModel?
+    @State private var pendingFolderRoot: URL?
+    @State private var pendingFolderTitle = ""
 
     // MARK: Curation step
 
@@ -99,6 +102,26 @@ public struct NewBookSetupView: View {
                       photoLibrary: .shared())
         .onChange(of: pickerItems) { _, newItems in
             handlePickerSelection(newItems)
+        }
+        .sheet(isPresented: Binding(
+            get: { subfolderModel != nil },
+            set: { if !$0 { subfolderModel = nil; pendingFolderRoot = nil } }
+        )) {
+            if let subfolderModel, let pendingFolderRoot {
+                SubfolderPickerSheet(
+                    model: subfolderModel,
+                    rootTitle: pendingFolderTitle,
+                    onCancel: {
+                        self.subfolderModel = nil
+                        self.pendingFolderRoot = nil
+                    },
+                    onImport: { urls in
+                        self.subfolderModel = nil
+                        importFolders(urls, root: pendingFolderRoot, title: pendingFolderTitle)
+                        self.pendingFolderRoot = nil
+                    }
+                )
+            }
         }
         #if DEBUG
         .task { await loadScreenshotReviewFixtureIfRequested() }
@@ -272,20 +295,46 @@ public struct NewBookSetupView: View {
             Task {
                 do {
                     let collection = try providers.fileSystem.makeCollection(fromFolder: url)
-                    let refs = try await providers.fileSystem.photoRefs(in: collection)
-                    guard !refs.isEmpty else {
+                    let folders = try providers.fileSystem.scanFolders(at: url)
+                    guard !folders.isEmpty else {
                         errorMessage = String(localized: "No importable images found in \"\(collection.title)\".", bundle: .module)
                         return
                     }
-                    bookTitle = collection.title
-                    availablePhotos = refs
-                    selectedPhotoIDs = Set(refs.map(\.id))   // folder: all auto-selected
-                    activeProvider = providers.fileSystem
-                    curationModel = defaultCurationModel(availableCount: refs.count)
-                    step = .curation
+                    if folders.count == 1 {
+                        // Single folder (root-only or one subfolder): no
+                        // choice to make — import straight away.
+                        importFolders(folders.map(\.url), root: url, title: collection.title)
+                    } else {
+                        pendingFolderRoot = url
+                        pendingFolderTitle = collection.title
+                        subfolderModel = SubfolderSelectionModel(folders: folders)
+                    }
                 } catch {
                     errorMessage = String(localized: "Could not read that folder: \(error.localizedDescription)", bundle: .module)
                 }
+            }
+        }
+    }
+
+    /// Loads refs from the chosen folders and enters the wizard's curation
+    /// step — shared by the no-subfolders fast path and the sheet's Import.
+    private func importFolders(_ urls: [URL], root: URL, title: String) {
+        errorMessage = nil
+        Task {
+            do {
+                let refs = try await providers.fileSystem.photoRefs(inFolders: urls, root: root)
+                guard !refs.isEmpty else {
+                    errorMessage = String(localized: "No importable images found in \"\(title)\".", bundle: .module)
+                    return
+                }
+                bookTitle = title
+                availablePhotos = refs
+                selectedPhotoIDs = Set(refs.map(\.id))   // folder: all auto-selected
+                activeProvider = providers.fileSystem
+                curationModel = defaultCurationModel(availableCount: refs.count)
+                step = .curation
+            } catch {
+                errorMessage = String(localized: "Could not read that folder: \(error.localizedDescription)", bundle: .module)
             }
         }
     }
