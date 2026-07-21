@@ -125,39 +125,86 @@ public struct FileSystemProvider: PhotoProvider {
     /// dates last, stable. Security scope is held on `root` (the
     /// user-granted folder) for the whole read.
     public func photoRefs(inFolders urls: [URL], root: URL) async throws -> [PhotoRef] {
-        let rootURL = root.standardizedFileURL
+        let rootURL = scopedRoot(for: root)
         let didStartScope = rootURL.startAccessingSecurityScopedResource()
         defer { if didStartScope { rootURL.stopAccessingSecurityScopedResource() } }
 
-        var refs: [PhotoRef] = []
+        var fileURLs: [URL] = []
         for folderURL in urls {
-            for fileURL in try imageFileURLs(in: folderURL) {
-                if Task.isCancelled { throw PhotoProviderError.cancelled }
-                // Same skip policy as photoRefs(in:): a broken file must
-                // not abort the import.
-                guard let bookmark = try? Self.makeBookmark(for: fileURL),
-                      let ref = try? MetadataReader.photoRef(forFileAt: fileURL, bookmark: bookmark)
-                else { continue }
-                refs.append(ref)
+            fileURLs.append(contentsOf: try imageFileURLs(in: folderURL))
+        }
+
+        // Bookmark + metadata reads are I/O-bound and independent per file —
+        // fan out with bounded width instead of a serial loop (a 2k-photo
+        // folder took seconds serially). Results keyed by index so the
+        // enumeration order survives the parallel completion order.
+        let width = ProcessInfo.processInfo.activeProcessorCount
+        var indexed: [(Int, PhotoRef)] = []
+        indexed.reserveCapacity(fileURLs.count)
+        try await withThrowingTaskGroup(of: (Int, PhotoRef?).self) { group in
+            var next = 0
+            func addTask(index: Int) {
+                let fileURL = fileURLs[index]
+                group.addTask {
+                    if Task.isCancelled { throw PhotoProviderError.cancelled }
+                    // Same skip policy as photoRefs(in:): a broken file must
+                    // not abort the import.
+                    guard let bookmark = try? Self.makeBookmark(for: fileURL),
+                          let ref = try? MetadataReader.photoRef(forFileAt: fileURL, bookmark: bookmark)
+                    else { return (index, nil) }
+                    return (index, ref)
+                }
+            }
+            while next < min(width, fileURLs.count) {
+                addTask(index: next)
+                next += 1
+            }
+            while let (index, ref) = try await group.next() {
+                if let ref { indexed.append((index, ref)) }
+                if next < fileURLs.count {
+                    addTask(index: next)
+                    next += 1
+                }
             }
         }
-        // Swift's sort is not documented stable — offset tiebreak keeps it so.
-        return refs.enumerated().sorted { a, b in
-            switch (a.element.captureDate, b.element.captureDate) {
-            case let (l?, r?): return l == r ? a.offset < b.offset : l < r
+
+        // Capture-date sort; the original enumeration index breaks ties, so
+        // the comparator is a total order and sort stability is moot.
+        return indexed.sorted { a, b in
+            switch (a.1.captureDate, b.1.captureDate) {
+            case let (l?, r?): return l == r ? a.0 < b.0 : l < r
             case (.some, nil): return true
             case (nil, .some): return false
-            case (nil, nil): return a.offset < b.offset
+            case (nil, nil): return a.0 < b.0
             }
-        }.map(\.element)
+        }.map(\.1)
     }
 
     // MARK: - Decode methods (added in Task 6)
 
+    /// Caps concurrent ImageIO thumbnail decodes. Big lazy grids fire one
+    /// decode per appearing cell; without a gate a fast scroll queues
+    /// hundreds of simultaneous decodes and starves the UI.
+    private static let decodeGate = AsyncLimiter(limit: ProcessInfo.processInfo.activeProcessorCount)
+
     /// Downsampled decode via `CGImageSourceCreateThumbnailAtIndex` — the
     /// spec's memory discipline for editing. Orientation is baked into the
     /// returned pixels (`kCGImageSourceCreateThumbnailWithTransform`).
+    /// Decodes run in parallel, bounded by `decodeGate`.
     public func thumbnail(for ref: PhotoRef, maxPixelSize: Int) async throws -> CGImage {
+        await Self.decodeGate.acquire()
+        do {
+            let image = try Self.decodeThumbnail(for: ref, maxPixelSize: maxPixelSize)
+            await Self.decodeGate.release()
+            return image
+        } catch {
+            await Self.decodeGate.release()
+            throw error
+        }
+    }
+
+    private static func decodeThumbnail(for ref: PhotoRef, maxPixelSize: Int) throws -> CGImage {
+        if Task.isCancelled { throw PhotoProviderError.cancelled }
         let fileURL = try Self.fileURL(for: ref)
         let didStartScope = fileURL.startAccessingSecurityScopedResource()
         defer { if didStartScope { fileURL.stopAccessingSecurityScopedResource() } }
@@ -302,8 +349,24 @@ public struct FileSystemProvider: PhotoProvider {
         try scanFoldersSync(at: root)
     }
 
+    /// The URL a view passes across an async boundary can lose its powerbox
+    /// security-scope token — `startAccessingSecurityScopedResource` returns
+    /// false and every read is denied by the sandbox. The bookmark stored by
+    /// `makeCollection(fromFolder:)` always resolves to a startable URL, so
+    /// prefer it whenever the root is registered (the import flow registers
+    /// it first). Falls back to the passed URL (unsandboxed tests, unregistered
+    /// callers).
+    private func scopedRoot(for root: URL) -> URL {
+        let standardized = root.standardizedFileURL
+        let id = MetadataReader.photoID(forFileAt: standardized).rawValue
+        guard let folder = registry.folders.withLock({ $0[id] }),
+              let resolved = try? Self.resolveBookmark(folder.bookmark, refID: PhotoID(rawValue: id))
+        else { return standardized }
+        return resolved
+    }
+
     private func scanFoldersSync(at root: URL) throws -> [FolderInfo] {
-        let rootURL = root.standardizedFileURL
+        let rootURL = scopedRoot(for: root)
         let didStartScope = rootURL.startAccessingSecurityScopedResource()
         defer { if didStartScope { rootURL.stopAccessingSecurityScopedResource() } }
 
@@ -313,7 +376,10 @@ public struct FileSystemProvider: PhotoProvider {
               let enumerator = FileManager.default.enumerator(
                   at: rootURL,
                   includingPropertiesForKeys: [.isRegularFileKey],
-                  options: [.skipsHiddenFiles, .skipsPackageDescendants]
+                  options: [.skipsHiddenFiles, .skipsPackageDescendants],
+                  // Skip unreadable branches instead of silently stopping
+                  // the whole walk (the default nil handler stops).
+                  errorHandler: { _, _ in true }
               )
         else {
             throw PhotoProviderError.assetUnavailable(MetadataReader.photoID(forFileAt: rootURL))

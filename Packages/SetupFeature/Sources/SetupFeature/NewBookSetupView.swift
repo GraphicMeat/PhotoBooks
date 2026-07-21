@@ -6,6 +6,9 @@ import PhotoBookImport
 import Photos
 import PhotosUI   // PhotosPicker + PhotosPickerItem (available on iOS and macOS)
 import SwiftUI
+#if os(macOS)
+import AppKit
+#endif
 
 /// New-document experience, three steps:
 ///   1. source — Apple Photos (permission → native `PhotosPicker` multi-select)
@@ -32,6 +35,7 @@ public struct NewBookSetupView: View {
     enum Step {
         case source
         case permissionExplainer
+        case subfolders
         case curation
         case bookShape
         case bookFormat
@@ -68,8 +72,9 @@ public struct NewBookSetupView: View {
             case .permissionExplainer:
                 PermissionExplainerView(onUseFolder: {
                     step = .source
-                    showFolderImporter = true   // the importer is attached to the outer VStack
+                    pickFolder()
                 })
+            case .subfolders: subfolderStep
             case .curation: curationStep
             case .bookShape: bookShapeStep
             case .bookFormat: bookFormatStep
@@ -84,6 +89,7 @@ public struct NewBookSetupView: View {
                 Text(errorMessage)
                     .font(.callout)
                     .foregroundStyle(.red)
+                    .padding(.bottom, 16)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -91,10 +97,12 @@ public struct NewBookSetupView: View {
         #if os(macOS)
         .frame(minWidth: 480, minHeight: 420)
         #endif
+        #if os(iOS)
         .fileImporter(isPresented: $showFolderImporter,
                       allowedContentTypes: [.folder]) { result in
             handleFolderPick(result)
         }
+        #endif
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $pickerItems,
                       maxSelectionCount: nil,
@@ -102,26 +110,6 @@ public struct NewBookSetupView: View {
                       photoLibrary: .shared())
         .onChange(of: pickerItems) { _, newItems in
             handlePickerSelection(newItems)
-        }
-        .sheet(isPresented: Binding(
-            get: { subfolderModel != nil },
-            set: { if !$0 { subfolderModel = nil; pendingFolderRoot = nil } }
-        )) {
-            if let subfolderModel, let pendingFolderRoot {
-                SubfolderPickerSheet(
-                    model: subfolderModel,
-                    rootTitle: pendingFolderTitle,
-                    onCancel: {
-                        self.subfolderModel = nil
-                        self.pendingFolderRoot = nil
-                    },
-                    onImport: { urls in
-                        self.subfolderModel = nil
-                        importFolders(urls, root: pendingFolderRoot, title: pendingFolderTitle)
-                        self.pendingFolderRoot = nil
-                    }
-                )
-            }
         }
         #if DEBUG
         .task { await loadScreenshotReviewFixtureIfRequested() }
@@ -201,7 +189,7 @@ public struct NewBookSetupView: View {
         .accessibilityIdentifier("source-photos")
 
         Button {
-            showFolderImporter = true
+            pickFolder()
         } label: {
             sourceCard(systemImage: "folder",
                        title: String(localized: "From Folder", bundle: .module),
@@ -286,6 +274,29 @@ public struct NewBookSetupView: View {
         }
     }
 
+    /// macOS uses `NSOpenPanel` directly: SwiftUI's `fileImporter` disables
+    /// Open while browsing INSIDE a folder, so the currently displayed
+    /// folder itself cannot be chosen — exactly what users try first with a
+    /// photo tree. `NSOpenPanel` with `canChooseDirectories` returns the
+    /// browsed folder. iOS keeps `fileImporter` (attached to the outer
+    /// VStack).
+    private func pickFolder() {
+        #if os(macOS)
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = String(localized: "Choose", bundle: .module)
+        panel.message = String(localized: "Choose a folder of photos. Subfolders are included.", bundle: .module)
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            handleFolderPick(.success(url))
+        }
+        #else
+        showFolderImporter = true
+        #endif
+    }
+
     private func handleFolderPick(_ result: Result<URL, any Error>) {
         errorMessage = nil
         switch result {
@@ -308,6 +319,7 @@ public struct NewBookSetupView: View {
                         pendingFolderRoot = url
                         pendingFolderTitle = collection.title
                         subfolderModel = SubfolderSelectionModel(folders: folders)
+                        step = .subfolders
                     }
                 } catch {
                     errorMessage = String(localized: "Could not read that folder: \(error.localizedDescription)", bundle: .module)
@@ -316,13 +328,50 @@ public struct NewBookSetupView: View {
         }
     }
 
+    // MARK: Step 1b — subfolders
+
+    /// Inline folder/photo selection after picking a folder that contains
+    /// subfolders with images. Part of the "choose photos" step, so it
+    /// keeps the step-1 chrome; Back returns to the source cards.
+    @ViewBuilder private var subfolderStep: some View {
+        if let subfolderModel, let pendingFolderRoot {
+            VStack(spacing: 0) {
+                setupHeader(step: 1,
+                            title: String(localized: "Choose folders", bundle: .module),
+                            subtitle: String(localized: "Pick which folders from “\(pendingFolderTitle)” to include", bundle: .module)) {
+                    step = .source
+                    self.subfolderModel = nil
+                    self.pendingFolderRoot = nil
+                }
+                .padding([.horizontal, .top], 28)
+
+                SubfolderPickerView(
+                    model: subfolderModel,
+                    rootTitle: pendingFolderTitle,
+                    rootURL: pendingFolderRoot,
+                    provider: providers.fileSystem,
+                    onImport: { urls, excluded in
+                        self.subfolderModel = nil
+                        importFolders(urls, root: pendingFolderRoot,
+                                      title: pendingFolderTitle, excluding: excluded)
+                        self.pendingFolderRoot = nil
+                    }
+                )
+            }
+        }
+    }
+
     /// Loads refs from the chosen folders and enters the wizard's curation
     /// step — shared by the no-subfolders fast path and the sheet's Import.
-    private func importFolders(_ urls: [URL], root: URL, title: String) {
+    /// `excluding` carries per-photo deselections made in the sheet's
+    /// preview grid.
+    private func importFolders(_ urls: [URL], root: URL, title: String,
+                               excluding excluded: Set<PhotoID> = []) {
         errorMessage = nil
         Task {
             do {
                 let refs = try await providers.fileSystem.photoRefs(inFolders: urls, root: root)
+                    .filter { !excluded.contains($0.id) }
                 guard !refs.isEmpty else {
                     errorMessage = String(localized: "No importable images found in \"\(title)\".", bundle: .module)
                     return
@@ -888,6 +937,9 @@ struct ProviderThumbnailCell: View {
     let ref: PhotoRef
     let provider: any PhotoProvider
     let isSelected: Bool
+    /// Square cells for uniform lazy grids (subfolder preview); false keeps
+    /// the photo's natural aspect for masonry layouts (curation review).
+    var square = false
     let toggle: () -> Void
 
     @State private var image: CGImage?
@@ -895,17 +947,23 @@ struct ProviderThumbnailCell: View {
     var body: some View {
         Button(action: toggle) {
             ZStack(alignment: .bottomTrailing) {
-                Group {
-                    if let image {
-                        Image(decorative: image, scale: 1)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        Color(white: 0.85)
+                // A `.fill` image must live in an `.overlay` of a fixed-
+                // aspect container: as a direct child it expands the cell
+                // beyond the proposed size (visible in LazyVGrid, which
+                // proposes column widths, unlike the masonry Layout's exact
+                // frames).
+                Color.clear
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(square ? 1 : max(ref.aspectRatio, 0.2), contentMode: .fit)
+                    .overlay {
+                        if let image {
+                            Image(decorative: image, scale: 1)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } else {
+                            Color(white: 0.85)
+                        }
                     }
-                }
-                .frame(maxWidth: .infinity)
-                .aspectRatio(max(ref.aspectRatio, 0.2), contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .saturation(isSelected ? 1 : 0.72)
                 .opacity(isSelected ? 1 : 0.72)
