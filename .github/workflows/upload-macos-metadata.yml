@@ -1,0 +1,70 @@
+name: Upload localized macOS App Store metadata
+
+on:
+  workflow_dispatch:
+    inputs:
+      assets_tag:
+        description: "Private AppStore asset bundle tag"
+        required: true
+        default: "main"
+      app_version:
+        description: "Optional editable App Store version (for example 1.2)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: photobooks-macos-app-store-metadata
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      APP_STORE_APP_IDENTIFIER: com.graphicMeat.PhotoBooks
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.ASC_KEY_ID }}
+      APP_STORE_VERSION: ${{ inputs.app_version }}
+      ASSETS_TAG: ${{ inputs.assets_tag }}
+      ASSETS_IMAGE: ghcr.io/graphicmeat/appstore-photobooks-screenshots
+
+    steps:
+      - name: Check out PhotoBooks
+        uses: actions/checkout@v4
+
+      - name: Install ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Download private App Store assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          echo "$GH_TOKEN" | oras login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          mkdir -p "$RUNNER_TEMP/appstore-assets"
+          cd "$RUNNER_TEMP/appstore-assets"
+          oras pull "$ASSETS_IMAGE:$ASSETS_TAG"
+          tar -xzf photobooks-mobile-screenshots.tar.gz
+
+      - name: Install Fastlane
+        run: command -v fastlane >/dev/null || brew install fastlane
+
+      - name: Validate, upload, and verify metadata
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          test -n "$APP_STORE_CONNECT_ISSUER_ID"
+          test -n "$APP_STORE_CONNECT_KEY_IDENTIFIER"
+          test -n "$ASC_API_KEY_P8"
+
+          P8="$RUNNER_TEMP/asc_key.p8"
+          echo "$ASC_API_KEY_P8" | base64 --decode > "$P8"
+          chmod 600 "$P8"
+          export APP_STORE_CONNECT_PRIVATE_KEY="$(cat "$P8")"
+
+          "$RUNNER_TEMP/appstore-assets/PhotoBooks/scripts/upload-store-metadata.sh"
