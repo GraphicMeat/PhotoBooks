@@ -40,6 +40,7 @@ public struct ContentView: View {
     @StateObject private var session: BookSession
 
     @State private var isCreating = false
+    @State private var startInFolderPicker = false
 
     public init(document: BookDocument) {
         self.document = document
@@ -55,10 +56,18 @@ public struct ContentView: View {
         Group {
             switch contentRoute(pagesEmpty: document.book.pages.isEmpty, isCreating: isCreating) {
             case .welcome:
-                WelcomeView(onCreate: { isCreating = true })
+                WelcomeView(onCreate: { isCreating = true },
+                            onCreateFromFolder: {
+                                startInFolderPicker = true
+                                isCreating = true
+                            })
             case .setup:
                 NewBookSetupView(document: document, providers: session.providers,
-                                 onExitToWelcome: { isCreating = false })
+                                 startInFolderPicker: startInFolderPicker,
+                                 onExitToWelcome: {
+                                     startInFolderPicker = false
+                                     isCreating = false
+                                 })
             case .browser:
                 BookBrowserView(document: document, imageStore: session.imageStore,
                                 editor: session.editor, exportModel: session.exportModel)

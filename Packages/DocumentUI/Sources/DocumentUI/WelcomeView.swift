@@ -13,6 +13,10 @@ import UIKit
 /// creation flow; opening an existing project stays deliberately secondary.
 struct WelcomeView: View {
     let onCreate: () -> Void
+    /// Same flow, but straight to the folder panel — users looking for
+    /// "import my photo folder" otherwise reach for "Open an existing book"
+    /// and hit a project picker that rejects folders.
+    let onCreateFromFolder: () -> Void
 
     #if os(macOS)
     @Environment(\.openDocument) private var openDocument
@@ -91,6 +95,17 @@ struct WelcomeView: View {
                 .controlSize(.large)
                 .focusEffectDisabled()
                 .accessibilityIdentifier("welcome-create")
+
+                Button(action: onCreateFromFolder) {
+                    Label(String(localized: "New book from a photo folder", bundle: .module),
+                          systemImage: "folder.badge.plus")
+                        .frame(maxWidth: 340, alignment: .leading)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .focusEffectDisabled()
+                .help(Text("Pick a folder of photos and start a book from it", bundle: .module))
+                .accessibilityIdentifier("welcome-create-from-folder")
 
                 #if os(macOS)
                 Button {

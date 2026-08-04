@@ -22,13 +22,18 @@ public struct NewBookSetupView: View {
     /// Escapes the setup flow's first step back to `WelcomeView` (the
     /// `ContentView` owns the welcome/setup toggle this clears).
     var onExitToWelcome: () -> Void = {}
+    /// Entered from the welcome screen's folder shortcut: open the folder
+    /// panel immediately instead of showing the source cards first.
+    var startInFolderPicker = false
     @Environment(\.undoManager) private var undoManager
 
     public init(document: BookDocument,
                 providers: AppProviders,
+                startInFolderPicker: Bool = false,
                 onExitToWelcome: @escaping () -> Void = {}) {
         self.document = document
         self.providers = providers
+        self.startInFolderPicker = startInFolderPicker
         self.onExitToWelcome = onExitToWelcome
     }
 
@@ -110,6 +115,7 @@ public struct NewBookSetupView: View {
         .onChange(of: pickerItems) { _, newItems in
             handlePickerSelection(newItems)
         }
+        .onAppear { if startInFolderPicker { pickFolder() } }
         #if DEBUG
         .task { await loadScreenshotReviewFixtureIfRequested() }
         #endif
