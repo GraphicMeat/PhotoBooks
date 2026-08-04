@@ -1,6 +1,65 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Choose a PhotoBooks project. To start from photos or a folder, go back and pick “Create a new book”.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a PhotoBooks project. To start from photos or a folder, go back and pick “Create a new book”."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle ein PhotoBooks-Projekt. Um mit Fotos oder einem Ordner zu beginnen, gehe zurück und wähle „Neues Buch erstellen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un proyecto de PhotoBooks. Para empezar desde fotos o una carpeta, vuelve atrás y elige «Crear un libro nuevo»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez un projet PhotoBooks. Pour partir de photos ou d’un dossier, revenez en arrière et choisissez « Créer un nouveau livre »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli un progetto PhotoBooks. Per partire da foto o da una cartella, torna indietro e scegli “Crea un nuovo libro”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks プロジェクトを選択してください。写真やフォルダから始めるには、戻って「新しいブックを作成」を選びます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PhotoBooks 프로젝트를 선택하세요. 사진이나 폴더에서 시작하려면 뒤로 가서 ‘새 북 만들기’를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolha um projeto do PhotoBooks. Para começar por fotos ou uma pasta, volte e escolha “Criar um novo livro”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择一个 PhotoBooks 项目。若要从照片或文件夹开始，请返回并选择“创建新书”。"
+          }
+        }
+      }
+    },
     "Choose the moments you love. We’ll arrange them into a polished book you can refine and print.": {
       "localizations": {
         "en": {
@@ -171,6 +230,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Feito por Graphic Meat"
+          }
+        }
+      }
+    },
+    "Open Project": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Project"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projekt öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir proyecto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir le projet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri progetto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロジェクトを開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로젝트 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir projeto"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开项目"
           }
         }
       }

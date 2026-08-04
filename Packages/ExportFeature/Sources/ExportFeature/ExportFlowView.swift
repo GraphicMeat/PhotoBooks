@@ -44,11 +44,8 @@ public struct ExportFlowView: View {
         .frame(minWidth: 380, minHeight: 280)
         #endif
         .padding()
-        .fileImporter(isPresented: $showFolderPicker,
-                      allowedContentTypes: [.folder]) { result in
-            if case .success(let folder) = result {
-                model.exportBlurbPair(into: folder)
-            }
+        .nativeImporter(isPresented: $showFolderPicker) { folder in
+            model.exportBlurbPair(into: folder)
         }
         .fileExporter(isPresented: fileExporterBinding,
                       document: model.renderedDocument,

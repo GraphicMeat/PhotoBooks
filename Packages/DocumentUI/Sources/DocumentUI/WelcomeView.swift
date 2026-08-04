@@ -1,3 +1,4 @@
+import AppSupport
 import ModelLayer
 import PhotoBookCore
 import SwiftUI
@@ -49,12 +50,14 @@ struct WelcomeView: View {
         .frame(minWidth: 680, minHeight: 520)
         #endif
         #if os(macOS)
-        .fileImporter(isPresented: $showOpenImporter,
-                      allowedContentTypes: [.photoBook]) { result in
-            switch result {
-            case .success(let url): openProject(at: url)
-            case .failure(let error): errorMessage = error.localizedDescription
-            }
+        // Native panel, not `fileImporter`: this one greys out every photo and
+        // folder on screen, so it has to say why — `fileImporter` can set
+        // neither prompt nor message.
+        .nativeImporter(isPresented: $showOpenImporter,
+                        contentTypes: [.photoBook],
+                        prompt: String(localized: "Open Project", bundle: .module),
+                        message: String(localized: "Choose a PhotoBooks project. To start from photos or a folder, go back and pick “Create a new book”.", bundle: .module)) { url in
+            openProject(at: url)
         }
         #endif
     }

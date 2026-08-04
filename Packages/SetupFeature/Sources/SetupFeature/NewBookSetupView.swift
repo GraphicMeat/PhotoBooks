@@ -97,12 +97,11 @@ public struct NewBookSetupView: View {
         #if os(macOS)
         .frame(minWidth: 480, minHeight: 420)
         #endif
-        #if os(iOS)
-        .fileImporter(isPresented: $showFolderImporter,
-                      allowedContentTypes: [.folder]) { result in
-            handleFolderPick(result)
+        .nativeImporter(isPresented: $showFolderImporter,
+                        prompt: String(localized: "Choose", bundle: .module),
+                        message: String(localized: "Choose a folder of photos. Subfolders are included.", bundle: .module)) { url in
+            handleFolderPick(.success(url))
         }
-        #endif
         .photosPicker(isPresented: $showPhotosPicker,
                       selection: $pickerItems,
                       maxSelectionCount: nil,
@@ -274,27 +273,8 @@ public struct NewBookSetupView: View {
         }
     }
 
-    /// macOS uses `NSOpenPanel` directly: SwiftUI's `fileImporter` disables
-    /// Open while browsing INSIDE a folder, so the currently displayed
-    /// folder itself cannot be chosen — exactly what users try first with a
-    /// photo tree. `NSOpenPanel` with `canChooseDirectories` returns the
-    /// browsed folder. iOS keeps `fileImporter` (attached to the outer
-    /// VStack).
     private func pickFolder() {
-        #if os(macOS)
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.prompt = String(localized: "Choose", bundle: .module)
-        panel.message = String(localized: "Choose a folder of photos. Subfolders are included.", bundle: .module)
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            handleFolderPick(.success(url))
-        }
-        #else
         showFolderImporter = true
-        #endif
     }
 
     private func handleFolderPick(_ result: Result<URL, any Error>) {
