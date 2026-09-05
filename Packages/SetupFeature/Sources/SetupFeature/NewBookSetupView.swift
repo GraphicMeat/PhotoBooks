@@ -470,6 +470,9 @@ public struct NewBookSetupView: View {
                         }
                         .buttonStyle(.plain)
                         .help(Text("Choose this book size", bundle: .module))
+                        .accessibilityValue(selectedPreset?.id == preset.id
+                                            ? Text("Selected", bundle: .module)
+                                            : Text("Not selected", bundle: .module))
                         .accessibilityIdentifier("preset-\(preset.id)")
                     }
                 }

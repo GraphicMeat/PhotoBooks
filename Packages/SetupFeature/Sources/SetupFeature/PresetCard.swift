@@ -26,6 +26,8 @@ struct PresetCard: View {
             }
             .font(.caption2)
             .foregroundStyle(.secondary)
+            Image(systemName: isCurrent ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(isCurrent ? Color.accentColor : Color.secondary)
         }
         .padding(14)
         .frame(maxWidth: .infinity, minHeight: 165)
@@ -33,8 +35,8 @@ struct PresetCard: View {
         .overlay {
             RoundedRectangle(cornerRadius: 14)
                 .strokeBorder(
-                    Color.secondary.opacity(isHovered ? 0.34 : isCurrent ? 0.26 : 0.18),
-                    lineWidth: 1
+                    isCurrent ? Color.accentColor : Color.secondary.opacity(isHovered ? 0.34 : 0.18),
+                    lineWidth: isCurrent ? 2 : 1
                 )
         }
         .shadow(color: .black.opacity(isHovered ? 0.10 : 0), radius: 10, y: 5)
