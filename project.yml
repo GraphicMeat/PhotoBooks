@@ -160,6 +160,9 @@ targets:
       - path: App
         excludes:
           - Info-Direct.plist
+          # Xcode's StoreKit test configuration — referenced by the scheme, not
+          # a build input. Left in sources it would be copied into the bundle.
+          - PhotoBooks.storekit
     settings:
       base:
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -203,6 +206,7 @@ targets:
           - Icon.icon
           # Sibling App Store Info plist — same stray-resource hazard as above.
           - Info.plist
+          - PhotoBooks.storekit
     dependencies:
       - package: Sparkle
     settings:
@@ -258,6 +262,8 @@ schemes:
         PhotoBooks: all
     run:
       config: Debug
+      # Local tip-jar testing without App Store Connect products.
+      storeKitConfiguration: App/PhotoBooks.storekit
     test:
       config: Debug
       targets:

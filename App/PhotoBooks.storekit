@@ -1,0 +1,63 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "TIPCOFFEE",
+      "localizations" : [
+        {
+          "description" : "A small thank-you to Graphic Meat.",
+          "displayName" : "Espresso",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.graphicMeat.PhotoBooks.tip.coffee",
+      "referenceName" : "Tip — Espresso",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "TIPBURGER",
+      "localizations" : [
+        {
+          "description" : "A generous thank-you to Graphic Meat.",
+          "displayName" : "Smash burger",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.graphicMeat.PhotoBooks.tip.burger",
+      "referenceName" : "Tip — Smash burger",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "TIPSTEAK",
+      "localizations" : [
+        {
+          "description" : "A very generous thank-you to Graphic Meat.",
+          "displayName" : "Ribeye, medium rare",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.graphicMeat.PhotoBooks.tip.steak",
+      "referenceName" : "Tip — Ribeye, medium rare",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
