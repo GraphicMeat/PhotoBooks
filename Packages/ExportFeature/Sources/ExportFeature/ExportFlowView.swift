@@ -12,6 +12,9 @@ public struct ExportFlowView: View {
     let editor: BookEditorModel
 
     @State private var showFolderPicker = false
+    // Owned here, not by ThankYouView, so the loaded products and any
+    // in-flight purchase survive re-renders of the finished step.
+    @State private var tipJar = TipJar()
 
     public init(model: ExportModel, editor: BookEditorModel) {
         self.model = model
@@ -37,11 +40,11 @@ public struct ExportFlowView: View {
             case .failed(let message, let retryIDs):
                 failureStep(message: message, retryIDs: retryIDs)
             case .finished(let urls):
-                finishedStep(urls)
+                ThankYouView(urls: urls, tipJar: tipJar) { model.dismissFlow() }
             }
         }
         #if os(macOS)
-        .frame(minWidth: 380, minHeight: 280)
+        .frame(minWidth: 380, minHeight: 440)
         #endif
         .padding()
         .nativeImporter(isPresented: $showFolderPicker) { folder in
@@ -165,7 +168,7 @@ public struct ExportFlowView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: 4 — failure / success
+    // MARK: 4 — failure (success lives in ThankYouView)
 
     private func failureStep(message: String, retryIDs: [PhotoID]) -> some View {
         VStack(spacing: 16) {
@@ -182,36 +185,6 @@ public struct ExportFlowView: View {
                     .help(retryIDs.isEmpty ? Text("Run the export again", bundle: .module)
                                            : Text("Re-render only the photos that failed", bundle: .module))
                     .accessibilityIdentifier("export-retry")
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func finishedStep(_ urls: [URL]) -> some View {
-        VStack(spacing: 16) {
-            Label(String(localized: "Export complete", bundle: .module), systemImage: "checkmark.circle.fill")
-                .font(.headline)
-                .foregroundStyle(.green)
-            ForEach(urls, id: \.absoluteString) { url in
-                Text(url.lastPathComponent)
-                    .font(.callout.monospaced())
-            }
-            HStack {
-                Button(String(localized: "Done", bundle: .module)) { model.dismissFlow() }
-                    .keyboardShortcut(.defaultAction)
-                #if os(macOS)
-                Button(String(localized: "Reveal in Finder", bundle: .module)) {
-                    NSWorkspace.shared.activateFileViewerSelecting(urls)
-                }
-                .help(Text("Show the exported files in Finder", bundle: .module))
-                .accessibilityIdentifier("export-reveal")
-                #else
-                if !urls.isEmpty {
-                    ShareLink(items: urls) {
-                        Label(String(localized: "Share", bundle: .module), systemImage: "square.and.arrow.up")
-                    }
-                }
-                #endif
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
