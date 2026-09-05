@@ -249,6 +249,9 @@ targets:
     platform: macOS
     sources:
       - Tests/PhotoBooksUITests
+      # Bundled so TipJarSmokeTests can start an SKTestSession from it.
+      - path: App/PhotoBooks.storekit
+        buildPhase: resources
     dependencies:
       - target: PhotoBooks
     settings:
