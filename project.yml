@@ -81,11 +81,17 @@ targetTemplates:
     preBuildScripts:
       - name: Check generated project is up to date
         basedOnDependencyAnalysis: false
-        # ponytail: mtime compare, not a spec hash. A `git checkout project.yml`
-        # can trip it with nothing actually stale — cost is one needless
-        # `xcodegen generate`. Switch to `xcodegen generate --use-cache` (it
-        # hashes the spec + its includes) if the false alarms get annoying.
+        # The scheme pre-action (below, `regenerate-project`) runs xcodegen before
+        # every build. If it rewrote the project, Xcode is still building from the
+        # model it loaded before that, so fail loudly and ask for a second Run.
+        # The mtime check is the fallback for builds that skip scheme pre-actions
+        # (`xcodebuild -target`, or the pre-action failing to find xcodegen).
         script: |
+          if [ -e "$SRCROOT/.xcodegen-regenerated" ]; then
+            rm -f "$SRCROOT/.xcodegen-regenerated"
+            echo "error: Xcode project was just regenerated from project.yml. Press Run again."
+            exit 1
+          fi
           if [ "$SRCROOT/project.yml" -nt "$PROJECT_FILE_PATH/project.pbxproj" ]; then
             echo "error: project.yml is newer than the generated Xcode project. Run 'xcodegen generate', then reopen the project in Xcode."
             exit 1
@@ -261,6 +267,34 @@ targets:
 schemes:
   PhotoBooks:
     build:
+      preActions:
+        # Keep the generated project in sync with project.yml on every Run.
+        # Always regenerates (xcodegen's --use-cache misses scheme edits and
+        # newly added source files) and diffs against a backup: unchanged
+        # output is rolled back byte-for-byte with its old mtimes so Xcode
+        # sees no churn; changed output leaves a marker the build-phase guard
+        # turns into a "press Run again" error, since Xcode is still building
+        # from the project model it loaded before the rewrite.
+        - &regenerate-project
+          name: regenerate-project
+          settingsTarget: PhotoBooks
+          script: |
+            export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
+            cd "$SRCROOT" || exit 1
+            proj=PhotoBooks.xcodeproj
+            bak=$(mktemp -d) || exit 1
+            trap 'rm -rf "$bak"' EXIT
+            cp -pR "$proj" "$bak/" 2>/dev/null
+            xcodegen generate --quiet || exit 1
+            if diff -rq -x xcuserdata "$bak/$proj" "$proj" >/dev/null 2>&1; then
+              cp -pR "$bak/$proj/." "$proj/"
+              rm -f .xcodegen-regenerated
+              # git can bump project.yml's mtime without changing it; keep the
+              # mtime fallback guard honest without a real regeneration.
+              if [ project.yml -nt "$proj/project.pbxproj" ]; then touch "$proj/project.pbxproj"; fi
+            else
+              touch .xcodegen-regenerated
+            fi
       targets:
         PhotoBooks: all
     run:
@@ -274,6 +308,8 @@ schemes:
   # Developer ID / Sparkle build. Archived in Release for the notarized DMG.
   PhotoBooks (Direct):
     build:
+      preActions:
+        - *regenerate-project
       targets:
         PhotoBooks-Direct: all
     run:

@@ -38,6 +38,7 @@ playground.xcworkspace
 ## XcodeGen output — the project is generated from project.yml; run
 ## `xcodegen generate` after cloning. Never commit the generated project.
 *.xcodeproj/
+.xcodegen-regenerated
 
 ## Sparkle EdDSA signing — the PRIVATE key never gets committed (public key
 ## lives in the Direct build's Info.plist). Local Developer ID builds read it
