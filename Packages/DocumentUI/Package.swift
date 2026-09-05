@@ -19,7 +19,7 @@ let package = Package(
         .target(
             name: "DocumentUI",
             dependencies: ["ModelLayer", "EditorFeature", "SetupFeature", "ExportFeature", "AppSupport"],
-            resources: [.process("Resources"), .process("Localizable.xcstrings")]
+            resources: [.process("Localizable.xcstrings")]
         ),
         .testTarget(
             name: "DocumentUITests",

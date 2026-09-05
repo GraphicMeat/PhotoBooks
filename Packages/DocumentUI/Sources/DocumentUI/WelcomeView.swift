@@ -3,11 +3,6 @@ import ModelLayer
 import PhotoBookCore
 import SwiftUI
 import UniformTypeIdentifiers
-#if os(macOS)
-import AppKit
-#else
-import UIKit
-#endif
 
 /// Editorial home for an empty document. The primary action starts the guided
 /// creation flow; opening an existing project stays deliberately secondary.
@@ -123,9 +118,9 @@ struct WelcomeView: View {
                 #endif
             }
 
-            Link(destination: URL(string: "https://graphicmeat.com")!) {
+            Link(destination: GraphicMeatBrand.websiteURL) {
                 HStack(spacing: 10) {
-                    Self.graphicMeatLogo
+                    GraphicMeatBrand.logo
                         .resizable()
                         .scaledToFit()
                         .frame(width: 64, height: 64)
@@ -147,22 +142,6 @@ struct WelcomeView: View {
             .accessibilityLabel(Text("Visit Graphic Meat website", bundle: .module))
         }
     }
-
-    /// `static let` (not a computed property): this used to hit the disk and
-    /// decode on the main thread on every body evaluation, which stalled the
-    /// welcome screen right after a new document is created.
-    private static let graphicMeatLogo: Image = {
-        guard let url = Bundle.module.url(forResource: "GraphicMeatLogo", withExtension: "png") else {
-            return Image(systemName: "globe")
-        }
-        #if os(macOS)
-        guard let image = NSImage(contentsOf: url) else { return Image(systemName: "globe") }
-        return Image(nsImage: image)
-        #else
-        guard let image = UIImage(contentsOfFile: url.path) else { return Image(systemName: "globe") }
-        return Image(uiImage: image)
-        #endif
-    }()
 
     private var bookPreview: some View {
         GeometryReader { geometry in

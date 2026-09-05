@@ -13,7 +13,8 @@ let package = Package(
     targets: [
         .target(
             name: "AppSupport",
-            dependencies: [.product(name: "PhotoBookCore", package: "PhotoBookCore")]
+            dependencies: [.product(name: "PhotoBookCore", package: "PhotoBookCore")],
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "AppSupportTests",
