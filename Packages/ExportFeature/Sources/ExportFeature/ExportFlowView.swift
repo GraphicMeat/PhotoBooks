@@ -44,7 +44,7 @@ public struct ExportFlowView: View {
             }
         }
         #if os(macOS)
-        .frame(minWidth: 380, minHeight: 440)
+        .frame(minWidth: 560, minHeight: 620)
         #endif
         .padding()
         .nativeImporter(isPresented: $showFolderPicker) { folder in

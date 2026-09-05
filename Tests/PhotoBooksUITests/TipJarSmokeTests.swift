@@ -20,9 +20,11 @@ final class TipJarSmokeTests: XCTestCase {
             Bundle(for: TipJarSmokeTests.self).url(forResource: "PhotoBooks", withExtension: "storekit"),
             "PhotoBooks.storekit is not bundled in the UITest target")
         session = try SKTestSession(contentsOf: url)
-        session.disableDialogs = true          // purchase without the confirm sheet
-        session.clearTransactions()
+        // Reset FIRST: resetToDefaultState() also resets disableDialogs, and
+        // with dialogs on the purchase stalls behind Xcode's confirm sheet.
         session.resetToDefaultState()
+        session.clearTransactions()
+        session.disableDialogs = true          // purchase without the confirm sheet
     }
 
     override func tearDown() {
@@ -52,8 +54,11 @@ final class TipJarSmokeTests: XCTestCase {
         }
     }
 
+    /// The runner is sandboxed and read-only everywhere but its own container,
+    /// so folders live in its temporary directory (under /private/var/folders,
+    /// which the Debug app's entitlements let it read).
     private func makeFolder() throws -> URL {
-        let folder = URL(fileURLWithPath: "/private/tmp", isDirectory: true)
+        let folder = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoBooksTipJar-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         folders.append(folder)
@@ -122,32 +127,56 @@ final class TipJarSmokeTests: XCTestCase {
                          + coffee.staticTexts.allElementsBoundByIndex.map(\.label)).joined(separator: " ")
         XCTAssertTrue(described.contains("Espresso"), "Coffee tip button did not mention Espresso: \(described)")
         XCTAssertTrue(described.contains("1.99"), "Coffee tip button did not show the price: \(described)")
+        for tier in ["burger", "steak", "bbq", "brisket", "cow"] {
+            XCTAssertTrue(app.buttons["export-tip-\(tier)"].exists, "Missing tip button for \(tier)")
+        }
+        XCTAssertTrue(app.buttons["export-open-file"].exists, "Exported filename is not a link")
+
+        // Two frames a few seconds apart: the page-flip preview should have
+        // turned a page in between. Kept as attachments for eyeballing.
+        attachScreenshot(named: "thank-you-sheet")
+        sleep(3)
+        attachScreenshot(named: "thank-you-sheet-3s-later")
 
         coffee.click()
 
-        let thanks = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'Meat acquired'")).firstMatch
+        // macOS SwiftUI text lands in the AX value, not the label.
+        let thanks = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS 'Meat acquired' OR value CONTAINS 'Meat acquired'")).firstMatch
         XCTAssertTrue(thanks.waitForExistence(timeout: 15), "Thank-you confirmation never appeared")
+        attachScreenshot(named: "thank-you-after-tip")
 
         let transactions = session.allTransactions()
         XCTAssertEqual(transactions.count, 1, "Expected exactly one tip transaction")
         XCTAssertEqual(transactions.first?.productIdentifier, "com.graphicMeat.PhotoBooks.tip.coffee")
     }
 
-    /// The sandboxed save panel runs in its own process, so look for the
-    /// filename field in the panel service first and fall back to the app.
+    private func attachScreenshot(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    /// The sandboxed save panel is a remote view, but it is bridged into the
+    /// app's own accessibility tree (a proxy for the panel XPC service throws
+    /// when that process is not separately visible). ⇧⌘G jumps the panel to
+    /// the throwaway folder, then the name field gets the filename.
     @MainActor
     private func saveInPanel(at url: URL) throws {
-        let panel = XCUIApplication(bundleIdentifier: "com.apple.appkit.xpc.openAndSavePanelService")
-        var field = panel.textFields.firstMatch
-        if !field.waitForExistence(timeout: 15) {
-            field = XCUIApplication().textFields.firstMatch
-            XCTAssertTrue(field.waitForExistence(timeout: 15), "Save panel filename field never appeared")
-        }
+        let app = XCUIApplication()
+        let field = app.textFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 15), "Save panel filename field never appeared")
         field.click()
-        field.typeKey("a", modifierFlags: .command)
-        // A full path in the name field is enough: the panel resolves it, so
-        // the PDF lands in our throwaway folder whatever the default dir is.
-        field.typeText(url.path)
-        field.typeKey(.return, modifierFlags: [])
+        app.typeKey("g", modifierFlags: [.command, .shift])
+        sleep(1)
+        app.typeText(url.deletingLastPathComponent().path)
+        app.typeKey(.return, modifierFlags: [])
+        sleep(2)
+        let name = app.textFields.firstMatch
+        name.click()
+        name.typeKey("a", modifierFlags: .command)
+        name.typeText(url.deletingPathExtension().lastPathComponent)
+        name.typeKey(.return, modifierFlags: [])
     }
 }

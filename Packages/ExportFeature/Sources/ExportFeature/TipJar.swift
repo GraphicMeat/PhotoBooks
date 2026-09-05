@@ -1,10 +1,10 @@
 import Foundation
 import StoreKit
 
-/// The three consumable tips, Graphic Meat flavoured. Consumables only: nothing
-/// is unlocked, so there is nothing to restore or persist.
+/// The six consumable tips, Graphic Meat flavoured, cheapest first. Consumables
+/// only: nothing is unlocked, so there is nothing to restore or persist.
 public enum TipTier: String, CaseIterable, Sendable {
-    case coffee, burger, steak
+    case coffee, burger, steak, bbq, brisket, cow
 
     public var productID: String { "com.graphicMeat.PhotoBooks.tip.\(rawValue)" }
 
@@ -19,6 +19,9 @@ public enum TipTier: String, CaseIterable, Sendable {
         case .coffee: "☕"
         case .burger: "🍔"
         case .steak: "🥩"
+        case .bbq: "🍖"
+        case .brisket: "🔥"
+        case .cow: "🐄"
         }
     }
 
@@ -27,6 +30,9 @@ public enum TipTier: String, CaseIterable, Sendable {
         case .coffee: String(localized: "Espresso", bundle: .module)
         case .burger: String(localized: "Smash burger", bundle: .module)
         case .steak: String(localized: "Ribeye, medium rare", bundle: .module)
+        case .bbq: String(localized: "Family BBQ", bundle: .module)
+        case .brisket: String(localized: "Whole brisket", bundle: .module)
+        case .cow: String(localized: "Half a cow", bundle: .module)
         }
     }
 }

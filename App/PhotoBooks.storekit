@@ -48,6 +48,51 @@
       "productID" : "com.graphicMeat.PhotoBooks.tip.steak",
       "referenceName" : "Tip — Ribeye, medium rare",
       "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "TIPBBQ",
+      "localizations" : [
+        {
+          "description" : "Feeds the whole Graphic Meat crew.",
+          "displayName" : "Family BBQ",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.graphicMeat.PhotoBooks.tip.bbq",
+      "referenceName" : "Tip — Family BBQ",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "TIPBRISKET",
+      "localizations" : [
+        {
+          "description" : "Twelve hours of smoke for Graphic Meat.",
+          "displayName" : "Whole brisket",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.graphicMeat.PhotoBooks.tip.brisket",
+      "referenceName" : "Tip — Whole brisket",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "99.99",
+      "familyShareable" : false,
+      "internalID" : "TIPCOW",
+      "localizations" : [
+        {
+          "description" : "Graphic Meat eats for a month.",
+          "displayName" : "Half a cow",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.graphicMeat.PhotoBooks.tip.cow",
+      "referenceName" : "Tip — Half a cow",
+      "type" : "Consumable"
     }
   ],
   "settings" : {
