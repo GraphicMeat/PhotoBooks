@@ -71,6 +71,9 @@ targetTemplates:
       - package: DocumentUI
       - package: ExportFeature
       - package: ModelLayer
+      # The app root injects \.supportOffer (App Store tip jar vs Direct donate
+      # link), so it imports AppSupport directly rather than transitively.
+      - package: AppSupport
     # Fail the build when project.yml has been edited but `xcodegen generate`
     # hasn't been re-run — otherwise Xcode silently builds the stale project
     # (this shipped an App Store binary missing UISupportedInterfaceOrientations

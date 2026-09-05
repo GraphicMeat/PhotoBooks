@@ -1,3 +1,4 @@
+import AppSupport
 import DocumentUI
 import ExportFeature
 import ModelLayer
@@ -27,12 +28,18 @@ struct PhotoBooksApp: App {
                 #if os(macOS)
                 .frame(minWidth: 800, minHeight: 600)
                 #endif
+                // The Developer ID build can't use in-app purchase, so the
+                // export thank-you screen links to the donate page instead of
+                // showing the StoreKit tip jar. App Store build: default .tipJar.
+                #if SPARKLE
+                .environment(\.supportOffer, .donate(URL(string: "https://graphicmeat.com/donate")!))
+                #endif
         }
         .windowResizability(.contentMinSize)
         .commands {
             ExportCommands()
             CommandGroup(after: .help) {
-                Link("Graphic Meat Website", destination: URL(string: "https://graphicmeat.com")!)
+                Link("Graphic Meat Website", destination: GraphicMeatBrand.websiteURL)
             }
             #if SPARKLE
             CommandGroup(after: .appInfo) {
