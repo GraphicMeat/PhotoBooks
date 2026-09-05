@@ -83,4 +83,4 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 # Serena MCP workspace — local only
-.serena/
+.serena
