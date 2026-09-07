@@ -406,7 +406,7 @@ public struct BookBrowserView: View {
                     zoomableCanvas(pageCount: 2,
                                    extraWidthInches: editor.preset.spineBase
                                      + editor.preset.spinePerPage * Double(standardPages.count)) {
-                        CoverSheetView(backPage: book.backCover, title: book.title,
+                        CoverSheetView(backPage: book.backCover,
                                        book: book, preset: editor.preset, imageStore: imageStore,
                                        interactions: editingInteractions,
                                        highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
@@ -869,7 +869,7 @@ public struct BookBrowserView: View {
                                     ? [page] + [book.backCover].compactMap { $0 }
                                     : [page])
                                 if page.role == .cover {
-                                    CoverSheetView(backPage: book.backCover, title: book.title,
+                                    CoverSheetView(backPage: book.backCover,
                                                    book: book, preset: editor.preset,
                                                    imageStore: imageStore,
                                                    interactions: editingInteractions,

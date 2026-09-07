@@ -19,7 +19,7 @@ public enum PDFExportError: Error {
 
 /// Geometry + page list for one export target, resolved up front so the
 /// render loop is target-agnostic. All sizes in PDF points (72/inch).
-struct ExportPlan {
+public struct ExportPlan {
     enum Job {
         case page(Page)
         case coverSheet
@@ -90,6 +90,35 @@ struct ExportPlan {
     /// spine inches = spineBase + spinePerPage × standardPageCount (contract).
     static func spineWidthInches(preset: PrintPreset, standardPageCount: Int) -> Double {
         preset.spineBase + preset.spinePerPage * Double(standardPageCount)
+    }
+}
+
+// MARK: - Spine title
+
+extension ExportPlan {
+
+    /// The spine title as drawn: `book.title` (always the single source of the
+    /// string) in `book.spineStyle`, or the legacy default when the book has
+    /// never been restyled. ONE resolver, used by the editor's cover sheet, the
+    /// spine text editor and the exported PDF, so all three agree.
+    public static func spineText(for book: Book, preset: PrintPreset) -> StyledText {
+        StyledText(string: book.title,
+                   style: book.spineStyle ?? defaultSpineStyle(for: book, preset: preset))
+    }
+
+    /// The legacy look: system font, 60% of the spine width, black or white
+    /// against the background, centered along the spine. The size is expressed
+    /// in the model's own unit — a fraction of TRIM height — so it survives a
+    /// preset switch the same way every other text run does.
+    public static func defaultSpineStyle(for book: Book, preset: PrintPreset) -> TextStyle {
+        let spineInches = spineWidthInches(
+            preset: preset,
+            standardPageCount: book.pages.count(where: { $0.role == .standard }))
+        return TextStyle(
+            fontName: "",
+            pointSizeFactor: 0.6 * spineInches / preset.trimSize.height,
+            colorHex: PDFExporter.contrastingTextColorHex(forBackground: book.style.backgroundColorHex),
+            alignment: .center)
     }
 }
 
@@ -232,18 +261,18 @@ public struct PDFExporter: Sendable {
                                     contentRect: backRect, imageStore: imageStore,
                                     backgroundFillRect: backRect)
         }
-        drawSpineTitle(book.title, style: book.style, spineRect: spineRect,
-                       mediaSize: mediaSize, in: context)
+        drawSpineTitle(ExportPlan.spineText(for: book, preset: preset), style: book.style,
+                       spineRect: spineRect, mediaSize: mediaSize, in: context)
     }
 
     /// Vertical spine title. Under the global flip, `rotate(by: +π/2)` turns
     /// the local +x axis to point DOWN the sheet, so left-to-right text reads
     /// top-to-bottom — the US spine convention (D7). The rotated rect spans
-    /// the spine's length; size = 60% of the spine width; color flips
-    /// black/white against the background's relative luminance.
-    private func drawSpineTitle(_ title: String, style: BookStyle, spineRect: CGRect,
+    /// the spine's length, and the title is a fully styled text run
+    /// (`ExportPlan.spineText`) like any other text on the book.
+    private func drawSpineTitle(_ text: StyledText, style: BookStyle, spineRect: CGRect,
                                 mediaSize: CGSize, in context: CGContext) {
-        guard !title.isEmpty, spineRect.width > 1 else { return }
+        guard !text.string.isEmpty, spineRect.width > 1 else { return }
         context.saveGState()
         context.translateBy(x: 0, y: mediaSize.height)   // the same global flip
         context.scaleBy(x: 1, y: -1)
@@ -253,13 +282,11 @@ public struct PDFExporter: Sendable {
         // as the spine is TALL and as tall as the spine is WIDE, centered.
         let textRect = CGRect(x: -spineRect.height / 2, y: -spineRect.width / 2,
                               width: spineRect.height, height: spineRect.width)
-        let styled = StyledText(
-            string: title, fontName: "", pointSizeFactor: 0.6,
-            colorHex: Self.contrastingTextColorHex(forBackground: style.backgroundColorHex),
-            alignment: .center)
-        // renderHeight = spine width in points → fontPoints(0.6, w) = 60% of it.
-        PDFText.draw(styled, style: style, slotRect: textRect,
-                     renderHeight: spineRect.width, in: context)
+        // renderHeight = the trim height in points, the same unit every other
+        // text run is sized against — the default style's factor turns that
+        // back into the legacy 60% of the spine width.
+        PDFText.draw(text, style: style, slotRect: textRect,
+                     renderHeight: spineRect.height, in: context)
         context.restoreGState()
     }
 

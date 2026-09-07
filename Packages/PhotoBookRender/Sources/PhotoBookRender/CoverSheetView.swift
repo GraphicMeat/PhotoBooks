@@ -9,7 +9,6 @@ import SwiftUI
 /// read-only preview the thumbnail row draws.
 public struct CoverSheetView<Front: View>: View {
     let backPage: Page?
-    let title: String
     let book: Book
     let preset: PrintPreset
     let imageStore: any ImageStore
@@ -28,7 +27,7 @@ public struct CoverSheetView<Front: View>: View {
     /// no hint that it is the way to rename the book.
     @State private var spineHovered = false
 
-    public init(backPage: Page?, title: String, book: Book, preset: PrintPreset,
+    public init(backPage: Page?, book: Book, preset: PrintPreset,
                 imageStore: any ImageStore,
                 interactions: PageEditingInteractions? = nil,
                 highlightedSlotID: UUID? = nil,
@@ -37,7 +36,6 @@ public struct CoverSheetView<Front: View>: View {
                 editTitleHelp: String = "",
                 @ViewBuilder front: @escaping () -> Front) {
         self.backPage = backPage
-        self.title = title
         self.book = book
         self.preset = preset
         self.imageStore = imageStore
@@ -123,18 +121,27 @@ public struct CoverSheetView<Front: View>: View {
             }
     }
 
+    /// The title, in the SAME resolved style the exported cover prints
+    /// (`ExportPlan.spineText`) — the sheet's height is the on-screen render
+    /// height, so the model's size factor lands at the printed proportion.
     private func spineContent(width: CGFloat, height: CGFloat) -> some View {
-        let colorHex = PDFExporter.contrastingTextColorHex(forBackground: book.style.backgroundColorHex)
-        let fontSize = max(1, width * 0.6)   // match PDF: title = 60% of spine width
+        let text = ExportPlan.spineText(for: book, preset: preset)
+        let fontName = text.fontName.isEmpty ? book.style.defaultFontName : text.fontName
+        let points = max(1, SlotGeometry.fontPoints(factor: text.pointSizeFactor,
+                                                    renderHeight: Double(height)))
         return ZStack {
             Color(hex: book.style.backgroundColorHex)
-            Text(title)
-                .font(.system(size: fontSize))
-                .foregroundStyle(Color(hex: colorHex))
+            Text(text.string)
+                .font(.custom(fontName, fixedSize: points))
+                .foregroundStyle(Color(hex: text.colorHex))
                 .lineLimit(1)
                 .fixedSize()
+                // Pre-rotation frame spans the spine length, so its alignment
+                // is the alignment ALONG the spine: leading = top, after the
+                // clockwise turn below.
+                .frame(width: height, height: width,
+                       alignment: TextSlotContent.frameAlignment(text.alignment))
                 .rotationEffect(.degrees(90))          // top-to-bottom (US spine convention)
-                .frame(width: height, height: width)   // pre-rotation frame spans the spine length
                 .accessibilityIdentifier("cover-spine-title")
         }
         .frame(width: width, height: height)

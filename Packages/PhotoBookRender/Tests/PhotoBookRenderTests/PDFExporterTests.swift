@@ -209,6 +209,81 @@ import Testing
         #expect(maxY - minY > maxX - minX, "spine title must be rotated (tall, not wide)")
     }
 
+    // MARK: spine text style
+
+    @Test func defaultSpineStyleIsSixtyPercentOfTheSpineWidth() {
+        let book = ExportFixtures.book(standardCount: 20)
+        let preset = ExportFixtures.preset
+        let spineInches = ExportPlan.spineWidthInches(preset: preset, standardPageCount: 20)
+        let style = ExportPlan.defaultSpineStyle(for: book, preset: preset)
+        // The factor is a fraction of TRIM height, so factor × trimHeight is
+        // exactly the legacy "60% of the spine width" in points.
+        #expect(abs(style.pointSizeFactor - 0.6 * spineInches / preset.trimSize.height) < 1e-12)
+        #expect(style.fontName == "")
+        #expect(style.colorHex == "#000000")        // black on the white fixture background
+        #expect(style.alignment == .center)
+    }
+
+    @Test func spineTextIsTheBookTitleInTheStoredStyleOrTheDefault() {
+        var book = ExportFixtures.book(standardCount: 20, title: "Summer")
+        let preset = ExportFixtures.preset
+        #expect(ExportPlan.spineText(for: book, preset: preset)
+                == StyledText(string: "Summer",
+                              style: ExportPlan.defaultSpineStyle(for: book, preset: preset)))
+
+        let chosen = TextStyle(fontName: "Futura-Medium", pointSizeFactor: 0.03,
+                               colorHex: "#FF0000", alignment: .leading)
+        book.spineStyle = chosen
+        let text = ExportPlan.spineText(for: book, preset: preset)
+        #expect(text.string == "Summer")             // the string always comes from book.title
+        #expect(text.style == chosen)
+    }
+
+    @Test func spineTitleIsPrintedInTheChosenColor() async throws {
+        // The style the user picks must reach the printed sheet: a red title
+        // on the white fixture background leaves red ink in the spine band and
+        // no black ink at all (the legacy hardcoded contrast color).
+        var book = ExportFixtures.book(standardCount: 20, title: "Summer")
+        let preset = ExportFixtures.preset
+        book.spineStyle = TextStyle(
+            pointSizeFactor: ExportPlan.defaultSpineStyle(for: book, preset: preset).pointSizeFactor,
+            colorHex: "#FF0000", alignment: .center)
+        let url = try await export(book, target: .blurbCover, name: "cover-spine-color")
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let document = try #require(CGPDFDocument(url as CFURL))
+        let page = try #require(document.page(at: 1))
+        let box = page.getBoxRect(.mediaBox)
+        let width = Int(box.width), height = Int(box.height)
+        let space = try #require(CGColorSpace(name: CGColorSpace.sRGB))
+        let context = try #require(CGContext(data: nil, width: width, height: height,
+                                             bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                                             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.setFillColor(CGColor(srgbRed: 1, green: 1, blue: 1, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        context.drawPDFPage(page)
+        let bytesPerRow = context.bytesPerRow
+        let data = context.data!.bindMemory(to: UInt8.self, capacity: bytesPerRow * height)
+
+        let bleedPt = preset.bleed * 72
+        let trimPt = preset.trimSize.width * 72
+        let spinePt = ExportPlan.spineWidthInches(preset: preset, standardPageCount: 20) * 72
+        let spineMinX = Int(bleedPt + trimPt) + 2
+        let spineMaxX = Int(bleedPt + trimPt + spinePt) - 2
+
+        var redPixels = 0, blackPixels = 0
+        for y in 0..<height {
+            for x in spineMinX...spineMaxX {
+                let offset = y * bytesPerRow + x * 4
+                let r = data[offset], g = data[offset + 1], b = data[offset + 2]
+                if r > 200 && g < 80 && b < 80 { redPixels += 1 }
+                if r < 100 && g < 100 && b < 100 { blackPixels += 1 }
+            }
+        }
+        #expect(redPixels > 0, "the chosen spine color must reach the printed sheet")
+        #expect(blackPixels == 0, "no black ink: the hardcoded contrast color is gone")
+    }
+
     @Test func coverWithoutCoverPageStillExportsOneValidSheet() async throws {
         var book = ExportFixtures.book(standardCount: 20)
         book.pages.removeFirst()                                // drop the cover (D13)
