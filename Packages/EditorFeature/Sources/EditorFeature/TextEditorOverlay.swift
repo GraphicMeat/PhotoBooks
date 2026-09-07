@@ -26,7 +26,7 @@ struct TextEditorOverlay: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            TextField(String(localized: "Caption", bundle: .module), text: $draft.string, axis: .vertical)
+            TextField(placeholder, text: $draft.string, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1...4)
                 .accessibilityIdentifier("text-editor-field")
@@ -39,7 +39,7 @@ struct TextEditorOverlay: View {
                     .keyboardShortcut(.cancelAction)
                     .accessibilityIdentifier("text-editor-cancel")
                 Button(String(localized: "Done", bundle: .module)) {
-                    editor.commitText(slotID: context.slotID, text: draft)
+                    editor.commitText(context, text: draft)
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
@@ -51,6 +51,13 @@ struct TextEditorOverlay: View {
         #if os(macOS)
         .frame(minWidth: 460)
         #endif
+    }
+
+    /// The spine edits the BOOK title, not a caption on a frame.
+    private var placeholder: String {
+        context.target == .spine
+            ? String(localized: "Title", bundle: .module)
+            : String(localized: "Caption", bundle: .module)
     }
 
     private var styleBar: some View {

@@ -151,9 +151,6 @@ public struct BookBrowserView: View {
     @State private var showRelinkSheet = false
     @State private var showPresetPicker = false
     @State private var showCanvasColorPicker = false
-    /// Book-title rename, opened from the spine or the toolbar menu.
-    @State private var showRenameBook = false
-    @State private var titleDraft = ""
     @AppStorage("editor-canvas-background-mode") private var canvasBackgroundMode = "white"
     @AppStorage("editor-canvas-background-color") private var canvasBackgroundHex = "#D9D9D9"
     @State private var zoomMode: EditorZoomMode = .fitSpread
@@ -180,9 +177,6 @@ public struct BookBrowserView: View {
             #endif
         }
         .environment(editor)
-        .renameBookAlert(isPresented: $showRenameBook, draft: $titleDraft) {
-            editor.renameBook(to: titleDraft)
-        }
         .onAppear { editor.undoManager = undoManager }
         .onChange(of: undoManager) { editor.undoManager = $1 }
         // Replace mode is a dead end if the tray is hidden — surface it so the
@@ -411,7 +405,7 @@ public struct BookBrowserView: View {
                                        interactions: editingInteractions,
                                        highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
                                        replaceSourceSlotID: editor.replaceSourceSlotID,
-                                       onEditTitle: { beginRenamingBook() },
+                                       onEditTitle: { editor.beginSpineEditing() },
                                        editTitleHelp: Self.spineHelp) {
                             editablePage(at: coverIdx)
                         }
@@ -533,13 +527,8 @@ public struct BookBrowserView: View {
 
     /// Tooltip on the spine and the toolbar's rename item.
     private static var spineHelp: String {
-        String(localized: "Change the book title printed on the spine", bundle: .module)
-    }
-
-    /// Seeds the draft from the current title and opens the rename alert.
-    private func beginRenamingBook() {
-        titleDraft = book.title
-        showRenameBook = true
+        String(localized: "Edit the title printed on the spine \u{2014} text, font, size, and color",
+               bundle: .module)
     }
 
     // MARK: Toolbar (shared by both layouts)
@@ -639,7 +628,7 @@ public struct BookBrowserView: View {
 
             Menu {
                 Button {
-                    beginRenamingBook()
+                    editor.beginSpineEditing()
                 } label: {
                     Label(String(localized: "Rename Book\u{2026}", bundle: .module), systemImage: "character.cursor.ibeam")
                 }
@@ -875,7 +864,7 @@ public struct BookBrowserView: View {
                                                    interactions: editingInteractions,
                                                    highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
                                                    replaceSourceSlotID: editor.replaceSourceSlotID,
-                                                   onEditTitle: { beginRenamingBook() },
+                                                   onEditTitle: { editor.beginSpineEditing() },
                                                    editTitleHelp: Self.spineHelp) {
                                         PageView(page: page, book: book, preset: editor.preset,
                                                  imageStore: imageStore,

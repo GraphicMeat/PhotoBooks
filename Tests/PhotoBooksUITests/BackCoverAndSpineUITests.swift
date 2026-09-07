@@ -131,7 +131,9 @@ final class BackCoverAndSpineUITests: XCTestCase {
     }
 
     /// The second half of the report: the spine title was not editable in the
-    /// UI at all. Clicking it opens the title editor and the new title lands.
+    /// UI at all. Clicking it opens the FULL text editor — the same font /
+    /// size / color / alignment bar every caption gets — and the new title
+    /// lands on the spine.
     @MainActor
     func testSpineOpensTheTitleEditorAndRenamesTheBook() throws {
         let folder = try makeFixtureFolder()
@@ -142,17 +144,24 @@ final class BackCoverAndSpineUITests: XCTestCase {
         XCTAssertTrue(spine.waitForExistence(timeout: 10), "spine should be clickable")
         clickCentre(app, spine)
 
-        // The alert's text field is focused on open; AppKit's alert bridging
-        // drops the SwiftUI identifier, so address it by type.
-        let field = app.textFields.firstMatch
+        let field = element(app, "text-editor-field")
         XCTAssertTrue(field.waitForExistence(timeout: 5),
-                      "Book title editor did not open from the spine")
+                      "The text editor did not open from the spine")
+        // The whole style bar is there: the spine is a styled text run, not a
+        // plain-string rename alert.
+        for control in ["text-editor-font", "text-editor-size",
+                        "text-editor-color", "text-editor-alignment"] {
+            XCTAssertTrue(element(app, control).waitForExistence(timeout: 5),
+                          "\(control) missing — the spine is not using the full text editor")
+        }
+
+        field.click()
         app.typeKey("a", modifierFlags: .command)
         app.typeText("Easter 2026 at Camber Sands")
 
-        let save = element(app, "book-title-save")
-        XCTAssertTrue(save.waitForExistence(timeout: 5), "Save button missing from the title editor")
-        save.click()
+        let done = element(app, "text-editor-done")
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "Done button missing from the text editor")
+        done.click()
 
         // The spine now prints the new title.
         let spineTitle = element(app, "cover-spine-title")

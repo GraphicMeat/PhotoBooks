@@ -1470,64 +1470,6 @@
         }
       }
     },
-    "Book Title" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buchtitel"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Book Title"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Título del libro"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Titre du livre"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Titolo del libro"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ブックのタイトル"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "책 제목"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Título do livro"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "图书标题"
-          }
-        }
-      }
-    },
     "Borderless" : {
       "localizations" : {
         "de" : {
@@ -1817,64 +1759,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "说明文字"
-          }
-        }
-      }
-    },
-    "Change the book title printed on the spine" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den auf dem Buchrücken gedruckten Buchtitel ändern"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Change the book title printed on the spine"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambiar el título del libro impreso en el lomo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changer le titre du livre imprimé sur le dos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambia il titolo del libro stampato sul dorso"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "背表紙に印刷されるブックのタイトルを変更"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "책등에 인쇄되는 책 제목 변경"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alterar o título do livro impresso na lombada"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更改印在书脊上的图书标题"
           }
         }
       }
@@ -2861,6 +2745,64 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "编辑"
+          }
+        }
+      }
+    },
+    "Edit the title printed on the spine — text, font, size, and color" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den auf dem Buchrücken gedruckten Titel bearbeiten – Text, Schrift, Größe und Farbe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit the title printed on the spine — text, font, size, and color"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar el título impreso en el lomo: texto, tipo de letra, tamaño y color"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier le titre imprimé sur le dos : texte, police, taille et couleur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica il titolo stampato sul dorso: testo, carattere, dimensione e colore"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背表紙に印刷されるタイトルを編集 — 文字、フォント、サイズ、カラー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "책등에 인쇄되는 제목 편집 — 텍스트, 서체, 크기, 색상"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar o título impresso na lombada — texto, fonte, tamanho e cor"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑印在书脊上的标题 — 文字、字体、大小和颜色"
           }
         }
       }
@@ -5249,64 +5191,6 @@
         }
       }
     },
-    "Printed on the spine, and used for the window title and exported filenames." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wird auf dem Buchrücken gedruckt und für den Fenstertitel sowie exportierte Dateinamen verwendet."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Printed on the spine, and used for the window title and exported filenames."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se imprime en el lomo y se usa para el título de la ventana y los nombres de los archivos exportados."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Imprimé sur le dos et utilisé pour le titre de la fenêtre et le nom des fichiers exportés."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stampato sul dorso e usato per il titolo della finestra e i nomi dei file esportati."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "背表紙に印刷され、ウインドウのタイトルと書き出すファイル名にも使われます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "책등에 인쇄되며 윈도우 제목과 내보낸 파일 이름에도 사용됩니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impresso na lombada e usado no título da janela e nos nomes dos arquivos exportados."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "印在书脊上，同时用于窗口标题和导出的文件名。"
-          }
-        }
-      }
-    },
     "Rebuild Unlocked Pages" : {
       "localizations" : {
         "de" : {
@@ -6321,64 +6205,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将此照片恢复为页面中的自动排布"
-          }
-        }
-      }
-    },
-    "Save" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sichern"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guardar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistrer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salva"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "저장"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salvar"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "存储"
           }
         }
       }
