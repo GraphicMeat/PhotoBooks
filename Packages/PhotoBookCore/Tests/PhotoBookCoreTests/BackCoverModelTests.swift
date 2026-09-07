@@ -14,9 +14,9 @@ final class BackCoverModelTests: XCTestCase {
              textSlots: [], isLocked: false)
     }
 
-    func test_currentSchemaVersionIs4() {
-        XCTAssertEqual(Book.currentSchemaVersion, 5)
-    }
+    // ponytail: the literal-version pin lives in
+    // BookSerializerTests.newBooksUseCurrentSchemaVersion; asserting
+    // Book.currentSchemaVersion against itself here would be vacuous.
 
     func test_backCoverRoundTrips() throws {
         var book = Book(title: "T", presetID: "p", style: sampleStyle())
@@ -24,17 +24,17 @@ final class BackCoverModelTests: XCTestCase {
         let data = try BookSerializer.encode(book)
         let decoded = try BookSerializer.decode(data)
         XCTAssertEqual(decoded.backCover, book.backCover)
-        XCTAssertEqual(decoded.schemaVersion, 5)
+        XCTAssertEqual(decoded.schemaVersion, Book.currentSchemaVersion)
     }
 
-    func test_v3JSON_decodesBackCoverNil_andRestampsTo4() throws {
+    func test_v3JSON_decodesBackCoverNil_andRestampsToCurrentVersion() throws {
         let v3 = """
         {"schemaVersion":3,"title":"Old","presetID":"square-8","style":\(styleJSON()),
          "photoLibrary":[],"pages":[],"spreads":[]}
         """.data(using: .utf8)!
         let decoded = try BookSerializer.decode(v3)
         XCTAssertNil(decoded.backCover)
-        XCTAssertEqual(decoded.schemaVersion, 5)
+        XCTAssertEqual(decoded.schemaVersion, Book.currentSchemaVersion)
     }
 
     private func sampleStyle() -> BookStyle { BookStyle.standard }
