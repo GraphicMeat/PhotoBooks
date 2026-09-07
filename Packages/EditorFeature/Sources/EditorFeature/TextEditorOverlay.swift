@@ -43,7 +43,7 @@ struct TextEditorOverlay: View {
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
-                .help(Text("Save this caption to the frame", bundle: .module))
+                .help(doneHelp)
                 .accessibilityIdentifier("text-editor-done")
             }
         }
@@ -58,6 +58,12 @@ struct TextEditorOverlay: View {
         context.target == .spine
             ? String(localized: "Title", bundle: .module)
             : String(localized: "Caption", bundle: .module)
+    }
+
+    private var doneHelp: Text {
+        context.target == .spine
+            ? Text("Save the title to the spine", bundle: .module)
+            : Text("Save this caption to the frame", bundle: .module)
     }
 
     private var styleBar: some View {
