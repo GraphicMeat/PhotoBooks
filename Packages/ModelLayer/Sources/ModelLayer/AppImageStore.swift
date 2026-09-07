@@ -27,6 +27,7 @@ public final class AppImageStore: ImageStore {
     public func thumbnail(for id: PhotoID, maxPixelSize: Int) async throws -> CGImage {
         let bucket = SlotGeometryBuckets.bucket(forMaxPixelSize: maxPixelSize)
         if let cached = cache.image(for: id, bucket: bucket) { return cached }
+        await Self.debugThumbnailDelay()
         let ref = try ref(for: id)
         let image = try await provider(for: ref).thumbnail(for: ref, maxPixelSize: bucket)
         cache.store(image, for: id, bucket: bucket)
@@ -41,6 +42,20 @@ public final class AppImageStore: ImageStore {
     public func fullImage(for id: PhotoID) async throws -> CGImage {
         let ref = try ref(for: id)
         return try await provider(for: ref).fullImage(for: ref)
+    }
+
+    /// DEBUG-only load stall: `PhotoBooks -slowThumbnailsMs 700` holds every
+    /// uncached thumbnail that long. UI tests need loads that are still in
+    /// flight when the canvas re-keys them — the window is otherwise a few
+    /// milliseconds wide and untestable. Cancelling the sleep is swallowed on
+    /// purpose so the load continues into the provider and surfaces the real
+    /// `PhotoProviderError.cancelled`, exactly as an uninstrumented run does.
+    private static func debugThumbnailDelay() async {
+        #if DEBUG
+        let ms = UserDefaults.standard.integer(forKey: "slowThumbnailsMs")
+        guard ms > 0 else { return }
+        try? await Task.sleep(for: .milliseconds(ms))
+        #endif
     }
 
     private func ref(for id: PhotoID) throws -> PhotoRef {

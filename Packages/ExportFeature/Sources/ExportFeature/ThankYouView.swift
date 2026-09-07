@@ -168,6 +168,14 @@ struct ThankYouView: View {
                 if supportOffer == .tipJar && hasDonated && !wantsToDonateAgain {
                     supporterThanks(compact: compact)
                 } else {
+                    if case .donate = supportOffer, !compact && !typeSize.isAccessibilitySize {
+                        GraphicMeatBrand.donate
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 220)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .accessibilityHidden(true)
+                    }
                     heading("Thank you for making a book with PhotoBooks")
                     if !compact {
                         Text("Enjoy your book. If you’d like to support PhotoBooks, you can fuel the next chapter.", bundle: .module)

@@ -18,6 +18,31 @@ enum PhotoSlotDisplayState: Equatable {
     case missing
 }
 
+/// What a finished slot load may do to the view's state.
+///
+/// Cancellation must NEVER latch a failure. Providers surface cooperative
+/// cancellation as their own typed error (`PhotoProviderError.cancelled`),
+/// not `CancellationError`, so type-matching alone misses it; the task's own
+/// cancelled flag is the reliable signal. A cancelled load's result belongs
+/// to a load key the view has already moved off, and writing it strands the
+/// slot on the missing-photo placeholder until that key changes again —
+/// which is why a freshly opened book showed placeholders until the user
+/// switched pages.
+enum SlotLoadOutcome: Equatable {
+    /// Adopt the decoded image.
+    case show
+    /// Draw the missing-photo placeholder: the photo really did not load.
+    case fail
+    /// Drop the result on the floor.
+    case ignore
+
+    static func of(error: Error?, taskCancelled: Bool) -> SlotLoadOutcome {
+        if taskCancelled { return .ignore }
+        guard let error else { return .show }
+        return error is CancellationError ? .ignore : .fail
+    }
+}
+
 /// Draws one photo slot's content at a fixed size. No async, no state —
 /// everything it renders is a pure function of its inputs.
 struct PhotoSlotContent: View {
@@ -47,10 +72,21 @@ struct PhotoSlotContent: View {
                     .frame(width: drawRect.width, height: drawRect.height)
                     .position(x: drawRect.midX, y: drawRect.midY)
             case .missing:
-                Color(white: 0.8)
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: max(12, min(size.width, size.height) * 0.25)))
-                    .foregroundStyle(.secondary)
+                // One accessibility element carrying a LABEL — VoiceOver
+                // otherwise announces nothing for a slot whose photo is gone,
+                // and it is the only hook a UI test can assert on: an
+                // ancestor's `accessibilityIdentifier` (e.g. "cover-sheet")
+                // propagates down and overwrites any identifier set here,
+                // while the label survives.
+                ZStack {
+                    Color(white: 0.8)
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: max(12, min(size.width, size.height) * 0.25)))
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityElement()
+                .accessibilityAddTraits(.isImage)
+                .accessibilityLabel(Text("Missing photo"))
             }
         }
         .frame(width: size.width, height: size.height)
@@ -182,12 +218,17 @@ struct AsyncPhotoSlotView: View {
                 loadedImage = nil
                 loadFailed = false
                 guard let photoID = slot.photoID, let ref, !ref.isMissing else { return }
+                var image: CGImage?
+                var failure: Error?
                 do {
-                    loadedImage = try await imageStore.thumbnail(for: photoID, maxPixelSize: pixelSize)
-                } catch is CancellationError {
-                    // View went away or the key changed — keep current state.
+                    image = try await imageStore.thumbnail(for: photoID, maxPixelSize: pixelSize)
                 } catch {
-                    loadFailed = true
+                    failure = error
+                }
+                switch SlotLoadOutcome.of(error: failure, taskCancelled: Task.isCancelled) {
+                case .show: loadedImage = image
+                case .fail: loadFailed = true
+                case .ignore: break   // view went away or the key moved on
                 }
             }
     }

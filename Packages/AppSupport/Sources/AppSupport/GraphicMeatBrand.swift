@@ -15,6 +15,7 @@ public enum GraphicMeatBrand {
     /// stalled the welcome screen right after a new document is created.
     public static let logo: Image = loadImage(named: "GraphicMeatLogo")
     public static let supportThanks: Image = loadImage(named: "GraphicMeatSupportThanks")
+    public static let donate: Image = loadImage(named: "GraphicMeatDonate")
 
     private static func loadImage(named name: String) -> Image {
         guard let url = Bundle.module.url(forResource: name, withExtension: "png") else {
