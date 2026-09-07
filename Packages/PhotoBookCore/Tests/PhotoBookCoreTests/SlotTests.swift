@@ -57,4 +57,50 @@ import PhotoBookCore
         let decoded = try JSONDecoder().decode(TextSlot.self, from: JSONEncoder().encode(original))
         #expect(decoded == original)
     }
+
+    // MARK: - TextStyle (the style half of a StyledText)
+
+    @Test func textStyleCodableRoundTrip() throws {
+        let original = TextStyle(fontName: "HelveticaNeue-Bold", pointSizeFactor: 0.06,
+                                 colorHex: "#00AAFF", alignment: .trailing)
+        let decoded = try JSONDecoder().decode(TextStyle.self, from: JSONEncoder().encode(original))
+        #expect(decoded == original)
+    }
+
+    @Test func textStyleDefaults() {
+        let style = TextStyle(pointSizeFactor: 0.03)
+        #expect(style.fontName == "")           // "" = book default font
+        #expect(style.colorHex == "#000000")
+        #expect(style.alignment == .leading)
+    }
+
+    /// The split is lossless in both directions: a `StyledText` is exactly
+    /// its string plus its `TextStyle`.
+    @Test func styledTextSplitsIntoStringAndStyleAndBack() {
+        let text = StyledText(string: "Summer", fontName: "Futura-Medium",
+                              pointSizeFactor: 0.08, colorHex: "#FF0000", alignment: .center)
+        #expect(text.style == TextStyle(fontName: "Futura-Medium", pointSizeFactor: 0.08,
+                                        colorHex: "#FF0000", alignment: .center))
+        #expect(StyledText(string: "Summer", style: text.style) == text)
+    }
+
+    @Test func settingStyleRewritesEveryStyleFieldButNotTheString() {
+        var text = StyledText(string: "Summer", pointSizeFactor: 0.02)
+        text.style = TextStyle(fontName: "Georgia", pointSizeFactor: 0.09,
+                               colorHex: "#123456", alignment: .trailing)
+        #expect(text.string == "Summer")
+        #expect(text.fontName == "Georgia")
+        #expect(text.pointSizeFactor == 0.09)
+        #expect(text.colorHex == "#123456")
+        #expect(text.alignment == .trailing)
+    }
+
+    /// `TextStyle` is additive: it must NOT change how a `StyledText`
+    /// serializes, or every document on disk would need a migration.
+    @Test func styledTextJSONKeysAreUnchanged() throws {
+        let data = try JSONEncoder().encode(StyledText(string: "Hi", pointSizeFactor: 0.05))
+        let object = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        #expect(object.keys.sorted() == ["alignment", "colorHex", "fontName",
+                                         "pointSizeFactor", "string"])
+    }
 }

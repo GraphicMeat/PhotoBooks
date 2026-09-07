@@ -177,8 +177,8 @@ import PhotoBookCore
 
     @Test func newBooksUseCurrentSchemaVersion() {
         let book = Book(title: "T", presetID: "p", style: .standard)
-        #expect(book.schemaVersion == 5)
-        #expect(Book.currentSchemaVersion == 5)
+        #expect(book.schemaVersion == 6)
+        #expect(Book.currentSchemaVersion == 6)
     }
 
     @Test func v2DocumentMigratesToV3WithNilImportance() throws {
@@ -199,7 +199,7 @@ import PhotoBookCore
         let v2 = try JSONSerialization.data(withJSONObject: object)
 
         let migrated = try BookSerializer.decode(v2)
-        #expect(migrated.schemaVersion == 5)
+        #expect(migrated.schemaVersion == 6)
         #expect(migrated.photoLibrary.first?.importance == nil)
     }
 
@@ -232,7 +232,43 @@ import PhotoBookCore
         let v4 = try JSONSerialization.data(withJSONObject: object)
 
         let migrated = try BookSerializer.decode(v4)
-        #expect(migrated.schemaVersion == 5)
+        #expect(migrated.schemaVersion == 6)
         #expect(migrated.photoLibrary.first?.salientCenter == nil)
+    }
+
+    // MARK: - Spine text style + schema v6
+
+    @Test func spineStyleRoundTripsThroughSerializer() throws {
+        var book = sampleBook()
+        book.spineStyle = TextStyle(fontName: "Futura-Medium", pointSizeFactor: 0.04,
+                                    colorHex: "#FF0000", alignment: .center)
+        let decoded = try BookSerializer.decode(try BookSerializer.encode(book))
+        #expect(decoded.spineStyle == book.spineStyle)
+        #expect(decoded == book)
+    }
+
+    @Test func newBooksHaveNoSpineStyleAndOmitTheKey() throws {
+        // nil = the legacy default look, resolved at render time — and the key
+        // stays out of the JSON entirely (additive, like `backCover`).
+        let book = Book(title: "T", presetID: "p", style: .standard)
+        #expect(book.spineStyle == nil)
+        let object = try #require(try JSONSerialization.jsonObject(
+            with: try BookSerializer.encode(book)) as? [String: Any])
+        #expect(object["spineStyle"] == nil)
+    }
+
+    @Test func v5DocumentMigratesToV6WithNilSpineStyle() throws {
+        // Encode a current book, then back-date its schemaVersion to 5 and
+        // drop the key to simulate a real v5 document on disk (v5 predates
+        // the field, so the absent-key -> nil path is what loads).
+        let data = try BookSerializer.encode(Book(title: "Old", presetID: "p", style: .standard))
+        var object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        object["schemaVersion"] = 5
+        object.removeValue(forKey: "spineStyle")
+        let v5 = try JSONSerialization.data(withJSONObject: object)
+
+        let migrated = try BookSerializer.decode(v5)
+        #expect(migrated.schemaVersion == 6)
+        #expect(migrated.spineStyle == nil)
     }
 }

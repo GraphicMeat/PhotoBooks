@@ -54,6 +54,53 @@ public struct StyledText: Codable, Equatable, Sendable {
     }
 }
 
+/// The style half of a `StyledText` — everything but the string. Text that
+/// carries its string elsewhere (the spine title lives in `Book.title`)
+/// stores only this, so the string is never duplicated.
+public struct TextStyle: Codable, Equatable, Sendable {
+    public var fontName: String            // PostScript name; "" = book default
+    public var pointSizeFactor: Double     // fraction of page height (scales across presets)
+    public var colorHex: String            // "#RRGGBB"
+    public var alignment: TextAlignment
+
+    public init(
+        fontName: String = "",
+        pointSizeFactor: Double,
+        colorHex: String = "#000000",
+        alignment: TextAlignment = .leading
+    ) {
+        self.fontName = fontName
+        self.pointSizeFactor = pointSizeFactor
+        self.colorHex = colorHex
+        self.alignment = alignment
+    }
+}
+
+extension StyledText {
+    /// A styled run from a string plus a style. Purely a different spelling of
+    /// the memberwise init — `StyledText`'s stored properties (and therefore
+    /// its JSON) are unchanged.
+    public init(string: String, style: TextStyle) {
+        self.init(string: string, fontName: style.fontName,
+                  pointSizeFactor: style.pointSizeFactor,
+                  colorHex: style.colorHex, alignment: style.alignment)
+    }
+
+    /// Everything but the string, as one value.
+    public var style: TextStyle {
+        get {
+            TextStyle(fontName: fontName, pointSizeFactor: pointSizeFactor,
+                      colorHex: colorHex, alignment: alignment)
+        }
+        set {
+            fontName = newValue.fontName
+            pointSizeFactor = newValue.pointSizeFactor
+            colorHex = newValue.colorHex
+            alignment = newValue.alignment
+        }
+    }
+}
+
 /// A text zone on a page. The zone (frame) is fixed by the template;
 /// freeform placement is v2.
 public struct TextSlot: Codable, Equatable, Sendable, Identifiable {

@@ -16,7 +16,11 @@ public struct Book: Codable, Equatable, Sendable {
     /// re-stamps the version.
     ///
     /// v4→v5: PhotoRef.salientCenter (optional, additive — decodeIfPresent → nil)
-    public static let currentSchemaVersion = 5
+    ///
+    /// v5→v6: the spine text style (`spineStyle`) — optional and additive, so a
+    /// v5 document decodes with `spineStyle == nil` (the legacy spine look);
+    /// the migration only re-stamps the version.
+    public static let currentSchemaVersion = 6
 
     public var schemaVersion: Int
     public var title: String
@@ -30,6 +34,10 @@ public struct Book: Codable, Equatable, Sendable {
     /// pagination/spread-pairing never touch it. `nil` = plain background back
     /// (books with ≤1 photo, or pre-v4 documents until rebuilt).
     public var backCover: Page?
+    /// How the spine title (`title`) is drawn — font, size, color, alignment.
+    /// `nil` = the legacy default look, resolved at render time from the
+    /// preset's spine width and the background color.
+    public var spineStyle: TextStyle?
 
     public init(title: String, presetID: String, style: BookStyle) {
         self.schemaVersion = Book.currentSchemaVersion
@@ -40,10 +48,12 @@ public struct Book: Codable, Equatable, Sendable {
         self.pages = []
         self.spreads = []
         self.backCover = nil
+        self.spineStyle = nil
     }
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion, title, presetID, style, photoLibrary, pages, spreads, backCover
+        case spineStyle
     }
 
     public init(from decoder: Decoder) throws {
@@ -58,6 +68,8 @@ public struct Book: Codable, Equatable, Sendable {
         spreads       = try c.decodeIfPresent([Spread].self, forKey: .spreads) ?? []
         // Absent in pre-v4 JSON → nil (back-compat).
         backCover     = try c.decodeIfPresent(Page.self, forKey: .backCover)
+        // Absent in pre-v6 JSON → nil (the legacy spine look).
+        spineStyle    = try c.decodeIfPresent(TextStyle.self, forKey: .spineStyle)
     }
 }
 
@@ -161,6 +173,15 @@ public enum BookSerializer {
                 throw BookSerializerError.corruptData("v4 payload is not a JSON object")
             }
             object["schemaVersion"] = 5
+            return try JSONSerialization.data(withJSONObject: object)
+        case 5:
+            // 5 → 6: spine text style. `spineStyle` is optional and absent in
+            // v5 JSON; it decodes to nil via decodeIfPresent. This step only
+            // re-stamps the version.
+            guard var object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw BookSerializerError.corruptData("v5 payload is not a JSON object")
+            }
+            object["schemaVersion"] = 6
             return try JSONSerialization.data(withJSONObject: object)
         default:
             throw BookSerializerError.unsupportedSchemaVersion(version)
