@@ -151,6 +151,9 @@ public struct BookBrowserView: View {
     @State private var showRelinkSheet = false
     @State private var showPresetPicker = false
     @State private var showCanvasColorPicker = false
+    /// Book-title rename, opened from the spine or the toolbar menu.
+    @State private var showRenameBook = false
+    @State private var titleDraft = ""
     @AppStorage("editor-canvas-background-mode") private var canvasBackgroundMode = "white"
     @AppStorage("editor-canvas-background-color") private var canvasBackgroundHex = "#D9D9D9"
     @State private var zoomMode: EditorZoomMode = .fitSpread
@@ -177,6 +180,9 @@ public struct BookBrowserView: View {
             #endif
         }
         .environment(editor)
+        .renameBookAlert(isPresented: $showRenameBook, draft: $titleDraft) {
+            editor.renameBook(to: titleDraft)
+        }
         .onAppear { editor.undoManager = undoManager }
         .onChange(of: undoManager) { editor.undoManager = $1 }
         // Replace mode is a dead end if the tray is hidden — surface it so the
@@ -402,7 +408,11 @@ public struct BookBrowserView: View {
                                      + editor.preset.spinePerPage * Double(standardPages.count)) {
                         CoverSheetView(backPage: book.backCover, title: book.title,
                                        book: book, preset: editor.preset, imageStore: imageStore,
-                                       highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID) {
+                                       interactions: editingInteractions,
+                                       highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
+                                       replaceSourceSlotID: editor.replaceSourceSlotID,
+                                       onEditTitle: { beginRenamingBook() },
+                                       editTitleHelp: Self.spineHelp) {
                             editablePage(at: coverIdx)
                         }
                     }
@@ -521,6 +531,17 @@ public struct BookBrowserView: View {
         }
     }
 
+    /// Tooltip on the spine and the toolbar's rename item.
+    private static var spineHelp: String {
+        String(localized: "Change the book title printed on the spine", bundle: .module)
+    }
+
+    /// Seeds the draft from the current title and opens the rename alert.
+    private func beginRenamingBook() {
+        titleDraft = book.title
+        showRenameBook = true
+    }
+
     // MARK: Toolbar (shared by both layouts)
 
     @ToolbarContentBuilder
@@ -617,6 +638,15 @@ public struct BookBrowserView: View {
             .help(Text("Add content to the book", bundle: .module))
 
             Menu {
+                Button {
+                    beginRenamingBook()
+                } label: {
+                    Label(String(localized: "Rename Book\u{2026}", bundle: .module), systemImage: "character.cursor.ibeam")
+                }
+                .help(Self.spineHelp)
+                .accessibilityIdentifier("toolbar-rename-book")
+
+                Divider()
                 Button(String(localized: "Rebuild Unlocked Pages", bundle: .module), systemImage: "shuffle") {
                     editor.reshuffleBook()
                 }
@@ -842,7 +872,11 @@ public struct BookBrowserView: View {
                                     CoverSheetView(backPage: book.backCover, title: book.title,
                                                    book: book, preset: editor.preset,
                                                    imageStore: imageStore,
-                                                   highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID) {
+                                                   interactions: editingInteractions,
+                                                   highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
+                                                   replaceSourceSlotID: editor.replaceSourceSlotID,
+                                                   onEditTitle: { beginRenamingBook() },
+                                                   editTitleHelp: Self.spineHelp) {
                                         PageView(page: page, book: book, preset: editor.preset,
                                                  imageStore: imageStore,
                                                  highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
@@ -1060,6 +1094,10 @@ private struct PhotoActionsInlineOverlay: ViewModifier {
                         .shadow(radius: 8, y: 2)
                         .fixedSize()
                         .position(x: rect.midX, y: centerY)
+                        // `.contain` first: a bare `accessibilityIdentifier` on a
+                        // container OVERWRITES every descendant's identifier, which
+                        // would erase the action buttons' own ids.
+                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("photo-actions-popover")
                 }
             }

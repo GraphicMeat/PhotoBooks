@@ -32,8 +32,10 @@ final class PhotoActionsPopoverTests: XCTestCase {
 
     @MainActor
     func testSelectingPhotoShowsPopoverAndReplaceShowsSnackbar() throws {
-        // 1. Six fixture images in a unique /tmp folder.
-        let folder = URL(fileURLWithPath: "/tmp", isDirectory: true)
+        // 1. Six fixture images in a unique folder. `temporaryDirectory`, not
+        //    /tmp: the UITest runner is sandboxed read-only outside it, and the
+        //    Debug build's sandbox exception already covers /private/var/folders.
+        let folder = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoBooksPopoverUITests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: folder) }

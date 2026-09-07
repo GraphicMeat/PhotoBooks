@@ -42,6 +42,10 @@ struct SnackbarView: View {
         .padding(.vertical, 10)
         .background(.black.opacity(0.85), in: Capsule())
         .shadow(radius: 8, y: 2)
+        // `.contain` first: a bare `accessibilityIdentifier` on a container
+        // OVERWRITES every descendant's identifier, which is what hid the
+        // spine, the back cover and these action buttons from the UI tests.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("snackbar")
     }
 }

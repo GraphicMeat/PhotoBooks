@@ -248,6 +248,10 @@ struct SlotEditingModifier: ViewModifier {
     let slotID: UUID
     let kind: Kind
     let index: Int
+    /// Namespaces the accessibility identifier. The cover sheet draws two
+    /// pages side by side, so back-cover slots must not collide with the
+    /// front cover's page-local `slot-photo-0`.
+    var identifierPrefix: String = ""
     let isLocked: Bool
     let isHighlighted: Bool
     let interactions: PageEditingInteractions?
@@ -288,7 +292,7 @@ struct SlotEditingModifier: ViewModifier {
                 ))
                 .accessibilityElement()
                 .accessibilityAddTraits(.isButton)
-                .accessibilityIdentifier("slot-\(kind.rawValue)-\(index)")
+                .accessibilityIdentifier("\(identifierPrefix)slot-\(kind.rawValue)-\(index)")
         } else {
             content
         }
@@ -334,6 +338,11 @@ public struct PageView: View {
         return copy
     }
 
+    /// `backcover-` for the back cover, "" elsewhere — see `identifierPrefix`.
+    private var slotIdentifierPrefix: String {
+        page.role == .backCover ? "backcover-" : ""
+    }
+
     public var body: some View {
         let refByID = Dictionary(book.photoLibrary.map { ($0.id, $0) },
                                  uniquingKeysWith: { first, _ in first })
@@ -353,6 +362,7 @@ public struct PageView: View {
                 .modifier(SlotEditingModifier(
                     slotID: slot.id, kind: .photo,
                     index: page.photoSlots.firstIndex(where: { $0.id == slot.id }) ?? 0,
+                    identifierPrefix: slotIdentifierPrefix,
                     isLocked: slot.isLocked,
                     isHighlighted: slot.id == highlightedSlotID,
                     interactions: interactions))
@@ -370,6 +380,7 @@ public struct PageView: View {
                     .modifier(SlotEditingModifier(
                         slotID: slot.id, kind: .text,
                         index: page.textSlots.firstIndex(where: { $0.id == slot.id }) ?? 0,
+                        identifierPrefix: slotIdentifierPrefix,
                         isLocked: slot.isLocked,
                         isHighlighted: slot.id == highlightedSlotID,
                         interactions: interactions))

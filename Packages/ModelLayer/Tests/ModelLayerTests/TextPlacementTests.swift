@@ -41,7 +41,7 @@ import Testing
         model.setTextSlotFrame(EditMutationsTests.page2TextID, to: target)
 
         let loc = EditMutations.locateTextSlot(EditMutationsTests.page2TextID, in: model.book)!
-        let slot = model.book.pages[loc.pageIndex].textSlots[loc.slotIndex]
+        let slot = model.book.page(at: loc.page)!.textSlots[loc.slotIndex]
         #expect(slot.frame == target)
         #expect(slot.isLocked)
     }
@@ -76,7 +76,7 @@ import Testing
 
         let loc = EditMutations.locateTextSlot(id, in: model.book)
         #expect(loc != nil)                                   // survived reshuffle
-        let slot = model.book.pages[loc!.pageIndex].textSlots[loc!.slotIndex]
+        let slot = model.book.page(at: loc!.page)!.textSlots[loc!.slotIndex]
         #expect(slot.frame == placed)                         // untouched
     }
 }

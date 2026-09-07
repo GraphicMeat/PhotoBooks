@@ -32,7 +32,7 @@ import Testing
         EditMutations.setTextFrame(in: &book, slotID: EditMutationsTests.page2TextID, frame: target)
 
         let loc = EditMutations.locateTextSlot(EditMutationsTests.page2TextID, in: book)!
-        let slot = book.pages[loc.pageIndex].textSlots[loc.slotIndex]
+        let slot = book.page(at: loc.page)!.textSlots[loc.slotIndex]
         #expect(slot.frame == target)
         #expect(slot.isLocked)
     }

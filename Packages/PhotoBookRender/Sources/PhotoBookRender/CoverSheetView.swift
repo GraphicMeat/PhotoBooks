@@ -3,25 +3,49 @@ import SwiftUI
 
 /// The full cover sheet as seen in the editor: back cover | spine (title) |
 /// front cover, sized in true proportion via `CoverSheetGeometry`. The front
-/// is injected (so it stays the editable `PageView`); the back and spine are
-/// read-only previews that mirror the exported PDF.
+/// is injected (so it stays the editable `PageView`); the back panel becomes
+/// editable too once `interactions` are supplied, and the spine becomes a
+/// button when `onEditTitle` is. With all three omitted the sheet is the
+/// read-only preview the thumbnail row draws.
 public struct CoverSheetView<Front: View>: View {
     let backPage: Page?
-    let highlightedSlotID: UUID?
     let title: String
     let book: Book
     let preset: PrintPreset
     let imageStore: any ImageStore
+    /// Editing chrome for the back cover. nil → read-only preview.
+    var interactions: PageEditingInteractions?
+    var highlightedSlotID: UUID?
+    var replaceSourceSlotID: UUID?
+    /// Opens the book-title editor from the spine. nil → the spine is inert.
+    var onEditTitle: (@MainActor () -> Void)?
+    /// Tooltip for the spine button; supplied by the caller so the localized
+    /// string stays in the feature package that owns the catalog.
+    var editTitleHelp: String = ""
     @ViewBuilder let front: () -> Front
 
+    /// Hover highlight on the spine — without it a thin, unlabeled bar gives
+    /// no hint that it is the way to rename the book.
+    @State private var spineHovered = false
+
     public init(backPage: Page?, title: String, book: Book, preset: PrintPreset,
-                imageStore: any ImageStore, highlightedSlotID: UUID? = nil, @ViewBuilder front: @escaping () -> Front) {
-        self.highlightedSlotID = highlightedSlotID
+                imageStore: any ImageStore,
+                interactions: PageEditingInteractions? = nil,
+                highlightedSlotID: UUID? = nil,
+                replaceSourceSlotID: UUID? = nil,
+                onEditTitle: (@MainActor () -> Void)? = nil,
+                editTitleHelp: String = "",
+                @ViewBuilder front: @escaping () -> Front) {
         self.backPage = backPage
         self.title = title
         self.book = book
         self.preset = preset
         self.imageStore = imageStore
+        self.interactions = interactions
+        self.highlightedSlotID = highlightedSlotID
+        self.replaceSourceSlotID = replaceSourceSlotID
+        self.onEditTitle = onEditTitle
+        self.editTitleHelp = editTitleHelp
         self.front = front
     }
 
@@ -50,6 +74,10 @@ public struct CoverSheetView<Front: View>: View {
             .frame(width: layout.size.width, height: layout.size.height)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        // `.contain` first: a bare `accessibilityIdentifier` on a container
+        // OVERWRITES every descendant's identifier — that is what used to hide
+        // the spine, the back cover and the slots from the accessibility tree.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("cover-sheet")
     }
 
@@ -57,7 +85,10 @@ public struct CoverSheetView<Front: View>: View {
     private var backPanel: some View {
         if let backPage {
             PageView(page: backPage, book: book, preset: preset,
-                     imageStore: imageStore, highlightedSlotID: highlightedSlotID)
+                     imageStore: imageStore, highlightedSlotID: highlightedSlotID,
+                     replaceSourceSlotID: replaceSourceSlotID)
+                .editing(interactions)
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("cover-back")
         } else {
             Color(hex: book.style.backgroundColorHex)
@@ -66,7 +97,33 @@ public struct CoverSheetView<Front: View>: View {
         }
     }
 
+    /// The spine. When editable, an overlaid transparent button carries the
+    /// click — kept a SIBLING of the title text so the title stays its own
+    /// accessibility element instead of being folded into the button.
     private func spineBar(width: CGFloat, height: CGFloat) -> some View {
+        spineContent(width: width, height: height)
+            .overlay {
+                if let onEditTitle {
+                    Button(action: onEditTitle) {
+                        Rectangle()
+                            .fill(.clear)
+                            .contentShape(Rectangle())
+                            .overlay {
+                                if spineHovered {
+                                    Rectangle().strokeBorder(Color.accentColor, lineWidth: 2)
+                                }
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .focusEffectDisabled()
+                    .onHover { spineHovered = $0 }
+                    .help(editTitleHelp)
+                    .accessibilityIdentifier("cover-spine-edit")
+                }
+            }
+    }
+
+    private func spineContent(width: CGFloat, height: CGFloat) -> some View {
         let colorHex = PDFExporter.contrastingTextColorHex(forBackground: book.style.backgroundColorHex)
         let fontSize = max(1, width * 0.6)   // match PDF: title = 60% of spine width
         return ZStack {

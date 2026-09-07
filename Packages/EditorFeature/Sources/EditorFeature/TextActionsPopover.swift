@@ -71,6 +71,10 @@ struct TextActionsInlineOverlay: ViewModifier {
                         .shadow(radius: 8, y: 2)
                         .fixedSize()
                         .position(x: rect.midX, y: centerY)
+                        // `.contain` first: a bare `accessibilityIdentifier` on a container
+                        // OVERWRITES every descendant's identifier, which is what hid the
+                        // spine, the back cover and these action buttons from the UI tests.
+                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("text-actions-popover")
                 }
             }

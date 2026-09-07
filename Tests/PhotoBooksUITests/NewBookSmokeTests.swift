@@ -32,9 +32,10 @@ final class NewBookSmokeTests: XCTestCase {
 
     @MainActor
     func testNewBookFromFixtureFolderShowsSidebarThumbnails() throws {
-        // 1. Six fixture images in a unique /tmp folder (readable by the
-        //    Debug build's temporary sandbox exception).
-        let folder = URL(fileURLWithPath: "/tmp", isDirectory: true)
+        // 1. Six fixture images in a unique folder. `temporaryDirectory`, not
+        //    /tmp: the UITest runner is sandboxed read-only outside it, and the
+        //    Debug build's sandbox exception already covers /private/var/folders.
+        let folder = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoBooksUITests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: folder) }

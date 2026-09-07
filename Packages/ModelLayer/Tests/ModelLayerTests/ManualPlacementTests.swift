@@ -34,7 +34,7 @@ import Testing
         model.setPhotoSlotFrame(slotID, to: target)
 
         let location = EditMutations.locatePhotoSlot(slotID, in: model.book)!
-        let slot = model.book.pages[location.pageIndex].photoSlots[location.slotIndex]
+        let slot = model.book.page(at: location.page)!.photoSlots[location.slotIndex]
         #expect(slot.frame == target)
         #expect(slot.isLocked == true)
         #expect(model.selectedSlotID == slotID)

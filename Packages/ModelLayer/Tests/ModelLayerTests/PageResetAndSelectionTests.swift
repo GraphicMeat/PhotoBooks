@@ -75,7 +75,7 @@ import Testing
         model.tapPhotoSlot(EditMutationsTests.slot1aID)
         // Capture the photo bound to the selected slot BEFORE the reflow.
         let loc0 = EditMutations.locatePhotoSlot(model.selectedSlotID!, in: document.book)!
-        let photoID = document.book.pages[loc0.pageIndex].photoSlots[loc0.slotIndex].photoID
+        let photoID = document.book.page(at: loc0.page)!.photoSlots[loc0.slotIndex].photoID
         #expect(photoID != nil)
 
         // Force a repaginateBook reflow (mints new slot IDs).
@@ -85,7 +85,7 @@ import Testing
         #expect(model.selectedSlotID != nil)
         let loc1 = EditMutations.locatePhotoSlot(model.selectedSlotID!, in: document.book)
         #expect(loc1 != nil)
-        let nowPhotoID = loc1.map { document.book.pages[$0.pageIndex].photoSlots[$0.slotIndex].photoID }
+        let nowPhotoID = loc1.map { document.book.page(at: $0.page)!.photoSlots[$0.slotIndex].photoID }
         #expect(nowPhotoID == photoID)
     }
 }

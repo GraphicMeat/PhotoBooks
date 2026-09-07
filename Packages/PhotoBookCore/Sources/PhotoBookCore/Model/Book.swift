@@ -167,3 +167,44 @@ public enum BookSerializer {
         }
     }
 }
+
+// MARK: - Page addressing
+
+/// Names any editable page surface of a book. The back cover is a `Page` that
+/// lives OUTSIDE `pages[]` (it belongs to the cover *sheet*, not the reading
+/// flow), so an index alone cannot reach it — every slot lookup that must work
+/// on the back cover addresses pages through this instead.
+public enum PageAddress: Hashable, Sendable {
+    case page(Int)
+    case backCover
+}
+
+extension Book {
+    /// Every editable page surface, interior pages first then the back cover.
+    public var pageAddresses: [PageAddress] {
+        pages.indices.map(PageAddress.page) + (backCover == nil ? [] : [.backCover])
+    }
+
+    /// The page at `address`; nil when the index is out of range or the book
+    /// has no back cover.
+    public func page(at address: PageAddress) -> Page? {
+        switch address {
+        case .page(let index): pages.indices.contains(index) ? pages[index] : nil
+        case .backCover: backCover
+        }
+    }
+
+    /// Edits the page at `address` in place. No-op for an address that names
+    /// nothing, which is what lets callers stay a single unconditional statement.
+    public mutating func updatePage(at address: PageAddress, _ body: (inout Page) -> Void) {
+        switch address {
+        case .page(let index):
+            guard pages.indices.contains(index) else { return }
+            body(&pages[index])
+        case .backCover:
+            guard var page = backCover else { return }
+            body(&page)
+            backCover = page
+        }
+    }
+}

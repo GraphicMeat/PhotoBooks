@@ -144,10 +144,32 @@ public final class BookEditorModel {
         }
     }
 
+    /// The photo slot with this ID wherever it lives — an interior page or the
+    /// back cover, which sits outside `book.pages[]` (issue #5).
+    private func photoSlot(_ slotID: UUID?) -> PhotoSlot? {
+        guard let slotID,
+              let location = EditMutations.locatePhotoSlot(slotID, in: document.book),
+              let page = document.book.page(at: location.page) else { return nil }
+        return page.photoSlots[location.slotIndex]
+    }
+
+    /// Mirror of `photoSlot(_:)` for text boxes.
+    private func textSlot(_ slotID: UUID?) -> TextSlot? {
+        guard let slotID,
+              let location = EditMutations.locateTextSlot(slotID, in: document.book),
+              let page = document.book.page(at: location.page) else { return nil }
+        return page.textSlots[location.slotIndex]
+    }
+
+    /// True when the selected photo sits on the back cover — a surface the
+    /// engine never lays out, so weight/layout actions do not apply to it.
+    public var selectedSlotIsOnBackCover: Bool {
+        guard let slotID = selectedSlotID else { return false }
+        return EditMutations.locatePhotoSlot(slotID, in: document.book)?.page == .backCover
+    }
+
     public var selectedSlotHasPhoto: Bool {
-        guard let slotID = selectedSlotID,
-              let location = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return false }
-        return document.book.pages[location.pageIndex].photoSlots[location.slotIndex].photoID != nil
+        photoSlot(selectedSlotID)?.photoID != nil
     }
 
     public var selectedPageIsLocked: Bool {
@@ -225,11 +247,21 @@ public final class BookEditorModel {
         } else {
             selectedSlotID = slotID
             // Selecting a photo also selects its page, so per-page actions
-            // (density, background, reset) target the page it lives on.
-            if let loc = EditMutations.locatePhotoSlot(slotID, in: document.book) {
-                selectedPageID = document.book.pages[loc.pageIndex].id
+            // (density, background, reset) target the page it lives on. The
+            // back cover's page id is not in `pages[]`, which is exactly what
+            // makes every interior-page action report "unavailable" for it.
+            let pageID = photoSlotPageID(slotID)
+            if pageID != selectedPageID {
+                selectedPageID = pageID
+                refreshAlternatives()
             }
         }
+    }
+
+    /// Id of the page a photo slot lives on (interior page or back cover).
+    private func photoSlotPageID(_ slotID: UUID) -> UUID? {
+        guard let loc = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return nil }
+        return document.book.page(at: loc.page)?.id
     }
 
     /// After a reflow mints new slot IDs, re-point selection to the slot now
@@ -338,9 +370,7 @@ public final class BookEditorModel {
     public func beginCropEditing(_ slotID: UUID) {
         selectedTextSlotID = nil
         selectedSlotID = slotID
-        if let location = EditMutations.locatePhotoSlot(slotID, in: document.book) {
-            selectedPageID = document.book.pages[location.pageIndex].id
-        }
+        selectedPageID = photoSlotPageID(slotID)
         cropEditingContext = cropEditorContext(forSlot: slotID)
     }
 
@@ -350,8 +380,7 @@ public final class BookEditorModel {
     }
 
     func cropEditorContext(forSlot slotID: UUID) -> CropEditorContext? {
-        guard let location = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return nil }
-        let slot = document.book.pages[location.pageIndex].photoSlots[location.slotIndex]
+        guard let slot = photoSlot(slotID) else { return nil }
         guard let photoID = slot.photoID,
               let ref = document.book.photoLibrary.first(where: { $0.id == photoID }),
               !ref.isMissing
@@ -373,10 +402,8 @@ public final class BookEditorModel {
     }
 
     func textEditorContext(forSlot slotID: UUID) -> TextEditorContext? {
-        guard let location = EditMutations.locateTextSlot(slotID, in: document.book) else { return nil }
-        return TextEditorContext(
-            slotID: slotID,
-            text: document.book.pages[location.pageIndex].textSlots[location.slotIndex].text)
+        guard let slot = textSlot(slotID) else { return nil }
+        return TextEditorContext(slotID: slotID, text: slot.text)
     }
 
     public func commitText(slotID: UUID, text: StyledText) {
@@ -415,20 +442,12 @@ public final class BookEditorModel {
     }
 
     public var selectedTextSlotIsLocked: Bool {
-        guard let slotID = selectedTextSlotID,
-              let loc = EditMutations.locateTextSlot(slotID, in: document.book) else { return false }
-        return document.book.pages[loc.pageIndex].textSlots[loc.slotIndex].isLocked
+        textSlot(selectedTextSlotID)?.isLocked ?? false
     }
 
     public func toggleSelectedTextSlotLock() {
-        guard let slotID = selectedTextSlotID,
-              let loc = EditMutations.locateTextSlot(slotID, in: document.book) else { return }
-        let newValue = !document.book.pages[loc.pageIndex].textSlots[loc.slotIndex].isLocked
-        apply {
-            if let l = EditMutations.locateTextSlot(slotID, in: $0) {
-                $0.pages[l.pageIndex].textSlots[l.slotIndex].isLocked = newValue
-            }
-        }
+        guard let slotID = selectedTextSlotID else { return }
+        apply { EditMutations.toggleTextSlotLock(in: &$0, slotID: slotID) }
     }
 
     // MARK: Page lock / reorder
@@ -511,14 +530,19 @@ public final class BookEditorModel {
         apply { EditMutations.setPageBackground(in: &$0, pageID: pageID, hex: hex) }
     }
 
+    /// Rename the book. The title prints on the spine (issue #5: previously
+    /// only editable by hand-editing `book.json`) and also drives the window
+    /// title, PDF metadata and export filenames.
+    public func renameBook(to title: String) {
+        apply { EditMutations.setBookTitle(in: &$0, title) }
+    }
+
     public func setBookBackground(_ hex: String) {
         apply { EditMutations.setBookBackground(in: &$0, hex: hex) }
     }
 
     public var selectedSlotIsLocked: Bool {
-        guard let slotID = selectedSlotID,
-              let location = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return false }
-        return document.book.pages[location.pageIndex].photoSlots[location.slotIndex].isLocked
+        photoSlot(selectedSlotID)?.isLocked ?? false
     }
 
     public func toggleSelectedSlotLock() {
@@ -534,9 +558,7 @@ public final class BookEditorModel {
 
     /// PhotoID bound to the currently selected photo slot, if any.
     private var selectedSlotPhotoID: PhotoID? {
-        guard let slotID = selectedSlotID,
-              let loc = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return nil }
-        return document.book.pages[loc.pageIndex].photoSlots[loc.slotIndex].photoID
+        photoSlot(selectedSlotID)?.photoID
     }
 
     /// Effective layout weight of the selected slot's photo (userWeight if set,
@@ -548,11 +570,12 @@ public final class BookEditorModel {
     }
 
     public var selectedPhotoCanGrow: Bool {
-        (selectedPhotoWeight ?? ImportanceWeight.maxWeight) < ImportanceWeight.maxWeight
+        !selectedSlotIsOnBackCover
+            && (selectedPhotoWeight ?? ImportanceWeight.maxWeight) < ImportanceWeight.maxWeight
     }
 
     public var selectedPhotoCanShrink: Bool {
-        (selectedPhotoWeight ?? 1) > 1
+        !selectedSlotIsOnBackCover && (selectedPhotoWeight ?? 1) > 1
     }
 
     public func makeSelectedPhotoBigger() { adjustSelectedPhotoWeight(by: Self.weightStep) }
@@ -561,7 +584,8 @@ public final class BookEditorModel {
 
     private func adjustSelectedPhotoWeight(by delta: Int,
                                            seed: UInt64 = UInt64.random(in: .min ... .max)) {
-        guard let photoID = selectedSlotPhotoID,
+        guard !selectedSlotIsOnBackCover,
+              let photoID = selectedSlotPhotoID,
               let ref = document.book.photoLibrary.first(where: { $0.id == photoID }) else { return }
         let current = ref.userWeight ?? ImportanceWeight.weight(forImportance: ref.importance)
         let target = min(max(current + delta, 1), ImportanceWeight.maxWeight)
@@ -594,13 +618,17 @@ public final class BookEditorModel {
     public func resetSelectedPhotoToAutoLayout(seed: UInt64 = UInt64.random(in: .min ... .max)) {
         guard let slotID = selectedSlotID,
               let loc = EditMutations.locatePhotoSlot(slotID, in: document.book) else { return }
-        let pageID = document.book.pages[loc.pageIndex].id
+        // The back cover has no engine layout to return to, so unlocking IS the
+        // whole reset there — reshuffling would relayout unrelated pages.
+        guard case .page(let pageIndex) = loc.page else {
+            apply { EditMutations.setPhotoSlotLock(in: &$0, slotID: slotID, isLocked: false) }
+            return
+        }
+        let pageID = document.book.pages[pageIndex].id
         let photoID = selectedSlotPhotoID
         let preset = preset
         apply {
-            if let l = EditMutations.locatePhotoSlot(slotID, in: $0) {
-                $0.pages[l.pageIndex].photoSlots[l.slotIndex].isLocked = false
-            }
+            EditMutations.setPhotoSlotLock(in: &$0, slotID: slotID, isLocked: false)
             $0 = self.engine.reshuffle($0, scope: .page(pageID), preset: preset, seed: seed)
         }
         reselectPhoto(photoID)

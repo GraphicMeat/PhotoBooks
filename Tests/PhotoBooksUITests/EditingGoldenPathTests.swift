@@ -31,9 +31,10 @@ final class EditingGoldenPathTests: XCTestCase {
 
     @MainActor
     func testEditLoopSurvivesFullUndo() throws {
-        // 1. Six fixture images in a unique /tmp folder (readable by the
-        //    Debug build's temporary sandbox exception — Plan 4 D6).
-        let folder = URL(fileURLWithPath: "/tmp", isDirectory: true)
+        // 1. Six fixture images in a unique folder. `temporaryDirectory`, not
+        //    /tmp: the UITest runner is sandboxed read-only outside it, and the
+        //    Debug build's sandbox exception already covers /private/var/folders.
+        let folder = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoBooksEditUITests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: folder) }
@@ -105,9 +106,15 @@ final class EditingGoldenPathTests: XCTestCase {
         field.typeText("My Summer")
         app.buttons["text-editor-done"].click()
 
-        // 6. RESHUFFLE BOOK.
-        XCTAssertTrue(app.buttons["toolbar-reshuffle-book"].waitForExistence(timeout: 5))
-        app.buttons["toolbar-reshuffle-book"].click()
+        // 6. RESHUFFLE BOOK. The action lives inside the book toolbar menu, so
+        // the menu has to be opened before its item exists.
+        let bookMenu = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == 'toolbar-book-menu'")).firstMatch
+        XCTAssertTrue(bookMenu.waitForExistence(timeout: 5), "Book toolbar menu missing")
+        bookMenu.click()
+        let reshuffleBook = app.menuItems["toolbar-reshuffle-book"]
+        XCTAssertTrue(reshuffleBook.waitForExistence(timeout: 5), "Rebuild Unlocked Pages missing")
+        reshuffleBook.click()
 
         // 7. UNDO ×4 (reshuffle, text, template switch, swap).
         for _ in 0..<4 {
