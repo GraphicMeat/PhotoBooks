@@ -100,6 +100,12 @@ struct PhotoSlotContent: View {
                     .stroke(Color.accentColor, lineWidth: 3)
             }
         }
+        // Purely visual: the slot's interactivity lives in `SlotEditingModifier`
+        // (`.contentShape(Rectangle())` + `.gesture`). The aspect-filled image is
+        // drawn WIDER than the slot (`SlotGeometry.imageDrawRect`) and `.clipShape`
+        // clips pixels, not hits — an opaque, gesture-less `Image` would otherwise
+        // swallow clicks meant for whatever it overhangs (the neighbouring cover panel).
+        .allowsHitTesting(false)
     }
 }
 
@@ -122,6 +128,10 @@ struct TextSlotContent: View {
             .frame(width: size.width, height: size.height,
                    alignment: Self.frameAlignment(text.alignment))
             .clipped()
+            // Same contract as `PhotoSlotContent`: taps come from
+            // `SlotEditingModifier`, and text that overflows its frame (`.clipped()`
+            // is visual only) must not eat clicks belonging to the view underneath.
+            .allowsHitTesting(false)
     }
 
     /// Model alignment → SwiftUI multiline text alignment.

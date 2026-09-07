@@ -59,6 +59,22 @@ import Testing
         #expect(abs(crop.width * 1000 * scaleX - slot.width) < 1e-9)
     }
 
+    /// Why `PhotoSlotContent` must be `.allowsHitTesting(false)`: with the
+    /// engine's default `.full` crop the drawn image spills OUT of the slot on
+    /// the long axis, and `.clipShape` clips pixels but not hit-testing — an
+    /// opaque `Image` that overhangs its slot would swallow clicks belonging to
+    /// the view next to it (the back cover, under the front cover's photo).
+    @Test func aspectFillDrawRectOverflowsTheSlot() {
+        // 320x240 landscape photo in a 294x294 square slot: scale = 294/240,
+        // drawn 392 wide → 49 pt of overhang on each side.
+        let slot = CGRect(x: 0, y: 0, width: 294, height: 294)
+        let drawRect = SlotGeometry.imageDrawRect(slotRect: slot, crop: .full,
+                                                  pixelWidth: 320, pixelHeight: 240)
+        #expect(drawRect.minX < slot.minX)
+        #expect(drawRect.maxX > slot.maxX)
+        #expect(drawRect.height == slot.height)
+    }
+
     @Test func degenerateCropFallsBackToSlotRect() {
         let slot = CGRect(x: 0, y: 0, width: 100, height: 100)
         let drawRect = SlotGeometry.imageDrawRect(

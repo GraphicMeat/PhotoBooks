@@ -129,22 +129,31 @@ public struct CoverSheetView<Front: View>: View {
         let fontName = text.fontName.isEmpty ? book.style.defaultFontName : text.fontName
         let points = max(1, SlotGeometry.fontPoints(factor: text.pointSizeFactor,
                                                     renderHeight: Double(height)))
-        return ZStack {
-            Color(hex: book.style.backgroundColorHex)
-            Text(text.string)
-                .font(.custom(fontName, fixedSize: points))
-                .foregroundStyle(Color(hex: text.colorHex))
-                .lineLimit(1)
-                .fixedSize()
-                // Pre-rotation frame spans the spine length, so its alignment
-                // is the alignment ALONG the spine: leading = top, after the
-                // clockwise turn below.
-                .frame(width: height, height: width,
-                       alignment: TextSlotContent.frameAlignment(text.alignment))
-                .rotationEffect(.degrees(90))          // top-to-bottom (US spine convention)
-                .accessibilityIdentifier("cover-spine-title")
-        }
-        .frame(width: width, height: height)
-        .clipped()
+        // An OVERLAY, not a ZStack: a ZStack sizes itself to the union of its
+        // children, so the (height x width) title frame grew the spine's
+        // layout footprint to a sheet-height square. `.clipped()` hid it but
+        // does not clip hit-testing, and the spine sits above the back cover
+        // in z-order, so that square ate every click on the back cover's right
+        // half. An overlay never changes its parent's size.
+        return Color(hex: book.style.backgroundColorHex)
+            .frame(width: width, height: height)
+            .overlay {
+                Text(text.string)
+                    .font(.custom(fontName, fixedSize: points))
+                    .foregroundStyle(Color(hex: text.colorHex))
+                    .lineLimit(1)
+                    .fixedSize()
+                    // Pre-rotation frame spans the spine length, so its
+                    // alignment is the alignment ALONG the spine: leading =
+                    // top, after the clockwise turn below.
+                    .frame(width: height, height: width,
+                           alignment: TextSlotContent.frameAlignment(text.alignment))
+                    .rotationEffect(.degrees(90))      // top-to-bottom (US spine convention)
+                    .accessibilityIdentifier("cover-spine-title")
+            }
+            .clipped()
+            // Decorative only: the transparent Button `spineBar` overlays on
+            // top owns the click, so nothing here needs to be hittable.
+            .allowsHitTesting(false)
     }
 }
