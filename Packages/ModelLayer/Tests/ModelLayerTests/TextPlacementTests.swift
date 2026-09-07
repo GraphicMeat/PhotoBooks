@@ -24,7 +24,7 @@ import Testing
         let newID = model.book.pages[1].textSlots.last!.id
         #expect(model.selectedTextSlotID == newID)
         #expect(model.selectedSlotID == nil)
-        #expect(model.textEditingContext?.slotID == newID)   // editor opened
+        #expect(model.textEditingContext?.target == .slot(newID))   // editor opened
     }
 
     @Test func addTextIsUndoable() {

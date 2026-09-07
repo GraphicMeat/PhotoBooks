@@ -123,20 +123,25 @@ import Testing
 
     // MARK: Rename (the spine)
 
-    @Test func renameBookChangesTheSpineTitle() {
+    @Test func editingTheSpineChangesTheTitle() {
         let (model, document) = makeModel()
-        model.renameBook(to: "Easter 2026 at Camber Sands")
+        model.beginSpineEditing()
+        var text = model.textEditingContext!.text
+        text.string = "Easter 2026 at Camber Sands"
+        model.commitText(model.textEditingContext!, text: text)
         #expect(document.book.title == "Easter 2026 at Camber Sands")
     }
 
-    @Test func renameBookIgnoresBlankInputAndIsUndoable() {
+    @Test func editingTheSpineIgnoresABlankTitleAndIsUndoable() {
         let (model, document) = makeModel()
         let undo = UndoManager()
         model.undoManager = undo
         let original = document.book.title
-        model.renameBook(to: "   ")
+        model.beginSpineEditing()
+        let context = model.textEditingContext!
+        model.commitText(context, text: StyledText(string: "   ", style: context.text.style))
         #expect(document.book.title == original)
-        model.renameBook(to: "Camber Sands")
+        model.commitText(context, text: StyledText(string: "Camber Sands", style: context.text.style))
         undo.undo()
         #expect(document.book.title == original)
     }

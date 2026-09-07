@@ -117,7 +117,8 @@ import Testing
         let (model, document, _) = makeModel()
         let text = StyledText(string: "Hello", fontName: "Helvetica",
                               pointSizeFactor: 0.05, colorHex: "#112233", alignment: .center)
-        model.commitText(slotID: EditMutationsTests.page2TextID, text: text)
+        model.commitText(TextEditorContext(target: .slot(EditMutationsTests.page2TextID),
+                                           text: text), text: text)
         #expect(document.book.pages[2].textSlots[0].text == text)
         #expect(document.book.pages[2].textSlots[0].isLocked)
     }

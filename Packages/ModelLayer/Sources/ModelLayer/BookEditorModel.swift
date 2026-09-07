@@ -27,15 +27,32 @@ public struct CropEditorContext: Identifiable, Equatable {
     }
 }
 
-/// What the text editor needs to open on a text slot: the current styled
-/// text as the draft seed. Consumed by `TextEditorOverlay` (Task 6).
+/// What the text editor needs to open: which run is being edited and its
+/// current styled text as the draft seed. Consumed by `TextEditorOverlay`.
+/// The spine title is one of those runs — it is a `StyledText` like any
+/// caption, it just keeps its string in `Book.title`.
 public struct TextEditorContext: Identifiable, Equatable {
-    public var slotID: UUID
-    public var text: StyledText
-    public var id: UUID { slotID }
+    public enum Target: Equatable {
+        case slot(UUID)
+        case spine
+    }
 
-    public init(slotID: UUID, text: StyledText) {
-        self.slotID = slotID
+    public var target: Target
+    public var text: StyledText
+
+    /// Sheet routing keys on `id`, so the spine needs one of its own: a fixed
+    /// v4 UUID no slot can ever be allocated.
+    public static let spineID = UUID(uuidString: "00000000-0000-4000-8000-00000000501E")!
+
+    public var id: UUID {
+        switch target {
+        case .slot(let id): id
+        case .spine: Self.spineID
+        }
+    }
+
+    public init(target: Target, text: StyledText) {
+        self.target = target
         self.text = text
     }
 }
@@ -403,11 +420,24 @@ public final class BookEditorModel {
 
     func textEditorContext(forSlot slotID: UUID) -> TextEditorContext? {
         guard let slot = textSlot(slotID) else { return nil }
-        return TextEditorContext(slotID: slotID, text: slot.text)
+        return TextEditorContext(target: .slot(slotID), text: slot.text)
     }
 
-    public func commitText(slotID: UUID, text: StyledText) {
-        apply { EditMutations.setText(in: &$0, slotID: slotID, text: text) }
+    /// Opens the text editor on the spine title, seeded with what the cover
+    /// currently prints — the stored style, or the default look for a book
+    /// that has never been restyled.
+    public func beginSpineEditing() {
+        textEditingContext = TextEditorContext(
+            target: .spine, text: ExportPlan.spineText(for: document.book, preset: preset))
+    }
+
+    public func commitText(_ context: TextEditorContext, text: StyledText) {
+        switch context.target {
+        case .slot(let slotID):
+            apply { EditMutations.setText(in: &$0, slotID: slotID, text: text) }
+        case .spine:
+            apply { EditMutations.setSpineText(in: &$0, text) }
+        }
     }
 
     /// Add a default text box to a page, select it, and open the text editor
@@ -528,13 +558,6 @@ public final class BookEditorModel {
     public func setSelectedPageBackground(_ hex: String?) {
         guard let pageID = selectedPageID else { return }
         apply { EditMutations.setPageBackground(in: &$0, pageID: pageID, hex: hex) }
-    }
-
-    /// Rename the book. The title prints on the spine (issue #5: previously
-    /// only editable by hand-editing `book.json`) and also drives the window
-    /// title, PDF metadata and export filenames.
-    public func renameBook(to title: String) {
-        apply { EditMutations.setBookTitle(in: &$0, title) }
     }
 
     public func setBookBackground(_ hex: String) {
