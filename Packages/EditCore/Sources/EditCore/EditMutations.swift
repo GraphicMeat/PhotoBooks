@@ -329,6 +329,16 @@ public enum EditMutations {
         book.photoLibrary[index] = updated
     }
 
+    /// Commits the spine editor: the title (the spine's string) and the style
+    /// it prints in. A blank string keeps the old title — a book with no name
+    /// has nothing to print — while the restyling still lands.
+    public static func setSpineText(in book: inout Book, _ text: StyledText) {
+        book.spineStyle = text.style
+        let trimmed = text.string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        book.title = trimmed
+    }
+
     /// Renames the book. The title is what the spine prints, so this is the
     /// UI edit behind "the spine text was not editable" (issue #5); it also
     /// drives the window title, PDF metadata and export filenames. Blank input

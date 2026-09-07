@@ -117,4 +117,25 @@ import Testing
         EditMutations.setBookTitle(in: &book, "   ")
         #expect(book.title == "Camber Sands")
     }
+
+    // MARK: Spine text (title + style, one commit)
+
+    @Test func setSpineTextWritesTheTitleAndTheStyle() {
+        var book = Self.book()
+        let style = TextStyle(fontName: "Futura-Medium", pointSizeFactor: 0.05,
+                              colorHex: "#FF0000", alignment: .center)
+        EditMutations.setSpineText(in: &book,
+                                   StyledText(string: "  Camber Sands  ", style: style))
+        #expect(book.title == "Camber Sands")
+        #expect(book.spineStyle == style)
+    }
+
+    @Test func setSpineTextKeepsTheOldTitleWhenTheStringIsBlank() {
+        var book = Self.book()
+        let original = book.title
+        let style = TextStyle(pointSizeFactor: 0.07, colorHex: "#00FF00", alignment: .trailing)
+        EditMutations.setSpineText(in: &book, StyledText(string: "   ", style: style))
+        #expect(book.title == original)       // a book with no name prints nothing
+        #expect(book.spineStyle == style)     // but restyling still lands
+    }
 }
