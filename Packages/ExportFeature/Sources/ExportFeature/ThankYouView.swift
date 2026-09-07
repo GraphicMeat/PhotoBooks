@@ -183,14 +183,15 @@ struct ThankYouView: View {
                                 GraphicMeatBrand.donate
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 56, height: 56)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .frame(width: compact ? 96 : 160, height: compact ? 96 : 160)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
                                     .accessibilityHidden(true)
                                 Text("Buy Graphic Meat a steak", bundle: .module)
                                     .font(.headline)
                             }
                             .frame(maxWidth: .infinity, minHeight: 80)
                             .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
                         }
                         .buttonStyle(DonationButtonStyle(color: TipTier.steak.donationColor))
                         .accessibilityIdentifier("export-donate")
