@@ -168,14 +168,6 @@ struct ThankYouView: View {
                 if supportOffer == .tipJar && hasDonated && !wantsToDonateAgain {
                     supporterThanks(compact: compact)
                 } else {
-                    if case .donate = supportOffer, !compact && !typeSize.isAccessibilitySize {
-                        GraphicMeatBrand.donate
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 220)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .accessibilityHidden(true)
-                    }
                     heading("Thank you for making a book with PhotoBooks")
                     if !compact {
                         Text("Enjoy your book. If you’d like to support PhotoBooks, you can fuel the next chapter.", bundle: .module)
@@ -188,8 +180,12 @@ struct ThankYouView: View {
                     case .donate(let url):
                         Link(destination: url) {
                             HStack(spacing: 16) {
-                                Text(verbatim: "🥩")
-                                    .font(.largeTitle)
+                                GraphicMeatBrand.donate
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 56, height: 56)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .accessibilityHidden(true)
                                 Text("Buy Graphic Meat a steak", bundle: .module)
                                     .font(.headline)
                             }
