@@ -1,0 +1,248 @@
+{
+  "com.graphicMeat.PhotoBooks.tip.coffee": {
+    "image": "tip-coffee.png",
+    "localizations": {
+      "en": {
+        "displayName": "Espresso",
+        "description": "Optional tip. No meat included, pixels only."
+      },
+      "de": {
+        "displayName": "Espresso",
+        "description": "Freiwilliges Trinkgeld. Kein Fleisch, nur Pixel."
+      },
+      "es": {
+        "displayName": "Espresso",
+        "description": "Propina opcional. Sin carne, solo píxeles."
+      },
+      "fr": {
+        "displayName": "Expresso",
+        "description": "Pourboire facultatif. Pas de viande, juste des pixels."
+      },
+      "it": {
+        "displayName": "Espresso",
+        "description": "Mancia facoltativa. Niente carne, solo pixel."
+      },
+      "ja": {
+        "displayName": "エスプレッソ",
+        "description": "任意のチップです。お肉は含まれません。ピクセルだけ！"
+      },
+      "ko": {
+        "displayName": "에스프레소",
+        "description": "선택 사항인 팁입니다. 고기는 포함되지 않아요. 픽셀만 드려요!"
+      },
+      "pt-BR": {
+        "displayName": "Espresso",
+        "description": "Gorjeta opcional. Sem carne, só pixels."
+      },
+      "zh-Hans": {
+        "displayName": "浓缩咖啡",
+        "description": "自愿打赏。不含肉品，只有像素。"
+      }
+    }
+  },
+  "com.graphicMeat.PhotoBooks.tip.burger": {
+    "image": "tip-burger.png",
+    "localizations": {
+      "en": {
+        "displayName": "Smash burger",
+        "description": "Optional tip. No meat included, pixels only."
+      },
+      "de": {
+        "displayName": "Smash Burger",
+        "description": "Freiwilliges Trinkgeld. Kein Fleisch, nur Pixel."
+      },
+      "es": {
+        "displayName": "Hamburguesa smash",
+        "description": "Propina opcional. Sin carne, solo píxeles."
+      },
+      "fr": {
+        "displayName": "Smash burger",
+        "description": "Pourboire facultatif. Pas de viande, juste des pixels."
+      },
+      "it": {
+        "displayName": "Smash burger",
+        "description": "Mancia facoltativa. Niente carne, solo pixel."
+      },
+      "ja": {
+        "displayName": "スマッシュバーガー",
+        "description": "任意のチップです。お肉は含まれません。ピクセルだけ！"
+      },
+      "ko": {
+        "displayName": "스매시 버거",
+        "description": "선택 사항인 팁입니다. 고기는 포함되지 않아요. 픽셀만 드려요!"
+      },
+      "pt-BR": {
+        "displayName": "Smash burger",
+        "description": "Gorjeta opcional. Sem carne, só pixels."
+      },
+      "zh-Hans": {
+        "displayName": "手压汉堡",
+        "description": "自愿打赏。不含肉品，只有像素。"
+      }
+    }
+  },
+  "com.graphicMeat.PhotoBooks.tip.steak": {
+    "image": "tip-steak.png",
+    "localizations": {
+      "en": {
+        "displayName": "Ribeye, medium rare",
+        "description": "Optional tip. No meat included, pixels only."
+      },
+      "de": {
+        "displayName": "Ribeye, medium rare",
+        "description": "Freiwilliges Trinkgeld. Kein Fleisch, nur Pixel."
+      },
+      "es": {
+        "displayName": "Chuletón, poco hecho",
+        "description": "Propina opcional. Sin carne, solo píxeles."
+      },
+      "fr": {
+        "displayName": "Entrecôte, saignante",
+        "description": "Pourboire facultatif. Pas de viande, juste des pixels."
+      },
+      "it": {
+        "displayName": "Costata, al sangue",
+        "description": "Mancia facoltativa. Niente carne, solo pixel."
+      },
+      "ja": {
+        "displayName": "リブアイ、ミディアムレア",
+        "description": "任意のチップです。お肉は含まれません。ピクセルだけ！"
+      },
+      "ko": {
+        "displayName": "립아이, 미디엄 레어",
+        "description": "선택 사항인 팁입니다. 고기는 포함되지 않아요. 픽셀만 드려요!"
+      },
+      "pt-BR": {
+        "displayName": "Ancho, mal passado",
+        "description": "Gorjeta opcional. Sem carne, só pixels."
+      },
+      "zh-Hans": {
+        "displayName": "肋眼牛排，三分熟",
+        "description": "自愿打赏。不含肉品，只有像素。"
+      }
+    }
+  },
+  "com.graphicMeat.PhotoBooks.tip.bbq": {
+    "image": "tip-bbq.png",
+    "localizations": {
+      "en": {
+        "displayName": "Family BBQ",
+        "description": "Optional tip. No meat included, pixels only."
+      },
+      "de": {
+        "displayName": "Familien-BBQ",
+        "description": "Freiwilliges Trinkgeld. Kein Fleisch, nur Pixel."
+      },
+      "es": {
+        "displayName": "Barbacoa familiar",
+        "description": "Propina opcional. Sin carne, solo píxeles."
+      },
+      "fr": {
+        "displayName": "Barbecue en famille",
+        "description": "Pourboire facultatif. Pas de viande, juste des pixels."
+      },
+      "it": {
+        "displayName": "Grigliata di famiglia",
+        "description": "Mancia facoltativa. Niente carne, solo pixel."
+      },
+      "ja": {
+        "displayName": "ファミリーBBQ",
+        "description": "任意のチップです。お肉は含まれません。ピクセルだけ！"
+      },
+      "ko": {
+        "displayName": "가족 바비큐",
+        "description": "선택 사항인 팁입니다. 고기는 포함되지 않아요. 픽셀만 드려요!"
+      },
+      "pt-BR": {
+        "displayName": "Churrasco em família",
+        "description": "Gorjeta opcional. Sem carne, só pixels."
+      },
+      "zh-Hans": {
+        "displayName": "家庭烧烤",
+        "description": "自愿打赏。不含肉品，只有像素。"
+      }
+    }
+  },
+  "com.graphicMeat.PhotoBooks.tip.brisket": {
+    "image": "tip-brisket.png",
+    "localizations": {
+      "en": {
+        "displayName": "Whole brisket",
+        "description": "Optional tip. No meat included, pixels only."
+      },
+      "de": {
+        "displayName": "Ganzes Brisket",
+        "description": "Freiwilliges Trinkgeld. Kein Fleisch, nur Pixel."
+      },
+      "es": {
+        "displayName": "Pecho de res entero",
+        "description": "Propina opcional. Sin carne, solo píxeles."
+      },
+      "fr": {
+        "displayName": "Poitrine de bœuf entière",
+        "description": "Pourboire facultatif. Pas de viande, juste des pixels."
+      },
+      "it": {
+        "displayName": "Brisket intero",
+        "description": "Mancia facoltativa. Niente carne, solo pixel."
+      },
+      "ja": {
+        "displayName": "ブリスケット丸ごと",
+        "description": "任意のチップです。お肉は含まれません。ピクセルだけ！"
+      },
+      "ko": {
+        "displayName": "브리스킷 한 덩이",
+        "description": "선택 사항인 팁입니다. 고기는 포함되지 않아요. 픽셀만 드려요!"
+      },
+      "pt-BR": {
+        "displayName": "Peito bovino inteiro",
+        "description": "Gorjeta opcional. Sem carne, só pixels."
+      },
+      "zh-Hans": {
+        "displayName": "整块牛胸肉",
+        "description": "自愿打赏。不含肉品，只有像素。"
+      }
+    }
+  },
+  "com.graphicMeat.PhotoBooks.tip.feast": {
+    "image": "tip-feast.png",
+    "localizations": {
+      "en": {
+        "displayName": "Legendary feast",
+        "description": "Optional tip. No meat included, pixels only."
+      },
+      "de": {
+        "displayName": "Legendäres Festmahl",
+        "description": "Freiwilliges Trinkgeld. Kein Fleisch, nur Pixel."
+      },
+      "es": {
+        "displayName": "Festín legendario",
+        "description": "Propina opcional. Sin carne, solo píxeles."
+      },
+      "fr": {
+        "displayName": "Festin légendaire",
+        "description": "Pourboire facultatif. Pas de viande, juste des pixels."
+      },
+      "it": {
+        "displayName": "Banchetto leggendario",
+        "description": "Mancia facoltativa. Niente carne, solo pixel."
+      },
+      "ja": {
+        "displayName": "伝説のごちそう",
+        "description": "任意のチップです。お肉は含まれません。ピクセルだけ！"
+      },
+      "ko": {
+        "displayName": "전설의 만찬",
+        "description": "선택 사항인 팁입니다. 고기는 포함되지 않아요. 픽셀만 드려요!"
+      },
+      "pt-BR": {
+        "displayName": "Banquete lendário",
+        "description": "Gorjeta opcional. Sem carne, só pixels."
+      },
+      "zh-Hans": {
+        "displayName": "传奇盛宴",
+        "description": "自愿打赏。不含肉品，只有像素。"
+      }
+    }
+  }
+}

@@ -82,16 +82,16 @@
     {
       "displayPrice" : "99.99",
       "familyShareable" : false,
-      "internalID" : "TIPCOW",
+      "internalID" : "TIPFEAST",
       "localizations" : [
         {
-          "description" : "Graphic Meat eats for a month.",
-          "displayName" : "Half a cow",
+          "description" : "Optional tip. No meat included, pixels only.",
+          "displayName" : "Legendary feast",
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.graphicMeat.PhotoBooks.tip.cow",
-      "referenceName" : "Tip — Half a cow",
+      "productID" : "com.graphicMeat.PhotoBooks.tip.feast",
+      "referenceName" : "Tip — Legendary feast",
       "type" : "Consumable"
     }
   ],

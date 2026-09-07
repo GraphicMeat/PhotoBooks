@@ -182,6 +182,30 @@ public final class BookEditorModel {
         refreshAlternatives()
     }
 
+    /// Opens the exact placement reported by export, including the back cover.
+    public func revealPreflightIssue(_ issue: PreflightIssue) {
+        let book = document.book
+        let page = issue.pageID.flatMap { id in
+            book.pages.first { $0.id == id } ?? (book.backCover?.id == id ? book.backCover : nil)
+        } ?? issue.pageIndex.flatMap { book.pages.indices.contains($0) ? book.pages[$0] : nil }
+        guard let page else {
+            deselectSlots()
+            selectPage(book.pages.last?.id)
+            return
+        }
+        deselectSlots()
+        selectPage(page.id == book.backCover?.id ? book.pages.first?.id : page.id)
+        switch issue.kind {
+        case .missingPhoto(let photoID), .lowResolution(let photoID, _):
+            selectedSlotID = page.photoSlots.first { $0.id == issue.slotID }?.id
+                ?? page.photoSlots.first { $0.photoID == photoID }?.id
+        case .textOverflow:
+            selectedTextSlotID = page.textSlots.first { $0.id == issue.slotID }?.id
+        case .pageCountOutOfRange:
+            break
+        }
+    }
+
     /// Selection state machine. Default: tap selects; same slot deselects;
     /// a different slot MOVES selection (no implicit swap). In replace mode the
     /// next tap swaps the source slot's photo with the tapped slot, then exits.

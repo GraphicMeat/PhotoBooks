@@ -7,6 +7,7 @@ import SwiftUI
 /// read-only previews that mirror the exported PDF.
 public struct CoverSheetView<Front: View>: View {
     let backPage: Page?
+    let highlightedSlotID: UUID?
     let title: String
     let book: Book
     let preset: PrintPreset
@@ -14,7 +15,8 @@ public struct CoverSheetView<Front: View>: View {
     @ViewBuilder let front: () -> Front
 
     public init(backPage: Page?, title: String, book: Book, preset: PrintPreset,
-                imageStore: any ImageStore, @ViewBuilder front: @escaping () -> Front) {
+                imageStore: any ImageStore, highlightedSlotID: UUID? = nil, @ViewBuilder front: @escaping () -> Front) {
+        self.highlightedSlotID = highlightedSlotID
         self.backPage = backPage
         self.title = title
         self.book = book
@@ -55,7 +57,7 @@ public struct CoverSheetView<Front: View>: View {
     private var backPanel: some View {
         if let backPage {
             PageView(page: backPage, book: book, preset: preset,
-                     imageStore: imageStore, highlightedSlotID: nil)
+                     imageStore: imageStore, highlightedSlotID: highlightedSlotID)
                 .accessibilityIdentifier("cover-back")
         } else {
             Color(hex: book.style.backgroundColorHex)

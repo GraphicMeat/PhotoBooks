@@ -86,6 +86,7 @@ final class TipJarSmokeTests: XCTestCase {
         app.launchArguments = [
             "-newBookFromFixtureFolder", photos.path,
             "-ApplePersistenceIgnoreState", "YES",
+            "-photobooks.hideDonationRequests", "NO",
             // Aims the save panel at a throwaway folder so the PDF lands
             // somewhere we can delete.
             "-NSNavLastRootDirectory", exportFolder.path
@@ -119,6 +120,28 @@ final class TipJarSmokeTests: XCTestCase {
 
         try saveInPanel(at: exportFolder.appendingPathComponent("tip-jar-smoke.pdf"))
 
+        XCTAssertTrue(app.buttons["export-open-file"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["export-share"].exists)
+        XCTAssertFalse(app.windows["Export — PhotoBooks"].exists,
+                       "Thank-you content should stay inside the main window")
+        // Two frames a few seconds apart: the page-flip preview should have
+        // turned a page in between. Kept as attachments for eyeballing.
+        attachScreenshot(named: "thank-you-sheet")
+        sleep(3)
+        attachScreenshot(named: "thank-you-sheet-3s-later")
+
+        // Done is available only after advancing through all four steps.
+        for _ in 0..<3 {
+            XCTAssertFalse(app.buttons["export-done"].exists)
+            let next = app.buttons["export-next"]
+            XCTAssertTrue(next.waitForExistence(timeout: 5))
+            next.click()
+        }
+        XCTAssertTrue(app.buttons["export-done"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["export-next"].exists)
+        // A previous run may have persisted support. Explicitly opt in again.
+        let donateAgain = app.buttons["export-donate-again"]
+        if donateAgain.waitForExistence(timeout: 2) { donateAgain.click() }
         // Thank-you step: the tip jar loaded the SKTestSession's products.
         let coffee = app.buttons["export-tip-coffee"]
         XCTAssertTrue(coffee.waitForExistence(timeout: 15),
@@ -127,27 +150,26 @@ final class TipJarSmokeTests: XCTestCase {
                          + coffee.staticTexts.allElementsBoundByIndex.map(\.label)).joined(separator: " ")
         XCTAssertTrue(described.contains("Espresso"), "Coffee tip button did not mention Espresso: \(described)")
         XCTAssertTrue(described.contains("1.99"), "Coffee tip button did not show the price: \(described)")
-        for tier in ["burger", "steak", "bbq", "brisket", "cow"] {
+        for tier in ["burger", "steak", "bbq", "brisket", "feast"] {
             XCTAssertTrue(app.buttons["export-tip-\(tier)"].exists, "Missing tip button for \(tier)")
         }
-        XCTAssertTrue(app.buttons["export-open-file"].exists, "Exported filename is not a link")
-
-        // Two frames a few seconds apart: the page-flip preview should have
-        // turned a page in between. Kept as attachments for eyeballing.
-        attachScreenshot(named: "thank-you-sheet")
-        sleep(3)
-        attachScreenshot(named: "thank-you-sheet-3s-later")
 
         coffee.click()
 
         // macOS SwiftUI text lands in the AX value, not the label.
         let thanks = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS 'Meat acquired' OR value CONTAINS 'Meat acquired'")).firstMatch
+            NSPredicate(format: "label CONTAINS 'Thank you for your support!' OR value CONTAINS 'Thank you for your support!'")).firstMatch
         XCTAssertTrue(thanks.waitForExistence(timeout: 15), "Thank-you confirmation never appeared")
+        XCTAssertFalse(coffee.exists)
+        XCTAssertTrue(donateAgain.exists)
         attachScreenshot(named: "thank-you-after-tip")
+        donateAgain.click()
+        XCTAssertTrue(coffee.waitForExistence(timeout: 5))
+        coffee.click()
+        XCTAssertTrue(thanks.waitForExistence(timeout: 15))
 
         let transactions = session.allTransactions()
-        XCTAssertEqual(transactions.count, 1, "Expected exactly one tip transaction")
+        XCTAssertEqual(transactions.count, 2, "Expected both initial and repeat tip transactions")
         XCTAssertEqual(transactions.first?.productIdentifier, "com.graphicMeat.PhotoBooks.tip.coffee")
     }
 

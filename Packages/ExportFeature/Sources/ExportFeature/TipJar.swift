@@ -2,9 +2,9 @@ import Foundation
 import StoreKit
 
 /// The six consumable tips, Graphic Meat flavoured, cheapest first. Consumables
-/// only: nothing is unlocked, so there is nothing to restore or persist.
+/// only: nothing is unlocked. A local flag remembers previous support.
 public enum TipTier: String, CaseIterable, Sendable {
-    case coffee, burger, steak, bbq, brisket, cow
+    case coffee, burger, steak, bbq, brisket, feast
 
     public var productID: String { "com.graphicMeat.PhotoBooks.tip.\(rawValue)" }
 
@@ -14,16 +14,7 @@ public enum TipTier: String, CaseIterable, Sendable {
         allCases.first { $0.productID == productID }
     }
 
-    public var emoji: String {
-        switch self {
-        case .coffee: "☕"
-        case .burger: "🍔"
-        case .steak: "🥩"
-        case .bbq: "🍖"
-        case .brisket: "🔥"
-        case .cow: "🐄"
-        }
-    }
+    public var artworkName: String { "tip-\(rawValue)" }
 
     public var title: String {
         switch self {
@@ -32,7 +23,7 @@ public enum TipTier: String, CaseIterable, Sendable {
         case .steak: String(localized: "Ribeye, medium rare", bundle: .module)
         case .bbq: String(localized: "Family BBQ", bundle: .module)
         case .brisket: String(localized: "Whole brisket", bundle: .module)
-        case .cow: String(localized: "Half a cow", bundle: .module)
+        case .feast: String(localized: "Legendary feast", bundle: .module)
         }
     }
 }
@@ -69,7 +60,9 @@ public final class TipJar {
         guard updatesListener == nil else { return }
         updatesListener = Task {
             for await result in Transaction.updates {
-                if case .verified(let transaction) = result {
+                if case .verified(let transaction) = result,
+                   TipTier.tier(for: transaction.productID) != nil {
+                    Self.rememberDonation(transaction)
                     await transaction.finish()
                 }
             }
@@ -80,6 +73,9 @@ public final class TipJar {
         guard state == .idle else { return }
         state = .loading
         Self.startUpdatesListener()
+        for await result in Transaction.all {
+            if case .verified(let transaction) = result { Self.rememberDonation(transaction) }
+        }
         do {
             let fetched = try await Product.products(for: TipTier.allProductIDs)
             let order = TipTier.allProductIDs
@@ -93,12 +89,25 @@ public final class TipJar {
         }
     }
 
+    private static func rememberDonation(_ transaction: Transaction) {
+        guard TipTier.tier(for: transaction.productID) != nil,
+              transaction.revocationDate == nil else { return }
+        UserDefaults.standard.set(true, forKey: "photobooks.hasDonated")
+    }
+
+    /// Reopen the existing products after a completed tip.
+    public func prepareForAnotherDonation() {
+        guard case .thanked = state else { return }
+        state = products.isEmpty ? .unavailable : .ready
+    }
+
     public func purchase(_ product: Product) async {
         guard let tier = TipTier.tier(for: product.id) else { return }
         state = .purchasing(tier)
         do {
             switch try await product.purchase() {
             case .success(.verified(let transaction)):
+                Self.rememberDonation(transaction)
                 await transaction.finish()
                 state = .thanked(tier)
             default:

@@ -16,7 +16,7 @@ let package = Package(
         .target(
             name: "ExportFeature",
             dependencies: ["ModelLayer", "AppSupport"],
-            resources: [.process("Localizable.xcstrings")]
+            resources: [.process("Localizable.xcstrings"), .process("Resources")]
         ),
         .testTarget(
             name: "ExportFeatureTests",

@@ -29,14 +29,6 @@ public final class ExportModel {
         case genericPrint
         case digital
 
-        public var menuTitle: String {
-            switch self {
-            case .blurb: "Blurb Book…"
-            case .genericPrint: "Print PDF…"
-            case .digital: "Digital PDF…"
-            }
-        }
-
         /// The single-file targets' PDF flavor (Blurb resolves to two
         /// exports inside `exportBlurbPair`).
         var singleFileTarget: PDFTarget? {
@@ -99,7 +91,18 @@ public final class ExportModel {
 
     // MARK: Flow steps
 
-    /// Entry point from the export menu: runs preflight and opens the sheet.
+    /// Opens the export flow, preserving the last selected format.
+    public func begin() {
+        begin(target)
+    }
+
+    /// Changes the format only while configuring the export.
+    public func selectTarget(_ target: ExportTarget) {
+        guard phase == .choosingDestination else { return }
+        self.target = target
+    }
+
+    /// Runs preflight and opens the export flow.
     public func begin(_ target: ExportTarget) {
         exportTask?.cancel()
         self.target = target

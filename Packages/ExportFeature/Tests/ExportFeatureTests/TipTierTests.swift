@@ -9,7 +9,7 @@ import Testing
         #expect(TipTier.steak.productID == "com.graphicMeat.PhotoBooks.tip.steak")
         #expect(TipTier.bbq.productID == "com.graphicMeat.PhotoBooks.tip.bbq")
         #expect(TipTier.brisket.productID == "com.graphicMeat.PhotoBooks.tip.brisket")
-        #expect(TipTier.cow.productID == "com.graphicMeat.PhotoBooks.tip.cow")
+        #expect(TipTier.feast.productID == "com.graphicMeat.PhotoBooks.tip.feast")
         #expect(TipTier.allProductIDs == TipTier.allCases.map(\.productID))
     }
 
@@ -22,12 +22,11 @@ import Testing
     }
 
     @Test func tiersAreOrderedCheapestFirst() {
-        #expect(TipTier.allCases == [.coffee, .burger, .steak, .bbq, .brisket, .cow])
+        #expect(TipTier.allCases == [.coffee, .burger, .steak, .bbq, .brisket, .feast])
     }
 
-    @Test func everyTierHasAnEmojiAndATitle() {
+    @Test func everyTierHasATitle() {
         for tier in TipTier.allCases {
-            #expect(!tier.emoji.isEmpty)
             #expect(!tier.title.isEmpty)
         }
     }

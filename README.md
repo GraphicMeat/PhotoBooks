@@ -96,6 +96,14 @@ xcodegen generate
 open PhotoBooks.xcodeproj
 ```
 
+After the first setup, **Run** automatically runs XcodeGen in both shared schemes.
+Normal Debug runs continue after generation. Xcode loads build settings before
+this pre-action, so changes to targets or build settings may require another build
+to take effect; a warning appears when that happens. Release builds and archives
+stop rather than use a configuration that changed during generation. Generation
+errors appear in the build log; details are saved in `.build/xcodegen/generation.log`.
+
+
 The app is a thin SwiftUI shell over local Swift packages:
 
 - [PhotoBookCore](Packages/PhotoBookCore/) — document model, layout engine, scoring, pagination (pure Swift, no UI imports)
@@ -115,3 +123,39 @@ swift test --package-path Packages/PhotoBookRender
 ---
 
 <p align="center">Made by <a href="https://graphicmeat.com">Graphic Meat</a></p>
+
+
+### Feedback and donation preferences
+
+The second completion screen asks for an in-app star rating first. The App Store
+action always reads “Write a review.” It uses StoreKit only when the current
+rating is five, no lower rating has been selected during this thank-you flow,
+and `photobooks.appStoreReviewHandled` is false. Otherwise it opens the website
+feedback form. Selecting 1–4 stars locks that flow to website feedback even if the
+rating later becomes five. An App Store click persists
+`photobooks.appStoreReviewHandled` in UserDefaults; there is no manual “already
+reviewed” button. StoreKit cannot
+confirm actual submission. Website feedback remains available for every rating,
+including after an App Store invitation or an earlier website submission.
+This five-star routing risks rejection under Apple's filtered-review rules.
+Verified tips persist donor status locally and unlock “Don’t show donation requests
+again” for future exports.
+
+Website feedback is disabled until `PHOTOBOOKS_REVIEW_ENDPOINT` is configured with
+an HTTPS URL. The client proposes a JSON POST contract with `id` (UUID), `rating`
+(1–5), `text` (up to 4,000 characters), and `publicationAllowed` (defaults false),
+plus an `Idempotency-Key` header matching `id`. It sends no books, photographs,
+device identifiers, or document metadata. Any 2xx response acknowledges storage; other
+responses keep the form available for retry. The server must validate the input,
+deduplicate IDs, rate-limit submissions, moderate publication, and only publish
+entries with explicit permission. No server is included or deployed in this repo;
+endpoint, authentication requirements, and production response contract still need
+to be supplied before enabling this integration. Do not embed server secrets in the app.
+
+App Store review clicks are queued durably in UserDefaults and sent to the HTTPS
+`PHOTOBOOKS_REVIEW_EVENTS_ENDPOINT` when configured. The JSON event contains `id`,
+`type: app_store_review_clicked`, `rating`, and ISO-8601 `occurredAt`; the
+`Idempotency-Key` header matches `id`. Only a 2xx response removes a queued event;
+errors are retried on the next feedback-screen visit. The endpoint and its database
+implementation are not supplied in this repository, so unconfigured clicks remain
+local rather than being reported as uploaded.

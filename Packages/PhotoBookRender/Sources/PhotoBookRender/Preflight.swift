@@ -12,6 +12,8 @@ public struct PreflightIssue: Equatable, Sendable {
     }
     public var kind: Kind
     public var pageIndex: Int?
+    public var pageID: UUID? = nil
+    public var slotID: UUID? = nil
     public var isBlocking: Bool          // missingPhoto blocks; others warn
 }
 
@@ -76,6 +78,7 @@ public enum Preflight {
                 if reportedMissing.insert(photoID).inserted {
                     issues.append(PreflightIssue(kind: .missingPhoto(photoID),
                                                  pageIndex: pageIndex,
+                                                 pageID: page.id, slotID: slot.id,
                                                  isBlocking: true))
                 }
                 continue
@@ -86,6 +89,7 @@ public enum Preflight {
                 issues.append(PreflightIssue(
                     kind: .lowResolution(photoID, effectiveDPI: dpi),
                     pageIndex: pageIndex,
+                    pageID: page.id, slotID: slot.id,
                     isBlocking: false))
             }
         }
@@ -93,6 +97,7 @@ public enum Preflight {
                                                        style: style) {
             issues.append(PreflightIssue(kind: .textOverflow(pageID: page.id),
                                          pageIndex: pageIndex,
+                                         pageID: page.id, slotID: slot.id,
                                          isBlocking: false))
         }
     }

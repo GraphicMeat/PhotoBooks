@@ -47,6 +47,10 @@
 	<string>© 2026 graphicmeat.com. All rights reserved.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>PhotoBooks lays out books from photos you choose in your library. Originals stay in Photos; the app only reads them to arrange pages and export your book.</string>
+	<key>PhotoBooksReviewEndpoint</key>
+	<string>$(PHOTOBOOKS_REVIEW_ENDPOINT)</string>
+	<key>PhotoBooksReviewEventsEndpoint</key>
+	<string>$(PHOTOBOOKS_REVIEW_EVENTS_ENDPOINT)</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

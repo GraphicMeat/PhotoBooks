@@ -13,7 +13,6 @@ import AppKit
 private enum EditorZoomMode: Equatable {
     case fitSpread
     case percentage(Int)
-    case printSize
 }
 
 private extension EditorZoomMode {
@@ -62,6 +61,7 @@ private struct EditorCanvasBackground: View {
 /// handles, and text rendering in the same coordinate system.
 private struct ZoomableEditorCanvas<Content: View>: View {
     @Binding var mode: EditorZoomMode
+    @Binding var effectivePercentage: Double
     let trimSize: SizeInches
     let pageCount: Int
     let extraWidthInches: Double
@@ -84,6 +84,9 @@ private struct ZoomableEditorCanvas<Content: View>: View {
                     .frame(minWidth: proxy.size.width, minHeight: proxy.size.height)
             }
             .scrollIndicators(mode == .fitSpread ? .hidden : .automatic)
+            .onChange(of: baseSize.width, initial: true) { _, width in
+                effectivePercentage = width / max(1, documentInches.width * 72) * 100
+            }
             .animation(.easeInOut(duration: 0.22), value: mode)
             .simultaneousGesture(
                 MagnifyGesture()
@@ -115,21 +118,9 @@ private struct ZoomableEditorCanvas<Content: View>: View {
             let pointsPerInch = 72.0 * Double(percent) / 100.0
             return CGSize(width: documentInches.width * pointsPerInch,
                           height: documentInches.height * pointsPerInch)
-        case .printSize:
-            let ppi = Self.approximateScreenPointsPerInch
-            return CGSize(width: documentInches.width * ppi,
-                          height: documentInches.height * ppi)
         }
     }
 
-    private static var approximateScreenPointsPerInch: Double {
-        #if os(macOS)
-        if let value = NSScreen.main?.deviceDescription[.resolution] as? NSValue {
-            return max(72, value.sizeValue.width)
-        }
-        #endif
-        return 72
-    }
 }
 
 /// The editing browser: Plan 4's spread browser + the full v1 light-edit
@@ -163,6 +154,7 @@ public struct BookBrowserView: View {
     @AppStorage("editor-canvas-background-mode") private var canvasBackgroundMode = "white"
     @AppStorage("editor-canvas-background-color") private var canvasBackgroundHex = "#D9D9D9"
     @State private var zoomMode: EditorZoomMode = .fitSpread
+    @State private var effectiveZoomPercentage = 100.0
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var zoomedPage: ZoomTarget?
@@ -196,9 +188,7 @@ public struct BookBrowserView: View {
         .task { editor.runPreflightNow() }
         .onChange(of: document.book) { editor.schedulePreflight() }
         .focusedSceneValue(\.exportModel, exportModel)
-        .sheet(isPresented: exportSheetBinding) {
-            ExportFlowView(model: exportModel, editor: editor)
-        }
+        .exportFlow(model: exportModel, editor: editor)
         .sheet(item: $editor.cropEditingContext) { context in
             CropEditorView(context: context, imageStore: imageStore)
                 .environment(editor)
@@ -222,13 +212,6 @@ public struct BookBrowserView: View {
 
     private var pageSelection: Binding<UUID?> {
         Binding(get: { editor.selectedPageID }, set: { editor.selectPage($0) })
-    }
-
-    // MARK: Export sheet presentation (Plan 6)
-
-    private var exportSheetBinding: Binding<Bool> {
-        Binding(get: { exportModel.isFlowPresented },
-                set: { if !$0 { exportModel.dismissFlow() } })
     }
 
     // MARK: Editing interactions (wired into PageView per D3)
@@ -357,13 +340,13 @@ public struct BookBrowserView: View {
             VStack(alignment: .leading, spacing: 2) {
                 if page.role == .cover {
                     Text("Cover", bundle: .module)
-                        .font(.caption.bold())
+                        .font(.body.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color.accentColor.opacity(0.2), in: Capsule())
                 } else {
                     Text("Page \(index)", bundle: .module)
-                        .font(.caption)
+                        .font(.body.weight(.medium))
                 }
                 if book.missingPhotoCount(on: page) > 0 {
                     Label(String(localized: "Missing", bundle: .module), systemImage: "exclamationmark.triangle")
@@ -418,7 +401,8 @@ public struct BookBrowserView: View {
                                    extraWidthInches: editor.preset.spineBase
                                      + editor.preset.spinePerPage * Double(standardPages.count)) {
                         CoverSheetView(backPage: book.backCover, title: book.title,
-                                       book: book, preset: editor.preset, imageStore: imageStore) {
+                                       book: book, preset: editor.preset, imageStore: imageStore,
+                                       highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID) {
                             editablePage(at: coverIdx)
                         }
                     }
@@ -464,7 +448,7 @@ public struct BookBrowserView: View {
         .background {
             EditorCanvasBackground(mode: canvasBackgroundMode,
                                    customColor: Color(hex: canvasBackgroundHex))
-                .ignoresSafeArea()
+                .ignoresSafeArea(edges: [.bottom, .leading, .trailing])
         }
         .modifier(PhotoActionsInlineOverlay(editor: editor,
                                             slotIsLocked: editor.selectedSlotIsLocked,
@@ -516,6 +500,7 @@ public struct BookBrowserView: View {
     private func zoomableCanvas<Content: View>(pageCount: Int, extraWidthInches: Double = 0,
                                                 @ViewBuilder content: @escaping () -> Content) -> some View {
         ZoomableEditorCanvas(mode: $zoomMode,
+                             effectivePercentage: $effectiveZoomPercentage,
                              trimSize: editor.preset.trimSize,
                              pageCount: pageCount,
                              extraWidthInches: extraWidthInches,
@@ -714,49 +699,42 @@ public struct BookBrowserView: View {
                 .frame(width: 280)
             }
 
-            HStack(spacing: 0) {
-                Button { zoomOut() } label: {
-                    Image(systemName: "minus")
-                }
-                .help(Text("Zoom out", bundle: .module))
-                .keyboardShortcut("-", modifiers: .command)
-                .accessibilityIdentifier("canvas-zoom-out")
-
-                Menu {
-                    Button(String(localized: "Fit Spread", bundle: .module)) { zoomMode = .fitSpread }
-                        .keyboardShortcut("0", modifiers: .command)
-                    Button(String(localized: "Actual Print Size", bundle: .module)) { zoomMode = .printSize }
-                    Divider()
-                    ForEach([25, 50, 75, 100, 125, 150, 200, 400], id: \.self) { percent in
-                        Button {
-                            zoomMode = .percentage(percent)
-                        } label: {
-                            Text(verbatim: "\(percent)%")
-                        }
-                    }
-                } label: {
-                    Text(zoomLabel)
-                        .monospacedDigit()
-                        .frame(minWidth: 42)
-                }
-                .help(Text("Choose a zoom level", bundle: .module))
-                .accessibilityIdentifier("canvas-zoom-menu")
-
+            Menu {
                 Button { zoomIn() } label: {
-                    Image(systemName: "plus")
+                    Label(String(localized: "Zoom In", bundle: .module), systemImage: "plus.magnifyingglass")
                 }
-                .help(Text("Zoom in", bundle: .module))
                 .keyboardShortcut("+", modifiers: .command)
                 .accessibilityIdentifier("canvas-zoom-in")
+                Button { zoomOut() } label: {
+                    Label(String(localized: "Zoom Out", bundle: .module), systemImage: "minus.magnifyingglass")
+                }
+                .keyboardShortcut("-", modifiers: .command)
+                .accessibilityIdentifier("canvas-zoom-out")
+                Divider()
+                Button(String(localized: "Fit Spread", bundle: .module)) { zoomMode = .fitSpread }
+                    .keyboardShortcut("0", modifiers: .command)
+                ForEach(zoomSteps, id: \.self) { percent in
+                    Button { zoomMode = .percentage(percent) } label: {
+                        Text(verbatim: "\(percent)%")
+                    }
+                }
+            } label: {
+                Label {
+                    Text("Zoom: \(zoomLabel)", bundle: .module)
+                        .font(.body.weight(.medium))
+                        .monospacedDigit()
+                } icon: {
+                    Image(systemName: "magnifyingglass")
+                }
             }
+            .help(Text("Choose a zoom level", bundle: .module))
+            .accessibilityIdentifier("canvas-zoom-menu")
+
         }
 
         ToolbarItemGroup(placement: .primaryAction) {
-            Menu {
-                ForEach(ExportModel.ExportTarget.allCases, id: \.self) { target in
-                    Button(target.menuTitle) { exportModel.begin(target) }
-                        .accessibilityIdentifier("toolbar-export-\(target.rawValue)")
-                }
+            Button {
+                exportModel.begin()
             } label: {
                 Label(String(localized: "Export", bundle: .module), systemImage: "square.and.arrow.up")
             }
@@ -783,21 +761,20 @@ public struct BookBrowserView: View {
     private var zoomLabel: String {
         switch zoomMode {
         case .fitSpread: String(localized: "Fit", bundle: .module)
-        case .printSize: String(localized: "Print", bundle: .module)
         case .percentage(let percent): "\(percent)%"
         }
     }
 
-    private let zoomSteps = [25, 50, 75, 100, 125, 150, 200, 400]
+    private let zoomSteps = [10, 25, 50, 75, 100, 125, 150, 200, 400, 800]
 
     private func zoomIn() {
-        let current = zoomMode.percentageValue ?? 75
-        zoomMode = .percentage(zoomSteps.first(where: { $0 > current }) ?? zoomSteps.last!)
+        let current = zoomMode.percentageValue.map(Double.init) ?? effectiveZoomPercentage
+        zoomMode = .percentage(zoomSteps.first(where: { Double($0) > current + 0.01 }) ?? zoomSteps.last!)
     }
 
     private func zoomOut() {
-        let current = zoomMode.percentageValue ?? 125
-        zoomMode = .percentage(zoomSteps.last(where: { $0 < current }) ?? zoomSteps.first!)
+        let current = zoomMode.percentageValue.map(Double.init) ?? effectiveZoomPercentage
+        zoomMode = .percentage(zoomSteps.last(where: { Double($0) < current - 0.01 }) ?? zoomSteps.first!)
     }
 
     // MARK: Missing-photo banner (relink flow)
@@ -850,78 +827,87 @@ public struct BookBrowserView: View {
 
     private var compactBrowser: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 20) {
-                    ForEach(Array(book.pages.enumerated()), id: \.element.id) { index, page in
-                        VStack(spacing: 6) {
-                            // The cover row's CoverSheetView also renders the back
-                            // cover (book.backCover, a photo surface outside pages[]),
-                            // so its banner must include that page too.
-                            missingBanner(pages: page.role == .cover
-                                ? [page] + [book.backCover].compactMap { $0 }
-                                : [page])
-                            if page.role == .cover {
-                                CoverSheetView(backPage: book.backCover, title: book.title,
-                                               book: book, preset: editor.preset,
-                                               imageStore: imageStore) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 20) {
+                        ForEach(Array(book.pages.enumerated()), id: \.element.id) { index, page in
+                            VStack(spacing: 6) {
+                                // The cover row's CoverSheetView also renders the back
+                                // cover (book.backCover, a photo surface outside pages[]),
+                                // so its banner must include that page too.
+                                missingBanner(pages: page.role == .cover
+                                    ? [page] + [book.backCover].compactMap { $0 }
+                                    : [page])
+                                if page.role == .cover {
+                                    CoverSheetView(backPage: book.backCover, title: book.title,
+                                                   book: book, preset: editor.preset,
+                                                   imageStore: imageStore,
+                                                   highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID) {
+                                        PageView(page: page, book: book, preset: editor.preset,
+                                                 imageStore: imageStore,
+                                                 highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
+                                                 replaceSourceSlotID: editor.replaceSourceSlotID)
+                                            .editing(editingInteractions)
+                                    }
+                                    // Fixed row height for the three-panel cover sheet in the
+                                    // compact scroll; the sheet scales to fit within it.
+                                    .frame(height: 200)
+                                    .onAppear {
+                                        if editor.selectedPageID == nil { editor.selectPage(page.id) }
+                                    }
+                                } else {
                                     PageView(page: page, book: book, preset: editor.preset,
                                              imageStore: imageStore,
                                              highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
                                              replaceSourceSlotID: editor.replaceSourceSlotID)
                                         .editing(editingInteractions)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        .shadow(radius: 2)
+                                        .onAppear {
+                                            if editor.selectedPageID == nil { editor.selectPage(page.id) }
+                                        }
                                 }
-                                // Fixed row height for the three-panel cover sheet in the
-                                // compact scroll; the sheet scales to fit within it.
-                                .frame(height: 200)
-                                .onAppear {
-                                    if editor.selectedPageID == nil { editor.selectPage(page.id) }
-                                }
-                            } else {
-                                PageView(page: page, book: book, preset: editor.preset,
-                                         imageStore: imageStore,
-                                         highlightedSlotID: editor.selectedSlotID ?? editor.selectedTextSlotID,
-                                         replaceSourceSlotID: editor.replaceSourceSlotID)
-                                    .editing(editingInteractions)
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                                    .shadow(radius: 2)
-                                    .onAppear {
-                                        if editor.selectedPageID == nil { editor.selectPage(page.id) }
-                                    }
-                            }
-                            HStack(spacing: 12) {
-                                Text(page.role == .cover ? "Cover" : "Page \(index)", bundle: .module)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                if page.isLocked {
-                                    Image(systemName: "lock.fill")
-                                        .font(.caption2)
+                                HStack(spacing: 12) {
+                                    Text(page.role == .cover ? "Cover" : "Page \(index)", bundle: .module)
+                                        .font(.caption)
                                         .foregroundStyle(.secondary)
+                                    if page.isLocked {
+                                        Image(systemName: "lock.fill")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    if editor.pagesNeedingReview.contains(page.id) {
+                                        Image(systemName: "exclamationmark.circle.fill")
+                                            .font(.caption2)
+                                            .foregroundStyle(.orange)
+                                    }
+                                    Button {
+                                        editor.selectPage(page.id)
+                                    } label: {
+                                        Image(systemName: editor.selectedPageID == page.id
+                                              ? "checkmark.circle.fill" : "circle")
+                                            .font(.caption)
+                                    }
+                                    .accessibilityIdentifier("select-page-\(index)")
+                                    Button {
+                                        zoomedPage = ZoomTarget(index: index)
+                                    } label: {
+                                        Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                            .font(.caption)
+                                    }
+                                    .accessibilityIdentifier("zoom-page-\(index)")
                                 }
-                                if editor.pagesNeedingReview.contains(page.id) {
-                                    Image(systemName: "exclamationmark.circle.fill")
-                                        .font(.caption2)
-                                        .foregroundStyle(.orange)
-                                }
-                                Button {
-                                    editor.selectPage(page.id)
-                                } label: {
-                                    Image(systemName: editor.selectedPageID == page.id
-                                          ? "checkmark.circle.fill" : "circle")
-                                        .font(.caption)
-                                }
-                                .accessibilityIdentifier("select-page-\(index)")
-                                Button {
-                                    zoomedPage = ZoomTarget(index: index)
-                                } label: {
-                                    Image(systemName: "arrow.up.left.and.arrow.down.right")
-                                        .font(.caption)
-                                }
-                                .accessibilityIdentifier("zoom-page-\(index)")
                             }
+                            .id(page.id)
                         }
                     }
+                    .padding()
                 }
-                .padding()
+                .onChange(of: exportModel.isFlowPresented) { _, presented in
+                    if !presented, let pageID = editor.selectedPageID {
+                        proxy.scrollTo(pageID, anchor: .center)
+                    }
+                }
             }
             .navigationTitle(book.title)
             .navigationBarTitleDisplayMode(.inline)

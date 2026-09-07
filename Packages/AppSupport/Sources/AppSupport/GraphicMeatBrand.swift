@@ -4,12 +4,20 @@ import SwiftUI
 /// export thank-you screen).
 public enum GraphicMeatBrand {
     public static let websiteURL = URL(string: "https://graphicmeat.com")!
+    public static let discussionsURL = URL(string: "https://github.com/GraphicMeat/PhotoBooks/discussions")!
+    public static let reportBugURL = URL(string: "https://github.com/GraphicMeat/PhotoBooks/issues/new/choose")!
+    public static let reportBugEmailURL = URL(string: "mailto:prime@graphicmeat.com?subject=PhotoBooks%20bug%20report")!
+    public static let feedbackEmailURL = URL(string: "mailto:prime@graphicmeat.com?subject=PhotoBooks%20feedback")!
+    public static let shareProjectEmailURL = URL(string: "mailto:prime@graphicmeat.com?subject=My%20PhotoBooks%20public%20project")!
 
     /// `static let` (not a computed property): as a computed property this hit
     /// the disk and decoded on the main thread on every body evaluation, which
     /// stalled the welcome screen right after a new document is created.
-    public static let logo: Image = {
-        guard let url = Bundle.module.url(forResource: "GraphicMeatLogo", withExtension: "png") else {
+    public static let logo: Image = loadImage(named: "GraphicMeatLogo")
+    public static let supportThanks: Image = loadImage(named: "GraphicMeatSupportThanks")
+
+    private static func loadImage(named name: String) -> Image {
+        guard let url = Bundle.module.url(forResource: name, withExtension: "png") else {
             return Image(systemName: "globe")
         }
         #if os(macOS)
@@ -19,7 +27,7 @@ public enum GraphicMeatBrand {
         guard let image = UIImage(contentsOfFile: url.path) else { return Image(systemName: "globe") }
         return Image(uiImage: image)
         #endif
-    }()
+    }
 }
 
 /// How this build asks for support after a successful export. The App Store
