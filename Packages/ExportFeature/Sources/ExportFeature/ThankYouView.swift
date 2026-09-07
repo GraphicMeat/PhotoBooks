@@ -351,55 +351,58 @@ private struct CelebrationBackground: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !animating)) { timeline in
             let time = elapsed + (animating ? timeline.date.timeIntervalSince(resumedAt) : 0)
-            Canvas { context, size in
-                guard !reduceTransparency && contrast != .increased else { return }
-                let dark = colorScheme == .dark
-                let radius = max(size.width, size.height) * 0.65
-                // Broad, translucent colour washes, with a clear centre.
-                for i in 0..<4 {
-                    let phase = time * 0.16 + Double(i) * 1.7
-                    let x = (i.isMultiple(of: 2) ? 0.0 : size.width) + sin(phase) * size.width * 0.08
-                    let y = (i < 2 ? 0.0 : size.height) + cos(phase) * size.height * 0.06
-                    context.fill(
-                        Path(CGRect(origin: .zero, size: size)),
-                        with: .radialGradient(
-                            Gradient(colors: [colors[i].opacity(dark ? 0.18 : 0.16), .clear]),
-                            center: CGPoint(x: x, y: y), startRadius: 0, endRadius: radius))
-                }
-
-                for i in 0..<34 {
-                    let seed = Double((i * 37 + 11) % 101) / 100
-                    let phase = Double(i) * 2.39996
-                    let edge = 0.025 + seed * 0.105
-                    let x = size.width * (i.isMultiple(of: 2) ? edge : 1 - edge)
-                        + sin(time * 0.3 + phase) * 7
-                    let y = size.height * Double((i * 61 + 7) % 103) / 103
-                        + cos(time * 0.22 + phase) * 14
-                    var paper = context
-                    let besideText = y > size.height * 0.3 && y < size.height * 0.86
-                    paper.opacity = (dark ? 0.48 : 0.38) * (besideText ? 0.22 : 1)
-                    paper.translateBy(x: x, y: y)
-                    paper.rotate(by: .radians(phase + sin(time * 0.24 + phase) * 0.45))
-                    let color = colors[i % colors.count]
-                    if i.isMultiple(of: 4) {
-                        var ribbon = Path()
-                        ribbon.move(to: CGPoint(x: -5, y: -12))
-                        ribbon.addCurve(to: CGPoint(x: 5, y: 12),
-                                        control1: CGPoint(x: 16, y: -6),
-                                        control2: CGPoint(x: -16, y: 6))
-                        paper.stroke(ribbon, with: .color(color), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                    } else {
-                        paper.fill(Path(roundedRect: CGRect(x: -3, y: -5, width: 6, height: 10), cornerRadius: 1.5),
-                                   with: .color(color))
-                    }
-                }
-            }
+            Canvas { context, size in draw(in: context, size: size, time: time) }
         }
         .onAppear { visible = true }
         .onDisappear { visible = false }
         .onChange(of: animating) { wasAnimating, isAnimating in
             if wasAnimating { elapsed += Date.now.timeIntervalSince(resumedAt) }
             if isAnimating { resumedAt = .now }
+        }
+    }
+
+    // A method rather than an inline Canvas closure: Xcode 26.3's type-checker
+    // times out on the mixed CGFloat/Double arithmetic when it is one expression.
+    private func draw(in context: GraphicsContext, size: CGSize, time: Double) {
+        guard !reduceTransparency && contrast != .increased else { return }
+        let dark = colorScheme == .dark
+        let width = Double(size.width), height = Double(size.height)
+        let radius = max(width, height) * 0.65
+        // Broad, translucent colour washes, with a clear centre.
+        for i in 0..<4 {
+            let phase = time * 0.16 + Double(i) * 1.7
+            let x = (i.isMultiple(of: 2) ? 0 : width) + sin(phase) * width * 0.08
+            let y = (i < 2 ? 0 : height) + cos(phase) * height * 0.06
+            context.fill(
+                Path(CGRect(origin: .zero, size: size)),
+                with: .radialGradient(
+                    Gradient(colors: [colors[i].opacity(dark ? 0.18 : 0.16), .clear]),
+                    center: CGPoint(x: x, y: y), startRadius: 0, endRadius: radius))
+        }
+
+        for i in 0..<34 {
+            let seed = Double((i * 37 + 11) % 101) / 100
+            let phase = Double(i) * 2.39996
+            let edge = 0.025 + seed * 0.105
+            let x = width * (i.isMultiple(of: 2) ? edge : 1 - edge) + sin(time * 0.3 + phase) * 7
+            let y = height * Double((i * 61 + 7) % 103) / 103 + cos(time * 0.22 + phase) * 14
+            var paper = context
+            let besideText = y > height * 0.3 && y < height * 0.86
+            paper.opacity = (dark ? 0.48 : 0.38) * (besideText ? 0.22 : 1)
+            paper.translateBy(x: x, y: y)
+            paper.rotate(by: .radians(phase + sin(time * 0.24 + phase) * 0.45))
+            let color = colors[i % colors.count]
+            if i.isMultiple(of: 4) {
+                var ribbon = Path()
+                ribbon.move(to: CGPoint(x: -5, y: -12))
+                ribbon.addCurve(to: CGPoint(x: 5, y: 12),
+                                control1: CGPoint(x: 16, y: -6),
+                                control2: CGPoint(x: -16, y: 6))
+                paper.stroke(ribbon, with: .color(color), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+            } else {
+                paper.fill(Path(roundedRect: CGRect(x: -3, y: -5, width: 6, height: 10), cornerRadius: 1.5),
+                           with: .color(color))
+            }
         }
     }
 }
@@ -413,26 +416,30 @@ private struct ExportConfetti: View {
     var body: some View {
         TimelineView(.animation(paused: finished)) { timeline in
             Canvas { context, size in
-                let t = timeline.date.timeIntervalSince(start)
-                guard t >= 0, t < 3 else { return }
-                for i in 0..<90 {
-                    let seed = Double((i * 73 + 19) % 101) / 100
-                    let angle = Double(i) * 2.39996
-                    let speed = 130 + seed * 230
-                    let x = size.width / 2 + cos(angle) * speed * t
-                    let y = size.height * 0.43 + sin(angle) * speed * t + 130 * t * t
-                    var particle = context
-                    particle.opacity = min(1, (3 - t) * 2)
-                    particle.translateBy(x: x, y: y)
-                    particle.rotate(by: .radians(angle + t * (3 + seed * 7)))
-                    let rect = CGRect(x: -3, y: -5, width: 6, height: 10)
-                    particle.fill(Path(roundedRect: rect, cornerRadius: 1), with: .color(colors[i % colors.count]))
-                }
+                draw(in: context, size: size, t: timeline.date.timeIntervalSince(start))
             }
         }
         .task {
             try? await Task.sleep(for: .seconds(3))
             finished = true
+        }
+    }
+
+    private func draw(in context: GraphicsContext, size: CGSize, t: Double) {
+        guard t >= 0, t < 3 else { return }
+        let width = Double(size.width), height = Double(size.height)
+        for i in 0..<90 {
+            let seed = Double((i * 73 + 19) % 101) / 100
+            let angle = Double(i) * 2.39996
+            let speed = 130 + seed * 230
+            let x = width / 2 + cos(angle) * speed * t
+            let y = height * 0.43 + sin(angle) * speed * t + 130 * t * t
+            var particle = context
+            particle.opacity = min(1, (3 - t) * 2)
+            particle.translateBy(x: x, y: y)
+            particle.rotate(by: .radians(angle + t * (3 + seed * 7)))
+            let rect = CGRect(x: -3, y: -5, width: 6, height: 10)
+            particle.fill(Path(roundedRect: rect, cornerRadius: 1), with: .color(colors[i % colors.count]))
         }
     }
 }
