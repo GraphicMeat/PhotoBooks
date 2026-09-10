@@ -21,6 +21,11 @@ private struct ExportFlowPresentation: ViewModifier {
                     ExportFlowView(model: model, editor: editor)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(.background)
+                        // An identifier on a container erases every descendant's
+                        // own identifier unless the container is declared as one
+                        // — without this, "preflight-continue" and friends
+                        // vanish from the accessibility tree.
+                        .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("export-flow-overlay")
                 }
             }

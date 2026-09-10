@@ -103,11 +103,12 @@ final class TipJarSmokeTests: XCTestCase {
         expectation(for: NSPredicate(format: "count >= 3"), evaluatedWith: thumbnails)
         waitForExpectations(timeout: 20)
 
-        // File → Export Digital PDF… (Unicode ellipsis, so match by prefix).
+        // File → Export… (Unicode ellipsis, so match by prefix). The flow then
+        // offers the format; Digital PDF is the default selection.
         app.menuBars.menuBarItems["File"].click()
         let exportItem = app.menuBars.menuItems
-            .matching(NSPredicate(format: "title BEGINSWITH 'Export Digital'")).firstMatch
-        XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "No Export Digital PDF menu item")
+            .matching(NSPredicate(format: "title BEGINSWITH 'Export'")).firstMatch
+        XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "No Export menu item")
         exportItem.click()
 
         let cont = app.buttons["preflight-continue"]
