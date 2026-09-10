@@ -14,6 +14,28 @@ struct BlurbProgress: Sendable {
     func duringCover(_ value: Double) -> Double { (interiorSheets + value) / totalSheets }
 }
 
+/// Keeps the sandbox open on the export destination for as long as the flow
+/// shows it. iOS hands back security-scoped URLs from the document picker:
+/// without an open scope the app cannot read the PDF it just wrote, so the
+/// page-flip preview, Share and Quick Look all come up empty — and a file
+/// inside a picked folder is only readable while the *folder's* scope is
+/// open, which is why the Blurb pair holds the folder, not the two files.
+/// macOS grants access through the panel itself, where opening a scope is a
+/// harmless no-op.
+private final class DestinationAccess {
+    private let url: URL
+    private let opened: Bool
+
+    init(_ url: URL) {
+        self.url = url
+        opened = url.startAccessingSecurityScopedResource()
+    }
+
+    deinit {
+        if opened { url.stopAccessingSecurityScopedResource() }
+    }
+}
+
 /// Sequences one export flow (D11): preflight list → destination → progress
 /// → finished/failed. One instance per document window (it lives on
 /// `BookSession` like the editor model); `begin(_:)` resets it for a fresh
@@ -60,6 +82,7 @@ public final class ExportModel {
     @ObservationIgnored private let imageStore: any ImageStore
     @ObservationIgnored private var exportTask: Task<Void, Never>?
     @ObservationIgnored private var lastDestination: Destination?
+    @ObservationIgnored private var destinationAccess: DestinationAccess?
 
     public private(set) var phase: Phase = .idle
     public private(set) var target: ExportTarget = .digital
@@ -108,6 +131,7 @@ public final class ExportModel {
         self.target = target
         renderedDocument = nil
         lastDestination = nil
+        destinationAccess = nil
         issues = Preflight.check(document.book, preset: preset)
         phase = .preflight
     }
@@ -122,6 +146,7 @@ public final class ExportModel {
     public func dismissFlow() {
         exportTask?.cancel()
         exportTask = nil
+        destinationAccess = nil
         phase = .idle
     }
 
@@ -150,10 +175,9 @@ public final class ExportModel {
         let coverURL = folder.appendingPathComponent(ExportFilenames.cover(title: book.title))
         let combined = BlurbProgress(
             interiorSheets: Double(book.pages.count(where: { $0.role == .standard })))
+        destinationAccess = DestinationAccess(folder)
         phase = .exporting(0)
         exportTask = Task {
-            let scoped = folder.startAccessingSecurityScopedResource()
-            defer { if scoped { folder.stopAccessingSecurityScopedResource() } }
             do {
                 try await PDFExporter().export(book, preset: preset, target: .blurbInterior,
                                                imageStore: store, to: interiorURL) { value in
@@ -204,6 +228,7 @@ public final class ExportModel {
     public func finishSingleFile(at url: URL?) {
         renderedDocument = nil
         if let url {
+            destinationAccess = DestinationAccess(url)
             phase = .finished([url])
         } else {
             phase = .choosingDestination      // save panel cancelled

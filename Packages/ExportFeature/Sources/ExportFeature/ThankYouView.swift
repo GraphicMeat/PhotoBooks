@@ -550,7 +550,7 @@ private struct BookFlipView: View {
         await Task.detached(priority: .utility) {
             var images: [CGImage?] = []
             for url in urls {
-                guard let document = PDFDocument(url: url), document.pageCount > 0, images.count < pageCap else { continue }
+                guard let document = openDocument(at: url), document.pageCount > 0, images.count < pageCap else { continue }
                 // A cover sits on the right; never pair pages from different PDFs.
                 images.append(nil)
                 for pageIndex in 0..<document.pageCount where images.count < pageCap {
@@ -570,6 +570,19 @@ private struct BookFlipView: View {
             }
             return images
         }.value
+    }
+
+    /// Saving to iCloud Drive (or any Files provider) can hand back a URL whose
+    /// contents are not on the device yet — `PDFDocument(url:)` would see a
+    /// placeholder and give up. A coordinated read waits for the provider to
+    /// materialise the file first, and is a no-op for a plain local one.
+    private nonisolated static func openDocument(at url: URL) -> PDFDocument? {
+        var document: PDFDocument?
+        var error: NSError?
+        NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &error) { url in
+            document = PDFDocument(url: url)
+        }
+        return document
     }
 }
 
