@@ -48,6 +48,24 @@ import PhotoBookImport
 
     public var pickedCount: Int { pickedIDs.count }
 
+    /// Range for the custom-target slider, or nil when the pool is too small
+    /// to span one. SwiftUI's `Slider(in:step:)` traps on a zero-width range,
+    /// so callers must hide the slider on nil.
+    public var customTargetRange: ClosedRange<Double>? {
+        let range: ClosedRange<Double>
+        switch unit {
+        case .photos:
+            range = 1...Double(max(availableCount, 1))
+        case .pages:
+            // A book page averages roughly 2.5 photos in the paginator. Keep
+            // the range useful without offering page counts that cannot add
+            // another photo to this import.
+            let maximum = max(10, Int(ceil(Double(availableCount) / 2.5)))
+            range = 10...Double(maximum)
+        }
+        return range.lowerBound < range.upperBound ? range : nil
+    }
+
     /// Runs the Vision pipeline (one pass: importance scoring + feature
     /// prints per thumbnail, then near-duplicate clustering on the prints)
     /// and best-N selection, updating `phase` with determinate progress.

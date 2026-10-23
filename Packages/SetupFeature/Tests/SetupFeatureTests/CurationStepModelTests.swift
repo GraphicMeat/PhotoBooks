@@ -209,4 +209,33 @@ private struct SlowPhotoProvider: PhotoProvider {
         #expect(result == nil)
         #expect(model.phase == .cancelled)
     }
+
+    // MARK: - Custom slider range (SwiftUI Slider(step:) traps on lower == upper)
+
+    @Test func customRangeIsNilWhenPhotoPoolCannotSpanASlider() {
+        for count in [0, 1] {
+            let model = CurationStepModel(availableCount: count)
+            model.unit = .photos
+            #expect(model.customTargetRange == nil, "photos, pool \(count)")
+        }
+        for count in [0, 1, 20, 25] {
+            let model = CurationStepModel(availableCount: count)
+            model.unit = .pages
+            #expect(model.customTargetRange == nil, "pages, pool \(count)")
+        }
+    }
+
+    @Test func customRangeIsNonDegenerateForLargerPools() {
+        let photos = CurationStepModel(availableCount: 2)
+        photos.unit = .photos
+        #expect(photos.customTargetRange == 1...2)
+
+        let pages = CurationStepModel(availableCount: 26)
+        pages.unit = .pages
+        #expect(pages.customTargetRange == 10...11)
+
+        let big = CurationStepModel(availableCount: 200)
+        big.unit = .pages
+        #expect(big.customTargetRange == 10...80)
+    }
 }

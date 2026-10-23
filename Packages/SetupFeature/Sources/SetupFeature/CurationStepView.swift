@@ -82,6 +82,10 @@ struct CurationStepView: View {
 
                     bookLengthPreview
                         .frame(height: 142)
+                        #if os(iOS)
+                        .scaleEffect(0.85)
+                        .frame(height: 120)
+                        #endif
 
                     targetControls
                         .frame(maxWidth: 520)
@@ -91,19 +95,33 @@ struct CurationStepView: View {
             }
 
             Divider()
-            HStack {
-                Button(String(localized: "Keep every photo", bundle: .module)) { onUseAll() }
-                    .help(Text("Skip analysis and include every one of these photos in the book", bundle: .module))
-                    .accessibilityIdentifier("curation-use-all")
-                Spacer()
-                Button(String(localized: "Create a balanced selection", bundle: .module)) { selectBestTapped() }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(photos.isEmpty)
-                    .help(Text("Analyze on-device and keep a balanced selection of about \(model.resolvedPhotoCount) photos", bundle: .module))
-                    .accessibilityIdentifier("curation-select-best")
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    keepAllButton
+                    Spacer()
+                    selectBestButton
+                }
+                VStack(spacing: 8) {
+                    selectBestButton
+                    keepAllButton
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var keepAllButton: some View {
+        Button(String(localized: "Keep every photo", bundle: .module)) { onUseAll() }
+            .help(Text("Skip analysis and include every one of these photos in the book", bundle: .module))
+            .accessibilityIdentifier("curation-use-all")
+    }
+
+    private var selectBestButton: some View {
+        Button(String(localized: "Create a balanced selection", bundle: .module)) { selectBestTapped() }
+            .buttonStyle(.borderedProminent)
+            .disabled(photos.isEmpty)
+            .help(Text("Analyze on-device and keep a balanced selection of about \(model.resolvedPhotoCount) photos", bundle: .module))
+            .accessibilityIdentifier("curation-select-best")
     }
 
     private var targetControls: some View {
@@ -122,13 +140,17 @@ struct CurationStepView: View {
                     ForEach(targetChoices, id: \.value) { choice in
                         Text(choice.label).tag(choice.value)
                     }
+                    #if os(macOS)
                     Label(String(localized: "Custom", bundle: .module), systemImage: "slider.horizontal.3").tag(-1)
+                    #else
+                    Text("Custom", bundle: .module).tag(-1)
+                    #endif
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .help(Text("Choose a suggested length or set an exact custom target", bundle: .module))
 
-                if isCustomTarget {
+                if isCustomTarget, let range = model.customTargetRange {
                     VStack(spacing: 8) {
                         HStack {
                             Text(model.unit == .pages ? String(localized: "Pages", bundle: .module) : String(localized: "Photos", bundle: .module))
@@ -138,17 +160,17 @@ struct CurationStepView: View {
                                 .font(.subheadline.monospacedDigit().weight(.semibold))
                                 .foregroundStyle(Color.accentColor)
                         }
-                        Slider(value: customTargetValue,
-                               in: customTargetRange,
+                        Slider(value: customTargetValue(in: range),
+                               in: range,
                                step: 1)
                             .accessibilityLabel(model.unit == .pages
                                                 ? Text("Desired number of pages", bundle: .module)
                                                 : Text("Desired number of photos", bundle: .module))
                             .accessibilityValue(Text(verbatim: "\(model.targetValue)"))
                         HStack {
-                            Text(verbatim: "\(Int(customTargetRange.lowerBound))")
+                            Text(verbatim: "\(Int(range.lowerBound))")
                             Spacer()
-                            Text(verbatim: "\(Int(customTargetRange.upperBound))")
+                            Text(verbatim: "\(Int(range.upperBound))")
                         }
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.tertiary)
@@ -156,7 +178,7 @@ struct CurationStepView: View {
                     .padding(14)
                     .background(Color.secondary.opacity(0.07),
                                 in: RoundedRectangle(cornerRadius: 12))
-                } else {
+                } else if !isCustomTarget {
                     Label(String(localized: "Choose Custom to set an exact value with a slider", bundle: .module),
                           systemImage: "slider.horizontal.3")
                         .font(.caption)
@@ -196,22 +218,9 @@ struct CurationStepView: View {
         }
     }
 
-    private var customTargetRange: ClosedRange<Double> {
-        switch model.unit {
-        case .photos:
-            return 1...Double(max(photos.count, 1))
-        case .pages:
-            // A book page averages roughly 2.5 photos in the paginator. Keep
-            // the range useful without offering page counts that cannot add
-            // another photo to this import.
-            let maximum = max(10, Int(ceil(Double(photos.count) / 2.5)))
-            return 10...Double(maximum)
-        }
-    }
-
-    private var customTargetValue: Binding<Double> {
+    private func customTargetValue(in range: ClosedRange<Double>) -> Binding<Double> {
         Binding {
-            Double(model.targetValue).clamped(to: customTargetRange)
+            Double(model.targetValue).clamped(to: range)
         } set: { value in
             model.targetValue = Int(value.rounded())
         }
