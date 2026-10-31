@@ -141,8 +141,15 @@ wait_frame() {  # wait_frame <udid> [display]: boot; bootstatus can report done
 
 boot() {  # boot <udid> [display]: wait for a real frame, then dress the device
     log "booting $1"
-    wait_frame "$@" || return 1
     if [ "$LANGUAGE" != en ]; then
+        # Before the first boot, so the Photos library (and names such as
+        # "Recently Saved") are created in this language.
+        local prefs=$HOME/Library/Developer/CoreSimulator/Devices/$1/data/Library/Preferences/.GlobalPreferences
+        defaults write "$prefs" AppleLanguages -array "$LANGUAGE"
+        defaults write "$prefs" AppleLocale -string "$REGION"
+    fi
+    wait_frame "$@" || return 1
+    if [ "$LANGUAGE" != en ] && ! xcrun simctl spawn "$1" defaults read -g AppleLanguages 2>/dev/null | grep -q "$LANGUAGE"; then
         # System UI (Photos picker, Files, document browser) follows the
         # device language, which takes a restart to apply.
         log "setting $1 to $LANGUAGE / $REGION"

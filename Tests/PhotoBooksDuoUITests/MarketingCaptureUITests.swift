@@ -632,7 +632,8 @@ final class MarketingCaptureUITests: XCTestCase {
         closeTray()
         pause(5.0)   // Photos thumbnails arrive
         if isRegular {
-            for page in [1, 3, 5, 7] {
+            // A small book has few pages; stop at the last one.
+            for page in [1, 3, 5, 7] where element("page-thumbnail-\(page)").exists {
                 selectThumbnail(page)
                 pause(2.6)
             }
@@ -802,10 +803,13 @@ final class MarketingCaptureUITests: XCTestCase {
         }
         pause(recording ? 1.5 : 1.0)
         // The first tap can land while the sheet is still settling.
-        for _ in 0..<3 where save.exists && save.isHittable {
-            save.tap()
-            if let replace = labeled(["Replace", Self.tr("Replace")], timeout: 2) { replace.tap() }
-            _ = save.waitForNonExistence(timeout: 5)
+        // An earlier export of the same title asks to replace it; its
+        // first button is Replace in every language.
+        let replace = app.alerts.firstMatch.buttons.element(boundBy: 0)
+        for _ in 0..<3 where save.exists {
+            if save.isHittable { save.tap() }
+            if replace.waitForExistence(timeout: 3) { replace.tap() }
+            if save.waitForNonExistence(timeout: 5) { break }
         }
         guard waitFor("export-next", timeout: 60) != nil else { return false }
         return true
