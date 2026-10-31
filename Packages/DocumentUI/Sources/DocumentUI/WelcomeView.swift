@@ -17,31 +17,37 @@ struct WelcomeView: View {
     @Environment(\.openDocument) private var openDocument
     @State private var showOpenImporter = false
     @State private var errorMessage: String?
+    #else
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
 
     var body: some View {
         ZStack {
             Color.primary.opacity(0.035).ignoresSafeArea()
             #if os(macOS)
-            HStack(spacing: 64) {
-                heroCopy
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                bookPreview
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 320)
-            }
-            .padding(56)
-            .frame(maxWidth: 980)
+            sideBySide
             #else
-            ScrollView {
-                VStack(spacing: 28) {
-                    bookPreview
-                        .frame(maxWidth: 360)
-                        .frame(height: 260)
-                    heroCopy
-                        .frame(maxWidth: 430, alignment: .leading)
+            // Regular width (iPad, iPhone Duo inner display): the side-by-side
+            // layout keeps "Create" on screen; the stacked column pushed it
+            // below the fold. Scrolls only if the window is too short.
+            GeometryReader { proxy in
+                ScrollView {
+                    if horizontalSizeClass == .regular {
+                        sideBySide
+                            .frame(maxWidth: .infinity, minHeight: proxy.size.height)
+                    } else {
+                        VStack(spacing: 28) {
+                            bookPreview
+                                .frame(maxWidth: 360)
+                                .frame(height: 260)
+                            heroCopy
+                                .frame(maxWidth: 430, alignment: .leading)
+                        }
+                        .padding(28)
+                        .frame(maxWidth: .infinity)
+                    }
                 }
-                .padding(28)
+                .scrollBounceBehavior(.basedOnSize)
             }
             #endif
         }
@@ -59,6 +65,18 @@ struct WelcomeView: View {
             openProject(at: url)
         }
         #endif
+    }
+
+    private var sideBySide: some View {
+        HStack(spacing: 64) {
+            heroCopy
+                .frame(maxWidth: .infinity, alignment: .leading)
+            bookPreview
+                .frame(maxWidth: .infinity)
+                .frame(height: 320)
+        }
+        .padding(56)
+        .frame(maxWidth: 980)
     }
 
     private var heroCopy: some View {
