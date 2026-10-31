@@ -159,6 +159,7 @@ public struct BookBrowserView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var zoomedPage: ZoomTarget?
     @State private var showReorderSheet = false
+    @State private var sidebarVisibility: NavigationSplitViewVisibility = .all
     #endif
 
     private var book: Book { document.book }
@@ -237,30 +238,7 @@ public struct BookBrowserView: View {
     // MARK: Split layout (macOS / iPad regular)
 
     private var splitBrowser: some View {
-        NavigationSplitView {
-            List(selection: pageSelection) {
-                if let cover = book.pages.first, cover.role == .cover {
-                    Section(String(localized: "Cover", bundle: .module)) {
-                        sidebarRow(index: 0, page: cover)
-                            .tag(cover.id)
-                    }
-                }
-                Section(String(localized: "Pages", bundle: .module)) {
-                    ForEach(standardPages) { page in
-                        let index = book.pages.firstIndex(where: { $0.id == page.id }) ?? 0
-                        sidebarRow(index: index, page: page)
-                            .tag(page.id)
-                    }
-                    .onMove { source, destination in
-                        editor.movePages(fromStandardOffsets: source, toStandardOffset: destination)
-                    }
-                }
-            }
-            .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 280)
-        } detail: {
-            spreadDetail
-        }
+        splitView
         .navigationTitle(book.title)
         .inspector(isPresented: $showTray) {
             TrayView(unplacedPhotos: editor.unplacedPhotos,
@@ -281,16 +259,65 @@ public struct BookBrowserView: View {
             if !exportModel.isFlowPresented {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        showReorderSheet = true
+                        withAnimation {
+                            sidebarVisibility = sidebarVisibility == .detailOnly ? .all : .detailOnly
+                        }
                     } label: {
-                        Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
+                        Label(String(localized: "Pages", bundle: .module), systemImage: "sidebar.left")
                     }
-                    .accessibilityIdentifier("reorder-toggle")
+                    .accessibilityIdentifier("sidebar-toggle")
                 }
             }
         }
         .sheet(isPresented: $showReorderSheet) {
             reorderSheet
+        }
+        #endif
+    }
+
+    private var pageSidebar: some View {
+        List(selection: pageSelection) {
+            if let cover = book.pages.first, cover.role == .cover {
+                Section(String(localized: "Cover", bundle: .module)) {
+                    sidebarRow(index: 0, page: cover)
+                        .tag(cover.id)
+                }
+            }
+            Section(String(localized: "Pages", bundle: .module)) {
+                ForEach(standardPages) { page in
+                    let index = book.pages.firstIndex(where: { $0.id == page.id }) ?? 0
+                    sidebarRow(index: index, page: page)
+                        .tag(page.id)
+                }
+                .onMove { source, destination in
+                    editor.movePages(fromStandardOffsets: source, toStandardOffset: destination)
+                }
+            }
+        }
+        .listStyle(.sidebar)
+        .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 280)
+    }
+
+    /// iOS DocumentGroup already hosts the document in a navigation stack whose
+    /// bar carries the close button, the rename (title) menu and our toolbar.
+    /// The split view's own column bars stacked a second row under it — a
+    /// duplicate "Untitled" title menu and close button, half hidden behind
+    /// Reorder — so on iOS they are hidden and the sidebar toggle moves into
+    /// the document's bar.
+    @ViewBuilder private var splitView: some View {
+        #if os(iOS)
+        NavigationSplitView(columnVisibility: $sidebarVisibility) {
+            pageSidebar
+                .toolbar(.hidden, for: .navigationBar)
+        } detail: {
+            spreadDetail
+                .toolbar(.hidden, for: .navigationBar)
+        }
+        #else
+        NavigationSplitView {
+            pageSidebar
+        } detail: {
+            spreadDetail
         }
         #endif
     }
@@ -675,6 +702,17 @@ public struct BookBrowserView: View {
                     showPresetPicker = true
                 }
                 .accessibilityIdentifier("toolbar-book-format")
+                #if os(iOS)
+                // Regular width: Reorder moved here so the sidebar toggle fits
+                // the toolbar (a nine-item column on the iPhone Duo's inner
+                // display) without pushing Export into the overflow menu.
+                if horizontalSizeClass == .regular {
+                    Button(String(localized: "Reorder Pages", bundle: .module), systemImage: "arrow.up.arrow.down") {
+                        showReorderSheet = true
+                    }
+                    .accessibilityIdentifier("reorder-toggle")
+                }
+                #endif
             } label: {
                 Label(String(localized: "Book", bundle: .module), systemImage: "book.closed")
             }
