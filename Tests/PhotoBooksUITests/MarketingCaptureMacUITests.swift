@@ -91,7 +91,10 @@ final class MarketingCaptureMacUITests: XCTestCase {
 
     @MainActor
     private func shot(_ name: String, settle: TimeInterval = 1.5) {
-        pause(settle)
+        // Park the pointer in a corner: preset and shape cards play a
+        // page-turn animation while hovered.
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.995, dy: 0.5)).hover()
+        pause(settle + 1.5)
         let attachment = XCTAttachment(screenshot: app.windows.firstMatch.screenshot())
         attachment.name = name
         attachment.lifetime = .keepAlways
