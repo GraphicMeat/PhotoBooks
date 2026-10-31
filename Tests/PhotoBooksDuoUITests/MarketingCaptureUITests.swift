@@ -999,7 +999,9 @@ final class MarketingCaptureUITests: XCTestCase {
             guard let minX = all.map({ $0.frame.minX }).min(), let maxX = all.map({ $0.frame.maxX }).max() else { return nil }
             center = (minX + maxX) / 2
         }
-        for _ in 0..<16 {
+        // Bounded: on the iPhone Duo's inner display this can stall.
+        let giveUp = Date().addingTimeInterval(150)
+        for _ in 0..<16 where Date() < giveUp {
             var page: Int?
             for candidate in [left + 1, left] {
                 if !regular { scrollCompact(toPage: candidate) }
