@@ -60,7 +60,8 @@ esac
 
 CREATED=""     # simulators this run made (deleted on exit)
 REC_PIDS=""    # running recordVideo processes
-REC_FILES=""   # their "<file>|<start epoch>" pairs, finished on stop
+REC_FILES=""   # their "<file>|<start epoch>" pairs
+PENDING_VIDEOS=""  # stopped recordings "<file>|<wall seconds>" to finish
 now() { /usr/bin/python3 -c 'import time; print(f"{time.time():.3f}")'; }
 DEVICE="" KIND="" POSE=""
 
@@ -70,8 +71,17 @@ stop_recordings() {
     for pid in $REC_PIDS; do kill -INT "$pid" 2>/dev/null; done
     for pid in $REC_PIDS; do wait "$pid" 2>/dev/null; done
     REC_PIDS=""
-    for entry in $REC_FILES; do finish_video "${entry%%|*}" "$(echo "${entry#*|}" | awk -v s="$stopped" '{print s - $1}')"; done
+    # Encoding takes minutes for a long 60 fps video, longer than a test
+    # waits on a checkpoint, so it happens once the test run is over.
+    for entry in $REC_FILES; do
+        PENDING_VIDEOS="$PENDING_VIDEOS ${entry%%|*}|$(echo "${entry#*|}" | awk -v s="$stopped" '{print s - $1}')"
+    done
     REC_FILES=""
+}
+finish_pending() {
+    local entry
+    for entry in $PENDING_VIDEOS; do finish_video "${entry%%|*}" "${entry#*|}"; done
+    PENDING_VIDEOS=""
 }
 
 # finish_video <mp4> <wall seconds>: simctl writes a frame only when the
@@ -236,7 +246,13 @@ run_command() {  # run_command <checkpoint name> <command>
 
 # run_tests <run name> [beats 0|1] [unfold 0|1]: runs the class (or
 # MARKETING_TESTS) and serves its checkpoints until xcodebuild exits.
-run_tests() {
+run_tests() {  # one retry when the runner dies before any test starts
+    run_tests_once "$@" && return 0
+    grep -q "while preparing to run tests" "$OUT/logs/$1-test.log" || return 1
+    log "$1: runner crashed while preparing; retrying"
+    run_tests_once "$@"
+}
+run_tests_once() {
     local run=$1 beats=${2:-0} unfold=${3:-0} only="" t
     for t in ${MARKETING_TESTS:-}; do only="$only -only-testing:$CLASS/$t"; done
     [ -n "$only" ] || only="-only-testing:$CLASS"
@@ -267,6 +283,7 @@ run_tests() {
     done
     wait "$test_pid"; local status=$?
     stop_recordings
+    finish_pending
     if [ -n "$data" ] && [ -d "$data/tmp/marketing-dumps" ]; then
         mkdir -p "$OUT/logs/$run-dumps" && cp -R "$data/tmp/marketing-dumps/." "$OUT/logs/$run-dumps/"
     fi
