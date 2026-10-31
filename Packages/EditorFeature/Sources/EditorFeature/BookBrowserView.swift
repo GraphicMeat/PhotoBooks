@@ -176,6 +176,13 @@ public struct BookBrowserView: View {
             }
             #endif
         }
+        #if os(iOS)
+        // A page zoom opened on the folded display must not pop back up the
+        // next time the device folds (e.g. over the export flow).
+        .onChange(of: horizontalSizeClass) { _, sizeClass in
+            if sizeClass != .compact { zoomedPage = nil }
+        }
+        #endif
         .environment(editor)
         .onAppear { editor.undoManager = undoManager }
         .onChange(of: undoManager) { editor.undoManager = $1 }
@@ -844,6 +851,25 @@ public struct BookBrowserView: View {
         var id: Int { index }
     }
 
+    // The tray sheet and the zoom cover belong to the compact layout only.
+    // Unfolding an iPhone Duo (or widening an iPad window) swaps in the split
+    // layout but left these modals up over it, so the tray covered the editor
+    // instead of moving to the inspector. They present only while compact.
+    // The tray state is shared with the inspector, so the dismissal that
+    // follows a size-class change must not clear it; the zoom is compact-only
+    // and is cleared when the width turns regular (see `body`).
+    private var compactTrayPresented: Binding<Bool> {
+        let isCompact = horizontalSizeClass == .compact
+        return Binding(get: { showTray && isCompact },
+                       set: { if isCompact { showTray = $0 } })
+    }
+
+    private var compactZoomedPage: Binding<ZoomTarget?> {
+        let isCompact = horizontalSizeClass == .compact
+        return Binding(get: { isCompact ? zoomedPage : nil },
+                       set: { zoomedPage = $0 })
+    }
+
     private var compactBrowser: some View {
         // No NavigationStack of our own: iOS DocumentGroup already hosts the
         // document in one, and a nested stack stacked a second navigation bar
@@ -948,11 +974,11 @@ public struct BookBrowserView: View {
                     .accessibilityIdentifier("reorder-toggle")
                 }
             }
-            .fullScreenCover(item: $zoomedPage) { target in
+            .fullScreenCover(item: compactZoomedPage) { target in
                 ZoomablePageView(page: book.pages[target.index], book: book,
                                  preset: editor.preset, imageStore: imageStore)
             }
-            .sheet(isPresented: $showTray) {
+            .sheet(isPresented: compactTrayPresented) {
                 TrayView(unplacedPhotos: editor.unplacedPhotos,
                          imageStore: imageStore,
                          hasSelectedSlot: editor.selectedSlotID != nil,
