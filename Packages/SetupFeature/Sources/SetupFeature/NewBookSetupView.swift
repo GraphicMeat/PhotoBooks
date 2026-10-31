@@ -543,6 +543,10 @@ public struct NewBookSetupView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                // Keep the primary action on one line; the summary beside it
+                // wraps instead (it broke in two on the iPhone Duo's outer
+                // display).
+                .fixedSize()
                 .disabled(selectedPreset == nil)
                 .accessibilityIdentifier("setup-create-book")
             }
