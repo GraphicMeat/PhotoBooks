@@ -527,11 +527,16 @@ final class MarketingCaptureUITests: XCTestCase {
         tap("source-photos")
 
         // The system picker runs out of process; go by labels.
-        // The picker's Photos | Collections switch: its second segment.
+        // Collections, in any language: the second segment of the phone
+        // picker's Photos | Collections switch, or the iPad sidebar's
+        // "collections" row.
         let segments = app.segmentedControls.firstMatch
-        _ = segments.waitForExistence(timeout: 20)
+        let sidebarRow = app.cells.matching(identifier: "collections").firstMatch
+        let pickerShown = Date().addingTimeInterval(20)
+        while Date() < pickerShown, !segments.exists, !sidebarRow.exists { pause(0.5) }
         let collections: XCUIElement? = segments.exists && segments.buttons.count >= 2
-            ? segments.buttons.element(boundBy: 1) : labeled(["Collections", "Albums"], timeout: 5)
+            ? segments.buttons.element(boundBy: 1)
+            : sidebarRow.exists ? sidebarRow : labeled(["Collections", "Albums"], timeout: 5)
         guard let collections else {
             dump("picker-open")
             XCTFail("Photos picker never showed Collections")
