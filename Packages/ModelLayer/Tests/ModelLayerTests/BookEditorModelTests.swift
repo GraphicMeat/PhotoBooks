@@ -18,6 +18,16 @@ import Testing
 
     // MARK: Selection + swap state machine (D12)
 
+    @Test func editorOpensOnTheCoverAndKeepsAnExistingSelection() {
+        let (model, document, _) = makeModel()
+        #expect(model.selectedPageID == nil)
+        model.selectFirstPageIfNeeded()
+        #expect(model.selectedPageID == document.book.pages[0].id)
+        model.selectPage(document.book.pages[2].id)
+        model.selectFirstPageIfNeeded()
+        #expect(model.selectedPageID == document.book.pages[2].id)
+    }
+
     @Test func tapSelectsThenDeselectsSameSlot() {
         let (model, document, _) = makeModel()
         let before = document.book

@@ -185,7 +185,12 @@ public struct BookBrowserView: View {
         }
         #endif
         .environment(editor)
-        .onAppear { editor.undoManager = undoManager }
+        .onAppear {
+            editor.undoManager = undoManager
+            #if os(iOS)
+            editor.selectFirstPageIfNeeded()
+            #endif
+        }
         .onChange(of: undoManager) { editor.undoManager = $1 }
         // Replace mode is a dead end if the tray is hidden — surface it so the
         // user can pick a swap-in photo (or pull a new one from the library).
@@ -947,9 +952,6 @@ public struct BookBrowserView: View {
                                     // Fixed row height for the three-panel cover sheet in the
                                     // compact scroll; the sheet scales to fit within it.
                                     .frame(height: 200)
-                                    .onAppear {
-                                        if editor.selectedPageID == nil { editor.selectPage(page.id) }
-                                    }
                                 } else {
                                     PageView(page: page, book: book, preset: editor.preset,
                                              imageStore: imageStore,
@@ -958,9 +960,6 @@ public struct BookBrowserView: View {
                                         .editing(editingInteractions)
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                         .shadow(radius: 2)
-                                        .onAppear {
-                                            if editor.selectedPageID == nil { editor.selectPage(page.id) }
-                                        }
                                 }
                                 HStack(spacing: 12) {
                                     Text(page.role == .cover ? "Cover" : "Page \(index)", bundle: .module)

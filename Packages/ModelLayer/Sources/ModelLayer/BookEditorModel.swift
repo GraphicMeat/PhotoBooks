@@ -221,6 +221,14 @@ public final class BookEditorModel {
         refreshAlternatives()
     }
 
+    /// The editor opens on the first page (the cover). Previously the compact
+    /// page list selected whichever row appeared first, so the opening page
+    /// depended on the display (folded or unfolded iPhone Duo).
+    public func selectFirstPageIfNeeded() {
+        guard selectedPageID == nil, let first = document.book.pages.first else { return }
+        selectPage(first.id)
+    }
+
     /// Opens the exact placement reported by export, including the back cover.
     public func revealPreflightIssue(_ issue: PreflightIssue) {
         let book = document.book
