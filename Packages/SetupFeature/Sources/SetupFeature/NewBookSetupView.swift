@@ -166,20 +166,33 @@ public struct NewBookSetupView: View {
                         subtitle: String(localized: "Start with Apple Photos or a folder on this device", bundle: .module)) {
                 onExitToWelcome()
             }
-            Spacer()
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Where are your photos?", bundle: .module)
-                    .font(.title2.bold())
-                // Two fixed-width cards need 500pt; iPhone widths fall back
-                // to the vertical stack.
-                ViewThatFits {
-                    HStack(spacing: 20) { sourceCards }
-                    VStack(alignment: .leading, spacing: 20) { sourceCards }
+            // Centered when it fits; scrolls on short displays (the iPhone
+            // Duo's outer screen), where the stacked cards overflowed and
+            // pushed the header under the navigation bar.
+            ViewThatFits(in: .vertical) {
+                VStack {
+                    Spacer()
+                    sourcePicker
+                    Spacer()
                 }
+                ScrollView { sourcePicker }
             }
-            Spacer()
         }
         .padding(28)
+    }
+
+    private var sourcePicker: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Where are your photos?", bundle: .module)
+                .font(.title2.bold())
+            // Two fixed-width cards need 500pt; iPhone widths fall back
+            // to the vertical stack.
+            ViewThatFits {
+                HStack(spacing: 20) { sourceCards }
+                VStack(alignment: .leading, spacing: 20) { sourceCards }
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder private var sourceCards: some View {
