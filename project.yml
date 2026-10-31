@@ -250,6 +250,22 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: true
 
+  # iOS UI tests for the iPhone Duo (and any iOS simulator). The macOS suite
+  # above uses Mac-only XCUI APIs (click, typeKey, menuBars), so iOS gets its
+  # own target; scripts/duo/duo-smoke.sh runs it with the hinge driven from
+  # the host.
+  PhotoBooksDuoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - Tests/PhotoBooksDuoUITests
+    dependencies:
+      - target: PhotoBooks
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        TARGETED_DEVICE_FAMILY: "1,2"
+
 schemes:
   PhotoBooks:
     build:
@@ -269,6 +285,19 @@ schemes:
       config: Debug
       targets:
         - PhotoBooksUITests
+  # iOS UI tests (iPhone Duo smoke). Separate scheme: the PhotoBooks scheme's
+  # test action holds the macOS-only suite.
+  PhotoBooks iOS UITests:
+    build:
+      preActions:
+        - <<: *regenerate-project
+          settingsTarget: PhotoBooks
+      targets:
+        PhotoBooks: all
+    test:
+      config: Debug
+      targets:
+        - PhotoBooksDuoUITests
   # Developer ID / Sparkle build. Archived in Release for the notarized DMG.
   PhotoBooks (Direct):
     build:

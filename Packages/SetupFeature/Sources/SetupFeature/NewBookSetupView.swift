@@ -154,6 +154,7 @@ public struct NewBookSetupView: View {
         }
         .buttonStyle(.borderless)
         .help(Text("Go back to the previous step", bundle: .module))
+        .accessibilityIdentifier("setup-back")
     }
 
     // MARK: Step 1 — source
@@ -429,6 +430,7 @@ public struct NewBookSetupView: View {
                                           isSelected: selectedAspectClass == aspect)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("setup-shape-\(aspect.rawValue)")
                     }
                 }
                 .frame(maxWidth: 820)

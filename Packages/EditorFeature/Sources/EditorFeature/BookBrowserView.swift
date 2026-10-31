@@ -1046,6 +1046,7 @@ struct ZoomablePageView: View {
                     .font(.title)
                     .foregroundStyle(.white.opacity(0.8))
             }
+            .accessibilityIdentifier("zoom-close")
             .padding()
         }
     }
