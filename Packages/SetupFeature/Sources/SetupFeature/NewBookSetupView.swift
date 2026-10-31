@@ -135,7 +135,7 @@ public struct NewBookSetupView: View {
             let collection = try providers.fileSystem.makeCollection(fromFolder: url)
             let refs = try await providers.fileSystem.photoRefs(in: collection)
             guard !refs.isEmpty else { return }
-            bookTitle = "Summer Stories"
+            bookTitle = UserDefaults.standard.string(forKey: "ScreenshotBookTitle") ?? "Summer Stories"
             availablePhotos = refs
             selectedPhotoIDs = Set(refs.map(\.id))
             activeProvider = providers.fileSystem

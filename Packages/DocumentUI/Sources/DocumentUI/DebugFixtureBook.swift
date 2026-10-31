@@ -39,8 +39,9 @@ public enum DebugFixtureBook {
         }
 
         let preset = PresetLibrary.preset(id: "blurb-small-square") ?? PresetLibrary.all()[0]
-        let title = UserDefaults.standard.bool(forKey: "ScreenshotMode")
-            ? "Summer Stories" : "Fixture Book"
+        // `-ScreenshotBookTitle <title>` names the book for marketing captures.
+        let title = UserDefaults.standard.string(forKey: "ScreenshotBookTitle")
+            ?? (UserDefaults.standard.bool(forKey: "ScreenshotMode") ? "Summer Stories" : "Fixture Book")
         guard UserDefaults.standard.bool(forKey: "ScreenshotMode"), refs.count >= 12 else {
             return BookEngine().makeBook(title: title, photos: refs, preset: preset,
                                          style: .standard, seed: 1)
