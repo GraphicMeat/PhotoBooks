@@ -272,16 +272,21 @@ public struct BookBrowserView: View {
                      onAddFileURLs: { editor.addLibraryPhotos(fromFileURLs: $0) })
                 .inspectorColumnWidth(min: 200, ideal: 248)
         }
-        .toolbar { editingToolbar }
+        // The export flow covers the editor, but on iOS 26+ the toolbar (a
+        // vertical column on the iPhone Duo) stayed on top of it and live
+        // despite the hidden navigation bar, so its items go away instead.
+        .toolbar { if !exportModel.isFlowPresented { editingToolbar } }
         #if os(iOS)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    showReorderSheet = true
-                } label: {
-                    Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
+            if !exportModel.isFlowPresented {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showReorderSheet = true
+                    } label: {
+                        Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
+                    }
+                    .accessibilityIdentifier("reorder-toggle")
                 }
-                .accessibilityIdentifier("reorder-toggle")
             }
         }
         .sheet(isPresented: $showReorderSheet) {
@@ -963,15 +968,17 @@ public struct BookBrowserView: View {
             }
             .navigationTitle(book.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { editingToolbar }
+            .toolbar { if !exportModel.isFlowPresented { editingToolbar } }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showReorderSheet = true
-                    } label: {
-                        Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
+                if !exportModel.isFlowPresented {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            showReorderSheet = true
+                        } label: {
+                            Label(String(localized: "Reorder", bundle: .module), systemImage: "arrow.up.arrow.down")
+                        }
+                        .accessibilityIdentifier("reorder-toggle")
                     }
-                    .accessibilityIdentifier("reorder-toggle")
                 }
             }
             .fullScreenCover(item: compactZoomedPage) { target in

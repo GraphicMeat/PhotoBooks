@@ -87,6 +87,16 @@ final class DuoSmokeUITests: XCTestCase {
 
     private var isRegularLayout: Bool { element("page-thumbnail-0").exists }
 
+    /// The export flow covers the editor; its toolbar must not stay usable.
+    private func assertEditorToolbarInert(_ context: String,
+                                          file: StaticString = #filePath, line: UInt = #line) {
+        for id in ["tray-toggle", "toolbar-export", "reorder-toggle"] {
+            let item = element(id)
+            XCTAssertFalse(item.exists && item.isHittable,
+                           "\(id) is still tappable during export (\(context))", file: file, line: line)
+        }
+    }
+
     // MARK: Tests
 
     /// Opens a generated fixture book and checks the editor shows its pages
@@ -204,8 +214,10 @@ final class DuoSmokeUITests: XCTestCase {
         // from part 3 must not come back over it.
         tap("toolbar-export")
         _ = waitFor("export-flow-overlay")
+        assertEditorToolbarInert("inner display")
         checkpoint("19-export-folded", poses: "closed")
         XCTAssertTrue(waitFor("export-flow-overlay").exists, "export flow should survive folding")
+        assertEditorToolbarInert("outer display")
         XCTAssertFalse(element("zoom-close").waitForExistence(timeout: 3),
                        "a page zoom from before the unfold should not reappear on fold")
         checkpoint("20-export", poses: "half flat")
