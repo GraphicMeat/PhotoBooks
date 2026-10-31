@@ -845,7 +845,10 @@ public struct BookBrowserView: View {
     }
 
     private var compactBrowser: some View {
-        NavigationStack {
+        // No NavigationStack of our own: iOS DocumentGroup already hosts the
+        // document in one, and a nested stack stacked a second navigation bar
+        // (duplicate title + back button) on top of the page list.
+        Group {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 20) {
