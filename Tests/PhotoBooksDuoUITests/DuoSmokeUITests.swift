@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 /// iPhone Duo (foldable) UI tests. They run on any iOS simulator; on the Duo
@@ -22,6 +23,9 @@ final class DuoSmokeUITests: XCTestCase {
 
     override func setUp() {
         continueAfterFailure = false
+        // A runner container can outlive a run; stale done-* files would let
+        // every checkpoint pass without the host.
+        try? FileManager.default.removeItem(at: sync)
     }
 
     // MARK: Helpers
@@ -86,6 +90,26 @@ final class DuoSmokeUITests: XCTestCase {
     }
 
     private var isRegularLayout: Bool { element("page-thumbnail-0").exists }
+
+    /// Regular-width editor chrome: one navigation bar holding one
+    /// close-document button (not covered by Reorder), and no second
+    /// file-name title row from the split view's own column bars.
+    private func assertSingleDocumentBar(file: StaticString = #filePath, line: UInt = #line) {
+        let closeButtons = app.buttons.matching(identifier: "BackButton")
+        XCTAssertEqual(closeButtons.count, 1, "expected one close-document button", file: file, line: line)
+        XCTAssertEqual(app.navigationBars.count, 1, "expected one navigation bar", file: file, line: line)
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Untitled'")).firstMatch.exists,
+                       "duplicate file-name title row", file: file, line: line)
+        let close = closeButtons.firstMatch
+        XCTAssertTrue(close.isHittable, "close-document button not tappable", file: file, line: line)
+        let reorder = element("reorder-toggle")
+        if reorder.exists {
+            XCTAssertFalse(close.frame.intersects(reorder.frame),
+                           "close-document button overlaps Reorder", file: file, line: line)
+        }
+        XCTAssertTrue(element("toolbar-export").isHittable,
+                      "Export should be in the toolbar, not the overflow menu", file: file, line: line)
+    }
 
     /// The export flow covers the editor; its toolbar must not stay usable.
     private func assertEditorToolbarInert(_ context: String,
@@ -158,6 +182,9 @@ final class DuoSmokeUITests: XCTestCase {
         checkpoint("08-editor")
         XCTAssertTrue(waitFor("page-thumbnail-2").exists,
                       "Unfolded inner display should show the regular-width sidebar")
+        XCTAssertTrue(element("page-thumbnail-0").isSelected,
+                      "the editor should open on the cover whatever the pose")
+        assertSingleDocumentBar()
         tap("page-thumbnail-2")
         checkpoint("09-editor-page")
         tap("page-thumbnail-0")
@@ -222,5 +249,47 @@ final class DuoSmokeUITests: XCTestCase {
                        "a page zoom from before the unfold should not reappear on fold")
         checkpoint("20-export", poses: "half flat")
         XCTAssertTrue(waitFor("export-flow-overlay").exists, "export flow should survive unfolding")
+    }
+
+    /// The regular-width editor (iPad, iPhone Duo inner display) as it appears
+    /// in the store screenshots: one clean bar, a working sidebar toggle and
+    /// the document's rename menu. On iPad it is checked in both orientations.
+    @MainActor
+    func testRegularEditorChrome() throws {
+        try XCTSkipIf(fixtures.isEmpty, "Set TEST_RUNNER_DUO_FIXTURES to a folder of images")
+        let isPad = UIDevice.current.userInterfaceIdiom == .pad
+        if isPad { XCUIDevice.shared.orientation = .landscapeLeft }
+        app = XCUIApplication()
+        app.launchArguments = ["-newBookFromFixtureFolder", fixtures]
+        app.launch()
+        createDocumentFromBrowser()
+        _ = waitFor("page-thumbnail-0", timeout: 40)
+        XCTAssertTrue(element("page-thumbnail-0").isSelected, "the editor should open on the cover")
+        assertSingleDocumentBar()
+        checkpoint(isPad ? "30-ipad-editor-landscape" : "30-duo-editor-inner", poses: isPad ? "shot" : "flat")
+
+        if isPad {
+            XCUIDevice.shared.orientation = .portrait
+            _ = waitFor("page-thumbnail-0")
+            assertSingleDocumentBar()
+            checkpoint("31-ipad-editor-portrait", poses: "shot")
+        } else {
+            checkpoint("31-duo-editor-outer", poses: "closed")
+            _ = waitFor("select-page-0")
+            checkpoint("32-duo-editor-inner-again", poses: "flat")
+            _ = waitFor("page-thumbnail-0")
+        }
+
+        // The sidebar toggle now lives in the document's bar.
+        tap("sidebar-toggle")
+        XCTAssertTrue(element("page-thumbnail-0").waitForNonExistence(timeout: 5), "sidebar should hide")
+        tap("sidebar-toggle")
+        XCTAssertTrue(waitFor("page-thumbnail-0", timeout: 5).exists, "sidebar should come back")
+
+        // Rename still lives in the document title menu.
+        app.navigationBars.buttons["Fixture Book"].firstMatch.tap()
+        let rename = app.buttons.matching(NSPredicate(format: "label ==[c] 'Rename'")).firstMatch
+        XCTAssertTrue(rename.waitForExistence(timeout: 5), "document title menu should offer Rename")
+        checkpoint(isPad ? "33-ipad-title-menu" : "33-duo-title-menu", poses: isPad ? "shot" : "flat")
     }
 }
