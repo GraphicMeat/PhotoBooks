@@ -9,7 +9,9 @@ import XCTest
 /// MARKETING_PICKS (as the iOS class).
 final class MarketingCaptureMacUITests: XCTestCase {
 
-    static let title = "Summer by the Sea"
+    static var title: String { ProcessInfo.processInfo.environment["MARKETING_TITLE"] ?? "Summer by the Sea" }
+    static var language: String { ProcessInfo.processInfo.environment["MARKETING_LANGUAGE"] ?? "en" }
+    static var region: String { ProcessInfo.processInfo.environment["MARKETING_REGION"] ?? "en_US" }
     private var app: XCUIApplication!
     private var env: [String: String] { ProcessInfo.processInfo.environment }
     private var photos: String { env["MARKETING_PHOTOS"] ?? "" }
@@ -53,7 +55,7 @@ final class MarketingCaptureMacUITests: XCTestCase {
             "-ScreenshotBookTitle", Self.title,
             "-ApplePersistenceIgnoreState", "YES",
             "-AppleInterfaceStyle", "Light",
-            "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
+            "-AppleLanguages", "(\(Self.language))", "-AppleLocale", Self.region,
             "-editor-canvas-background-mode", "white"
         ]
         app.launch()

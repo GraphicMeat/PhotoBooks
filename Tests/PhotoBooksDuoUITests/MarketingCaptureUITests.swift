@@ -22,7 +22,38 @@ import XCTest
 /// ("designed=5,spread=9,emphasize=7,hero=1": page indexes of the fixture book).
 final class MarketingCaptureUITests: XCTestCase {
 
-    static let title = "Summer by the Sea"
+    /// The album and book title, localized by the host (MARKETING_TITLE).
+    static var title: String { ProcessInfo.processInfo.environment["MARKETING_TITLE"] ?? "Summer by the Sea" }
+    /// App language and region (MARKETING_LANGUAGE / MARKETING_REGION).
+    static var language: String { ProcessInfo.processInfo.environment["MARKETING_LANGUAGE"] ?? "en" }
+    static var region: String { ProcessInfo.processInfo.environment["MARKETING_REGION"] ?? "en_US" }
+
+    /// The app's own labels the test matches by text (compact toolbars drop
+    /// identifiers), in each capture language.
+    private static let labels: [String: [String: String]] = [
+        "Page": ["de": "Seite", "fr": "Page", "es": "Página", "it": "Pagina", "ja": "ページ",
+                 "ko": "페이지", "zh-Hans": "页面", "pt-BR": "Página"],
+        "Book": ["de": "Buch", "fr": "Livre", "es": "Libro", "it": "Libro", "ja": "ブック",
+                 "ko": "포토북", "zh-Hans": "相册", "pt-BR": "Livro"],
+        "Export": ["de": "Exportieren", "fr": "Exporter", "es": "Exportar", "it": "Esporta", "ja": "書き出す",
+                   "ko": "내보내기", "zh-Hans": "导出", "pt-BR": "Exportar"],
+        "Merge Facing Pages": ["de": "Gegenüberliegende Seiten zusammenführen",
+                               "fr": "Fusionner les pages en vis-à-vis", "es": "Combinar páginas enfrentadas",
+                               "it": "Unisci le pagine affiancate", "ja": "見開きのページを結合",
+                               "ko": "마주보는 페이지 병합", "zh-Hans": "合并相邻页面", "pt-BR": "Mesclar páginas opostas"],
+        "Rename Book…": ["de": "Buch umbenennen…", "fr": "Renommer le livre…", "es": "Renombrar libro…",
+                         "it": "Rinomina libro…", "ja": "ブックの名前を変更…", "ko": "책 이름 변경…",
+                         "zh-Hans": "重命名图书…", "pt-BR": "Renomear livro…"],
+        // System document browser.
+        "Create Document": ["de": "Dokument erstellen", "fr": "Créer un document", "es": "Crear documento",
+                            "it": "Crea documento", "ja": "書類を作成", "ko": "문서 생성",
+                            "zh-Hans": "创建文稿", "pt-BR": "Criar Documento"],
+        "Replace": ["de": "Ersetzen", "fr": "Remplacer", "es": "Reemplazar", "it": "Sostituisci",
+                    "ja": "置き換える", "ko": "대치", "zh-Hans": "替换", "pt-BR": "Substituir"]
+    ]
+
+    /// `english` in the capture language (falls back to English).
+    static func tr(_ english: String) -> String { labels[english]?[language] ?? english }
 
     private var app: XCUIApplication!
     private let tmp = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
@@ -184,7 +215,7 @@ final class MarketingCaptureUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait   // iPad captures are portrait
         app = XCUIApplication()
         app.launchArguments = arguments + [
-            "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
+            "-AppleLanguages", "(\(Self.language))", "-AppleLocale", Self.region,
             "-editor-canvas-background-mode", "white"
         ]
         app.launch()
@@ -195,11 +226,14 @@ final class MarketingCaptureUITests: XCTestCase {
     @MainActor
     @discardableResult
     private func openNewDocument(waitingFor identifiers: [String], timeout: TimeInterval = 40) -> Bool {
-        let create = app.buttons.matching(
-            NSPredicate(format: "label ==[c] 'Create Document' OR identifier ==[c] 'Create Document'"))
-            .firstMatch
+        let names = ["Create Document", Self.tr("Create Document")]
+        let named = app.buttons.matching(
+            NSPredicate(format: "label IN %@ OR identifier ==[c] 'Create Document'", names)).firstMatch
+        // In any language the browser's primary action is its second button
+        // (after Back), should the localized name differ from the table.
         let restored = anyElement(["toolbar-book-menu", "welcome-create", "curation-use-all",
                                    "curation-continue", "source-photos", "select-page-0", "page-thumbnail-0"])
+        var create: XCUIElement { named.exists || restored.exists ? named : app.buttons.element(boundBy: 1) }
         let deadline = Date().addingTimeInterval(40)
         while Date() < deadline {
             if create.exists, create.isHittable { break }
@@ -341,7 +375,7 @@ final class MarketingCaptureUITests: XCTestCase {
     @MainActor
     @discardableResult
     private func pageMenu(_ item: String) -> Bool {
-        guard tapToolbar("toolbar-page-menu", label: "Page"), let row = labeled([item]) else {
+        guard tapToolbar("toolbar-page-menu", label: Self.tr("Page")), let row = labeled([item, Self.tr(item)]) else {
             dump("page-menu-\(item)")
             return false
         }
@@ -449,6 +483,17 @@ final class MarketingCaptureUITests: XCTestCase {
         }
     }
 
+    /// The iPhone Duo's inner display can bring the sidebar up as an overlay
+    /// that dims the page behind it; hide it then (the page shows larger).
+    @MainActor
+    private func avoidSidebarOverlay() {
+        let thumb = element("page-thumbnail-0")
+        let detail = app.descendants(matching: .any).matching(NSPredicate(
+            format: "identifier == 'cover-sheet' OR identifier BEGINSWITH 'slot-photo-'")).firstMatch
+        guard element("sidebar-toggle").exists, thumb.exists, detail.exists else { return }
+        if detail.frame.minX < thumb.frame.maxX - 4 { setSidebar(visible: false) }
+    }
+
     /// Compact layout: selects page `index` (its check mark) so the Page
     /// menu acts on it.
     @MainActor
@@ -482,7 +527,12 @@ final class MarketingCaptureUITests: XCTestCase {
         tap("source-photos")
 
         // The system picker runs out of process; go by labels.
-        guard let collections = labeled(["Collections", "Albums"], timeout: 20) else {
+        // The picker's Photos | Collections switch: its second segment.
+        let segments = app.segmentedControls.firstMatch
+        _ = segments.waitForExistence(timeout: 20)
+        let collections: XCUIElement? = segments.exists && segments.buttons.count >= 2
+            ? segments.buttons.element(boundBy: 1) : labeled(["Collections", "Albums"], timeout: 5)
+        guard let collections else {
             dump("picker-open")
             XCTFail("Photos picker never showed Collections")
             return
@@ -710,7 +760,8 @@ final class MarketingCaptureUITests: XCTestCase {
     /// Book → Rename Book… (the spine and the editor's title).
     @MainActor
     private func renameBook() {
-        guard tapToolbar("toolbar-book-menu", label: "Book"), let rename = labeled(["Rename Book…"]) else {
+        guard tapToolbar("toolbar-book-menu", label: Self.tr("Book")),
+              let rename = labeled([Self.tr("Rename Book…")]) else {
             dump("rename-book")
             return
         }
@@ -727,7 +778,7 @@ final class MarketingCaptureUITests: XCTestCase {
     @discardableResult
     private func exportToFinishedPreview(recording: Bool) -> Bool {
         if recording { host("beat-05a-start", "rec:beat-05a-check"); pause(1.2) }
-        guard tapToolbar("toolbar-export", label: "Export") else { return false }
+        guard tapToolbar("toolbar-export", label: Self.tr("Export")) else { return false }
         guard waitFor("preflight-continue") != nil else { return false }
         pause(recording ? 2.5 : 1.0)
         if recording { host("beat-05a-stop", "stop") }
@@ -748,7 +799,7 @@ final class MarketingCaptureUITests: XCTestCase {
         // The first tap can land while the sheet is still settling.
         for _ in 0..<3 where save.exists && save.isHittable {
             save.tap()
-            if let replace = labeled(["Replace"], timeout: 2) { replace.tap() }
+            if let replace = labeled(["Replace", Self.tr("Replace")], timeout: 2) { replace.tap() }
             _ = save.waitForNonExistence(timeout: 5)
         }
         guard waitFor("export-next", timeout: 60) != nil else { return false }
@@ -827,10 +878,12 @@ final class MarketingCaptureUITests: XCTestCase {
         let regular = isRegular
 
         // The editor opens on the cover.
+        if regular { avoidSidebarOverlay() }
         shot("07-cover", settle: 1.5)
 
         showPage(pick("hero", default: 1))
         setSidebar(visible: true)
+        if regular { avoidSidebarOverlay() }
         shot("10-hero", settle: 2.0)
 
         if survey {

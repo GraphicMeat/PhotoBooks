@@ -20,6 +20,8 @@
 #      MARKETING_BEATS    (devices that record beats; default "iphone duo-inner")
 #      MARKETING_MAC_PICKS (page picks for the Mac book, which places all photos)
 #      MARKETING_DUO_POSES (default "closed flat": outer, then inner display)
+#      MARKETING_LOCALE   (en-US default; de-DE fr-FR es-ES it ja ko zh-Hans pt-BR):
+#                         simulator and app language/region, album and book title
 # Writes: <out>/<device>/<shot>.png and <beat>.mp4 (device: iphone, ipad,
 #         duo-outer, duo-inner), <out>/logs/*, <out>/recordings.txt.
 set -uo pipefail
@@ -41,6 +43,20 @@ CLASS=PhotoBooksDuoUITests/MarketingCaptureUITests
 OUTER=${DUO_OUTER_DISPLAY:-1}
 INNER=${DUO_INNER_DISPLAY:-3}
 log() { echo "marketing: $(date +%H:%M:%S) $*" >&2; }
+
+LOCALE_ID=${MARKETING_LOCALE:-en-US}
+case $LOCALE_ID in    # language | region | album and book title
+    en-US)   LANGUAGE=en;      REGION=en_US; TITLE="Summer by the Sea" ;;
+    de-DE)   LANGUAGE=de;      REGION=de_DE; TITLE="Sommer am Meer" ;;
+    fr-FR)   LANGUAGE=fr;      REGION=fr_FR; TITLE="Un été à la mer" ;;
+    es-ES)   LANGUAGE=es;      REGION=es_ES; TITLE="Verano junto al mar" ;;
+    it)      LANGUAGE=it;      REGION=it_IT; TITLE="Estate al mare" ;;
+    ja)      LANGUAGE=ja;      REGION=ja_JP; TITLE="海辺の夏" ;;
+    ko)      LANGUAGE=ko;      REGION=ko_KR; TITLE="바닷가의 여름" ;;
+    zh-Hans) LANGUAGE=zh-Hans; REGION=zh_CN; TITLE="海边的夏天" ;;
+    pt-BR)   LANGUAGE=pt-BR;   REGION=pt_BR; TITLE="Verão à beira-mar" ;;
+    *) echo "marketing: unknown MARKETING_LOCALE $LOCALE_ID" >&2; exit 2 ;;
+esac
 
 CREATED=""     # simulators this run made (deleted on exit)
 REC_PIDS=""    # running recordVideo processes
@@ -113,14 +129,28 @@ make_sim() {  # make_sim <variable> <device type name>: sets the variable to the
     eval "$1=$udid"
 }
 
-boot() {  # boot <udid> [display]: wait for a real frame, then dress the device
-    log "booting $1"
+wait_frame() {  # wait_frame <udid> [display]: boot; bootstatus can report done
+                # well before SpringBoard draws, so wait for a frame.
     xcrun simctl boot "$1" 2>/dev/null
     xcrun simctl bootstatus "$1" -b >/dev/null || return 1
     for _ in $(seq 60); do
-        xcrun simctl io "$1" screenshot ${2:+--display="$2"} "$WORK/probe.png" >/dev/null 2>&1 && break
+        xcrun simctl io "$1" screenshot ${2:+--display="$2"} "$WORK/probe.png" >/dev/null 2>&1 && return 0
         sleep 3
     done
+}
+
+boot() {  # boot <udid> [display]: wait for a real frame, then dress the device
+    log "booting $1"
+    wait_frame "$@" || return 1
+    if [ "$LANGUAGE" != en ]; then
+        # System UI (Photos picker, Files, document browser) follows the
+        # device language, which takes a restart to apply.
+        log "setting $1 to $LANGUAGE / $REGION"
+        xcrun simctl spawn "$1" defaults write -g AppleLanguages -array "$LANGUAGE"
+        xcrun simctl spawn "$1" defaults write -g AppleLocale -string "$REGION"
+        xcrun simctl shutdown "$1"
+        wait_frame "$@" || return 1
+    fi
     xcrun simctl ui "$1" appearance light
     xcrun simctl status_bar "$1" override --time 9:41 --batteryState charged --batteryLevel 100 \
         --cellularBars 4 --wifiBars 3 >/dev/null 2>&1
@@ -208,6 +238,7 @@ run_tests() {
     TEST_RUNNER_MARKETING_BEATS=$beats TEST_RUNNER_MARKETING_UNFOLD=$unfold \
     TEST_RUNNER_MARKETING_SURVEY=${MARKETING_SURVEY:-0} TEST_RUNNER_MARKETING_PICKS=${MARKETING_PICKS:-} \
     TEST_RUNNER_MARKETING_RENAME=${MARKETING_RENAME:-0} \
+    TEST_RUNNER_MARKETING_LANGUAGE=$LANGUAGE TEST_RUNNER_MARKETING_REGION=$REGION TEST_RUNNER_MARKETING_TITLE="$TITLE" \
     xcodebuild test-without-building -project PhotoBooks.xcodeproj -scheme "PhotoBooks iOS UITests" \
         -destination "id=$DEVICE" -derivedDataPath "$WORK/dd" $only \
         -resultBundlePath "$WORK/$run.xcresult" > "$OUT/logs/$run-test.log" 2>&1 &
@@ -247,6 +278,7 @@ run_mac() {
     log "running mac"
     TEST_RUNNER_MARKETING_PHOTOS=$tmpdir/photos TEST_RUNNER_MARKETING_EXPORT=$tmpdir/export \
     TEST_RUNNER_MARKETING_PICKS=${MARKETING_MAC_PICKS:-${MARKETING_PICKS:-}} \
+    TEST_RUNNER_MARKETING_LANGUAGE=$LANGUAGE TEST_RUNNER_MARKETING_REGION=$REGION TEST_RUNNER_MARKETING_TITLE="$TITLE" \
     xcodebuild test -project PhotoBooks.xcodeproj -scheme PhotoBooks -destination 'platform=macOS,arch=arm64' \
         -derivedDataPath "$WORK/dd-mac" -only-testing:PhotoBooksUITests/MarketingCaptureMacUITests \
         -resultBundlePath "$WORK/mac.xcresult" > "$OUT/logs/mac-test.log" 2>&1
