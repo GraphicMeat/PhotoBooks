@@ -478,6 +478,15 @@ final class MarketingCaptureUITests: XCTestCase {
         }
     }
 
+    /// Scrolls a lazily built setup grid until `identifier` is on screen
+    /// (the iPhone Duo's short outer display, long translated labels).
+    @MainActor
+    private func reveal(_ identifier: String) {
+        let target = element(identifier)
+        let midX = app.windows.firstMatch.frame.midX
+        for _ in 0..<6 where !(target.exists && target.isHittable) { drag(by: -250, x: midX) }
+    }
+
     /// Regular layout: shows or hides the page sidebar.
     @MainActor
     private func setSidebar(visible: Bool) {
@@ -613,6 +622,7 @@ final class MarketingCaptureUITests: XCTestCase {
         // step's summary names the preset, so never a Blurb one on camera).
         guard tap("curation-use-all", timeout: 30) else { return }
         guard waitFor("setup-shape-continue") != nil else { return }
+        reveal("setup-shape-portrait")
         tap("setup-shape-portrait")
         tap("setup-shape-continue")
         guard waitFor("setup-format-continue") != nil else { return }
@@ -836,6 +846,7 @@ final class MarketingCaptureUITests: XCTestCase {
 
         tap("curation-continue")
         guard waitFor("setup-shape-continue") != nil else { return }
+        reveal("setup-shape-portrait")
         tap("setup-shape-portrait")
         // Blurb-free alternative for 08 (shapes, no preset names).
         shot("08-format-shape", settle: 1.2)
