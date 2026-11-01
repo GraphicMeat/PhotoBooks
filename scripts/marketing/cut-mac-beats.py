@@ -16,7 +16,7 @@ import os
 import subprocess
 import sys
 
-CORNER_RADIUS_PT = 26
+CORNER_RADIUS_PT = 34  # past the true ~26: window corners are not circular arcs
 screen_mov, timeline_path, started, out_dir, report_path = sys.argv[1:6]
 started = float(started)
 
@@ -91,7 +91,7 @@ for beat in beats:
         w, h, r = crop[0], crop[1], CORNER_RADIUS_PT * scale
         distance = f"hypot(max(max({r}-X,X-{w - 1 - r}),0),max(max({r}-Y,Y-{h - 1 - r}),0))"
         subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=white:s={w}x{h}:d=0.04",
-                               "-vf", f"format=rgba,geq=r=255:g=255:b=255:a='255*clip({distance}-{r}+0.5,0,1)'",
+                               "-vf", f"format=rgba,geq=r=255:g=255:b=255:a='255*clip({distance}-{r}+1.5,0,1)'",
                                "-frames:v", "1", mask])
         mask_size = crop[:2]
     # Wall windows to keep.
