@@ -243,12 +243,15 @@ final class MarketingCaptureUITests: XCTestCase {
             }
             pause(0.5)
         }
-        guard create.exists, create.isHittable else {
+        guard create.exists else {
             dump("no-document-browser")
             XCTFail("document browser never offered Create Document")
             return false
         }
-        create.tap()
+        // It can report not hittable while plainly on screen; tap its centre.
+        if create.isHittable { create.tap() } else {
+            create.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
         let target = anyElement(identifiers)
         if !target.waitForExistence(timeout: 15), create.exists, create.isHittable { create.tap() }
         guard target.waitForExistence(timeout: timeout) else {
