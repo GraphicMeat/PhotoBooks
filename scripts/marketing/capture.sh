@@ -12,18 +12,21 @@
 #   ~/.claude/bin/testq ~/.claude/bin/minijob bash -c \
 #     'scripts/marketing/capture.sh out >&2; tar -C out -cf - .' > captures.tar
 #
-# Env: MARKETING_DEVICES  (default "iphone ipad duo"; "mac" adds the macOS app)
+# Env: MARKETING_DEVICES  (default "iphone ipad duo"; "mac" adds the macOS app:
+#                         stills and, when in MARKETING_BEATS, the recorded beats)
 #      MARKETING_PHOTOS_SRC (default .marketing-photos)
 #      MARKETING_TESTS    (test method names; default the whole class)
 #      MARKETING_SURVEY=1 (also capture every spread), MARKETING_PICKS
 #      (page picks, e.g. "designed=5,spread=9,emphasize=7,hero=1")
-#      MARKETING_BEATS    (devices that record beats; default "iphone duo-inner")
+#      MARKETING_BEATS    (devices that record beats; default "iphone duo-inner mac")
+#      MARKETING_MAC_STILLS=0 (Mac: skip the stills, record the beats only)
+#      MARKETING_KEEP_SCREEN=1 (Mac: keep the uncut recording in <out>/logs)
 #      MARKETING_MAC_PICKS (page picks for the Mac book, which places all photos)
 #      MARKETING_DUO_POSES (default "closed flat": outer, then inner display)
 #      MARKETING_LOCALE   (en-US default; de-DE fr-FR es-ES it ja ko zh-Hans pt-BR):
 #                         simulator and app language/region, album and book title
 # Writes: <out>/<device>/<shot>.png and <beat>.mp4 (device: iphone, ipad,
-#         duo-outer, duo-inner), <out>/logs/*, <out>/recordings.txt.
+#         duo-outer, duo-inner, mac), <out>/logs/*, <out>/recordings.txt.
 set -uo pipefail
 export PATH=/opt/homebrew/bin:$PATH
 
@@ -35,7 +38,7 @@ rm -rf "$WORK" && mkdir -p "$WORK"
 cd "$ROOT"
 
 DEVICES=${MARKETING_DEVICES:-iphone ipad duo}
-BEAT_DEVICES=${MARKETING_BEATS:-iphone duo-inner}
+BEAT_DEVICES=${MARKETING_BEATS:-iphone duo-inner mac}
 PHOTOS_SRC=${MARKETING_PHOTOS_SRC:-$ROOT/.marketing-photos}
 APP_ID=com.graphicMeat.PhotoBooks
 RUNNER_ID=com.graphicMeat.PhotoBooksDuoUITests.xctrunner
@@ -64,6 +67,7 @@ REC_FILES=""   # their "<file>|<start epoch>" pairs
 PENDING_VIDEOS=""  # stopped recordings "<file>|<wall seconds>" to finish
 now() { /usr/bin/python3 -c 'import time; print(f"{time.time():.3f}")'; }
 DEVICE="" KIND="" POSE=""
+MAC_TMP="" MAC_ALBUM=""
 
 stop_recordings() {
     local pid entry stopped
@@ -107,6 +111,7 @@ finish_video() {
 }
 cleanup() {
     stop_recordings
+    [ -n "$MAC_TMP" ] && rm -rf "$MAC_TMP" "$MAC_ALBUM"
     local udid
     for udid in $CREATED; do
         xcrun simctl shutdown "$udid" >/dev/null 2>&1
@@ -295,24 +300,10 @@ run_tests_once() {
 
 # macOS: MarketingCaptureMacUITests saves kept attachments; export them as
 # <out>/mac/<shot>.png. The sandboxed Debug app reads /private/tmp only.
-run_mac() {
-    local tmpdir=/private/tmp/pb-marketing-$$ status
-    rm -rf "$tmpdir" && mkdir -p "$tmpdir/export" && cp -R "$WORK/photos" "$tmpdir/photos"
-    osascript -e 'tell application "System Events" to set visible of (every process whose name is not "Finder" and background only is false) to false' >/dev/null 2>&1
-    log "running mac"
-    TEST_RUNNER_MARKETING_PHOTOS=$tmpdir/photos TEST_RUNNER_MARKETING_EXPORT=$tmpdir/export \
-    TEST_RUNNER_MARKETING_PICKS=${MARKETING_MAC_PICKS:-${MARKETING_PICKS:-}} \
-    TEST_RUNNER_MARKETING_LANGUAGE=$LANGUAGE TEST_RUNNER_MARKETING_REGION=$REGION TEST_RUNNER_MARKETING_TITLE="$TITLE" \
-    xcodebuild test -project PhotoBooks.xcodeproj -scheme PhotoBooks -destination 'platform=macOS,arch=arm64' \
-        -derivedDataPath "$WORK/dd-mac" -only-testing:PhotoBooksUITests/MarketingCaptureMacUITests \
-        -resultBundlePath "$WORK/mac.xcresult" > "$OUT/logs/mac-test.log" 2>&1
-    status=$?
-    rm -rf "$tmpdir"
-    grep -E "Test Case .*(passed|failed|skipped)|error:|Executed [0-9]+ test" "$OUT/logs/mac-test.log" \
-        | tee "$OUT/logs/mac-summary.txt" >&2
-    mkdir -p "$OUT/mac" "$WORK/mac-attachments"
-    xcrun xcresulttool export attachments --path "$WORK/mac.xcresult" --output-path "$WORK/mac-attachments" >&2
-    /usr/bin/python3 -I - "$WORK/mac-attachments" "$OUT/mac" <<'PY'
+export_mac_attachments() {  # export_mac_attachments <run name>
+    mkdir -p "$OUT/mac" "$WORK/$1-attachments"
+    xcrun xcresulttool export attachments --path "$WORK/$1.xcresult" --output-path "$WORK/$1-attachments" >&2
+    /usr/bin/python3 -I - "$WORK/$1-attachments" "$OUT/mac" <<'PY'
 import json, os, shutil, sys
 src, dst = sys.argv[1], sys.argv[2]
 for test in json.load(open(os.path.join(src, "manifest.json"))):
@@ -322,11 +313,90 @@ for test in json.load(open(os.path.join(src, "manifest.json"))):
         base, ext = os.path.splitext(name)
         if ext == ".png" and base[:2].isdigit():
             shutil.copy(os.path.join(src, exported), os.path.join(dst, base.split("_")[0] + ".png"))
+        elif base.startswith("beat-timeline"):
+            shutil.copy(os.path.join(src, exported), os.path.join(dst, "..", "logs", "mac-beat-timeline.txt"))
         elif ext == ".txt":
-            shutil.copy(os.path.join(src, exported), os.path.join(dst, "..", "logs", "mac-" + exported))
+            shutil.copy(os.path.join(src, exported), os.path.join(dst, "..", "logs", "mac-" + name))
 PY
+}
+mac_test() {  # mac_test <run name> <test method>...: runs them on the built products
+    local run=$1 only="" t status; shift
+    for t in "$@"; do only="$only -only-testing:PhotoBooksUITests/MarketingCaptureMacUITests/$t"; done
+    log "running $run"
+    TEST_RUNNER_MARKETING_PHOTOS=$MAC_TMP/photos TEST_RUNNER_MARKETING_EXPORT=$MAC_TMP/export \
+    TEST_RUNNER_MARKETING_BEAT_FOLDER=$MAC_ALBUM TEST_RUNNER_MARKETING_BEAT_EXPORT=$MAC_TMP/Books \
+    TEST_RUNNER_MARKETING_PICKS=${MARKETING_MAC_PICKS:-${MARKETING_PICKS:-}} \
+    TEST_RUNNER_MARKETING_LANGUAGE=$LANGUAGE TEST_RUNNER_MARKETING_REGION=$REGION TEST_RUNNER_MARKETING_TITLE="$TITLE" \
+    xcodebuild test-without-building -project PhotoBooks.xcodeproj -scheme PhotoBooks \
+        -destination 'platform=macOS,arch=arm64' -derivedDataPath "$WORK/dd-mac" $only \
+        -resultBundlePath "$WORK/$run.xcresult" > "$OUT/logs/$run-test.log" 2>&1
+    status=$?
+    grep -E "Test Case .*(passed|failed|skipped)|error:|Executed [0-9]+ test" "$OUT/logs/$run-test.log" \
+        | tee "$OUT/logs/$run-summary.txt" >&2
+    export_mac_attachments "$run"
+    log "$run exit $status"
+    return "$status"
+}
+
+# One continuous screen recording around the beats test, cut afterwards by the
+# timeline the test leaves: the sandboxed runner has no channel the host can
+# poll, and it needs none.
+mac_beats() {
+    local stop=$WORK/mac-screen.stop screen=$WORK/mac-screen.mov started rec status=0
+    rm -f "$stop" "$screen"
+    started=$(now)
+    /usr/bin/python3 -I scripts/marketing/record-screen.py "$stop" "$screen" -C </dev/null \
+        >"$OUT/logs/mac-screen.log" 2>&1 &
+    rec=$!
+    sleep 2
+    mac_test mac-beats test3RecordBeats || status=1
+    touch "$stop"
+    wait "$rec" || log "screen recording exit $?"
+    [ -s "$screen" ] && [ -s "$OUT/logs/mac-beat-timeline.txt" ] || { log "no recording or timeline"; return 1; }
+    /usr/bin/python3 -I scripts/marketing/cut-mac-beats.py "$screen" "$OUT/logs/mac-beat-timeline.txt" \
+        "$started" "$OUT/mac" "$OUT/logs/mac-beats.txt" || status=1
+    [ "${MARKETING_KEEP_SCREEN:-0}" = 1 ] && cp "$screen" "$OUT/logs/mac-screen.mov"
+    return "$status"
+}
+
+run_mac() {
+    local status=0
+    MAC_TMP=/private/tmp/pb-marketing-$$
+    MAC_ALBUM=/Users/Shared/$TITLE  # on camera; its name becomes the book's title
+    rm -rf "$MAC_TMP" "$MAC_ALBUM" && mkdir -p "$MAC_TMP/export" "$MAC_TMP/Books"
+    cp -R "$WORK/photos" "$MAC_TMP/photos" && cp -R "$WORK/photos" "$MAC_ALBUM"
+    osascript -e 'tell application "System Events" to set visible of (every process whose name is not "Finder" and background only is false) to false' >/dev/null 2>&1
+    log "mac build-for-testing"
+    if ! xcodebuild build-for-testing -project PhotoBooks.xcodeproj -scheme PhotoBooks \
+            -destination 'platform=macOS,arch=arm64' -derivedDataPath "$WORK/dd-mac" \
+            > "$OUT/logs/mac-build.log" 2>&1; then
+        grep -E "error:|BUILD FAILED" "$OUT/logs/mac-build.log" | head -40 >&2
+        return 1
+    fi
+    if [ "${MARKETING_MAC_STILLS:-1}" != 0 ]; then
+        mac_test mac test1SetupStills test2EditorStills || status=1
+        # The open panel starts in the last folder used while it still exists;
+        # beat 1 shouldn't show /private/tmp.
+        rm -rf "$MAC_TMP/export"
+    fi
+    if echo " $BEAT_DEVICES " | grep -q " mac "; then
+        mac_beats || status=1
+    fi
     log "mac exit $status"
     return "$status"
+}
+
+# Recording sanity: duration of every mp4.
+report_recordings() {
+    local mp4
+    for mp4 in "$OUT"/*/*.mp4; do
+        [ -e "$mp4" ] || continue
+        if command -v ffprobe >/dev/null; then
+            echo "${mp4#$OUT/} $(ffprobe -v error -show_entries format=duration -of csv=p=0 "$mp4" 2>&1)"
+        else
+            echo "${mp4#$OUT/} $(stat -f %z "$mp4") bytes"
+        fi
+    done | tee "$OUT/recordings.txt" >&2
 }
 
 # Simulators first (build-for-testing needs a destination).
@@ -340,7 +410,9 @@ done
 FIRST=${IPHONE:-${DUO:-${IPAD:-}}}
 if [ -z "$FIRST" ]; then
     [ "$DEVICES" = mac ] || { log "no simulators"; exit 1; }
-    run_mac; exit $?
+    run_mac; status=$?
+    report_recordings
+    exit "$status"
 fi
 
 log "build-for-testing"
@@ -386,14 +458,6 @@ for kind in $DEVICES; do
     xcrun simctl shutdown "$DEVICE" >/dev/null 2>&1
 done
 
-# Recording sanity: duration of every mp4.
-for mp4 in "$OUT"/*/*.mp4; do
-    [ -e "$mp4" ] || continue
-    if command -v ffprobe >/dev/null; then
-        echo "${mp4#$OUT/} $(ffprobe -v error -show_entries format=duration -of csv=p=0 "$mp4" 2>&1)"
-    else
-        echo "${mp4#$OUT/} $(stat -f %z "$mp4") bytes"
-    fi
-done | tee "$OUT/recordings.txt" >&2
+report_recordings
 log "exit $status; captures in $OUT"
 exit "$status"
