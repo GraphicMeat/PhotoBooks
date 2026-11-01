@@ -576,7 +576,9 @@ final class MarketingCaptureUITests: XCTestCase {
         let cells = app.images.matching(identifier: "PXGGridLayout-Info")
         let isRegularPicker = app.windows.firstMatch.frame.width > 600
         var picked = 0
-        for pass in 0..<2 {
+        // Some languages open the wide picker zoomed in (three columns, two
+        // rows on screen): keep scrolling until a full book's worth is in.
+        for pass in 0..<4 where picked < 15 {
             for index in 0..<min(cells.count, 60) where picked < 26 {
                 let cell = cells.element(boundBy: index)
                 // Not under the floating "Show Selected" button either.
@@ -587,13 +589,19 @@ final class MarketingCaptureUITests: XCTestCase {
                 picked += 1
                 pause(0.3)
             }
-            // Wide pickers show plenty at once; their scroll gesture can also
-            // land on the floating "Show Selected" button.
-            if pass == 0, !isRegularPicker {
+            guard picked < 15, pass < 3 else { break }
+            if isRegularPicker {
+                // Inside the grid, well above the floating "Show Selected" button.
+                let frame = app.windows.firstMatch.frame
+                let start = app.coordinate(withNormalizedOffset: .zero)
+                    .withOffset(CGVector(dx: frame.midX, dy: frame.height * 0.6))
+                start.press(forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: -220)),
+                            withVelocity: XCUIGestureVelocity(400), thenHoldForDuration: 0.3)
+            } else {
                 drag(by: -320, velocity: XCUIGestureVelocity(400), hold: 0.3,
                      x: app.windows.firstMatch.frame.midX)
-                pause(0.8)
             }
+            pause(0.8)
         }
         if picked == 0 {
             dump("picker-no-cells")
