@@ -357,7 +357,9 @@ final class MarketingCaptureUITests: XCTestCase {
     private func tapToolbar(_ identifier: String, label: String) -> Bool {
         let direct = element(identifier)
         if direct.exists, direct.isHittable { direct.tap(); return true }
-        let byLabel = app.buttons.matching(NSPredicate(format: "label == %@", label)).firstMatch
+        // Unidentified only: in Japanese and Korean the sidebar toggle
+        // ("Pages") reads the same as the Page menu.
+        let byLabel = app.buttons.matching(NSPredicate(format: "label == %@ AND identifier == ''", label)).firstMatch
         if byLabel.exists, byLabel.isHittable { byLabel.tap(); return true }
         let overflow = app.buttons.matching(NSPredicate(
             format: "identifier ENDSWITH 'OverflowBarButtonItem'")).firstMatch
