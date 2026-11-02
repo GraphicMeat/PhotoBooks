@@ -87,9 +87,10 @@ import Testing
         // that differs every run, second-resolution /CreationDate//ModDate,
         // and a /Producer string embedding the OS build, and CGPDFContext.h
         // exposes no auxiliaryInfo key to pin any of them. What IS stable —
-        // and asserted here: equal file sizes (the variable fields are
-        // fixed-width), equal page count, every media box equal, equal
-        // per-page embedded-image counts, and the pinned metadata.
+        // and asserted here: near-equal file sizes (encrypted strings are
+        // written with a varying number of escapes), equal page count, every
+        // media box equal, equal per-page embedded-image counts, and the
+        // pinned metadata.
         let book = ExportFixtures.book(standardCount: 20)
         let store = ExportFixtures.store(for: book)
         let urlA = ExportFixtures.tempURL("det-a")
@@ -105,7 +106,7 @@ import Testing
 
         let dataA = try Data(contentsOf: urlA)
         let dataB = try Data(contentsOf: urlB)
-        #expect(dataA.count == dataB.count)
+        #expect(abs(dataA.count - dataB.count) < 256)
 
         let docA = try #require(PDFDocument(url: urlA))
         let docB = try #require(PDFDocument(url: urlB))

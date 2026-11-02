@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "PhotoBookRender",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v18),
         .macOS(.v15)
@@ -18,7 +19,8 @@ let package = Package(
             name: "PhotoBookRender",
             dependencies: [
                 .product(name: "PhotoBookCore", package: "PhotoBookCore")
-            ]
+            ],
+            resources: [.process("Resources"), .process("Localizable.xcstrings")]
         ),
         .testTarget(
             name: "PhotoBookRenderTests",

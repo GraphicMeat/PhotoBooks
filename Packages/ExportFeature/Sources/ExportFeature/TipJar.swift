@@ -1,8 +1,9 @@
+import AppSupport
 import Foundation
 import StoreKit
 
-/// The six consumable tips, Graphic Meat flavoured, cheapest first. Consumables
-/// only: nothing is unlocked. A local flag remembers previous support.
+/// The six consumable tips, Graphic Meat flavoured, cheapest first. Any one of
+/// them, once, makes a supporter: exports drop their sponsor pages for good.
 public enum TipTier: String, CaseIterable, Sendable {
     case coffee, burger, steak, bbq, brisket, feast
 
@@ -28,9 +29,9 @@ public enum TipTier: String, CaseIterable, Sendable {
     }
 }
 
-/// StoreKit 2 tip jar for the App Store build. Failure is silent by design:
-/// the products may not exist yet in App Store Connect, or the machine may be
-/// offline — either way the whole support block just disappears.
+/// StoreKit 2 tip jar for the App Store build. A reinstall restores the flag in
+/// `load()`: SKIncludeConsumableInAppPurchaseHistory keeps finished tips in
+/// `Transaction.all`.
 @MainActor
 @Observable
 public final class TipJar {
@@ -92,13 +93,7 @@ public final class TipJar {
     private static func rememberDonation(_ transaction: Transaction) {
         guard TipTier.tier(for: transaction.productID) != nil,
               transaction.revocationDate == nil else { return }
-        UserDefaults.standard.set(true, forKey: "photobooks.hasDonated")
-    }
-
-    /// Reopen the existing products after a completed tip.
-    public func prepareForAnotherDonation() {
-        guard case .thanked = state else { return }
-        state = products.isEmpty ? .unavailable : .ready
+        UserDefaults.standard.set(true, forKey: SupporterStatus.defaultsKey)
     }
 
     public func purchase(_ product: Product) async {

@@ -4,9 +4,10 @@ import StoreKitTest
 import UniformTypeIdentifiers
 import XCTest
 
-/// macOS smoke test for the one path a human can't check twice: exporting a
-/// Digital PDF, then buying a tip on the thank-you screen. StoreKitTest fakes
-/// the store, so the purchase actually completes and lands a transaction.
+/// macOS smoke test for the one path a human can't check twice: a free export
+/// carries sponsor pages, a tip on the step before export removes them.
+/// StoreKitTest fakes the store, so the purchase actually completes and lands
+/// a transaction.
 final class TipJarSmokeTests: XCTestCase {
 
     /// Held for the whole test: deallocating the session tears down the fake
@@ -66,7 +67,7 @@ final class TipJarSmokeTests: XCTestCase {
     }
 
     @MainActor
-    func testExportThenTipCompletesPurchase() throws {
+    func testTipBeforeExportRemovesSponsorPages() throws {
         let photos = try makeFolder()
         let colors: [(CGFloat, CGFloat, CGFloat)] = [
             (0.9, 0.2, 0.2), (0.2, 0.7, 0.3), (0.2, 0.3, 0.9),
@@ -86,7 +87,10 @@ final class TipJarSmokeTests: XCTestCase {
         app.launchArguments = [
             "-newBookFromFixtureFolder", photos.path,
             "-ApplePersistenceIgnoreState", "YES",
-            "-photobooks.hideDonationRequests", "NO",
+            "-resetSupporterStatus", "YES",
+            // Menu titles and copy are matched in English, whatever the host's language.
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_US",
             // Aims the save panel at a throwaway folder so the PDF lands
             // somewhere we can delete.
             "-NSNavLastRootDirectory", exportFolder.path
@@ -103,47 +107,8 @@ final class TipJarSmokeTests: XCTestCase {
         expectation(for: NSPredicate(format: "count >= 3"), evaluatedWith: thumbnails)
         waitForExpectations(timeout: 20)
 
-        // File → Export… (Unicode ellipsis, so match by prefix). The flow then
-        // offers the format; Digital PDF is the default selection.
-        app.menuBars.menuBarItems["File"].click()
-        let exportItem = app.menuBars.menuItems
-            .matching(NSPredicate(format: "title BEGINSWITH 'Export'")).firstMatch
-        XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "No Export menu item")
-        exportItem.click()
-
-        let cont = app.buttons["preflight-continue"]
-        XCTAssertTrue(cont.waitForExistence(timeout: 10), "Preflight step never appeared")
-        cont.click()
-
-        let exportButton = app.buttons["export-single-file"]
-        XCTAssertTrue(exportButton.waitForExistence(timeout: 10), "Destination step never appeared")
-        exportButton.click()
-
-        try saveInPanel(at: exportFolder.appendingPathComponent("tip-jar-smoke.pdf"))
-
-        XCTAssertTrue(app.buttons["export-open-file"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.buttons["export-share"].exists)
-        XCTAssertFalse(app.windows["Export — PhotoBooks"].exists,
-                       "Thank-you content should stay inside the main window")
-        // Two frames a few seconds apart: the page-flip preview should have
-        // turned a page in between. Kept as attachments for eyeballing.
-        attachScreenshot(named: "thank-you-sheet")
-        sleep(3)
-        attachScreenshot(named: "thank-you-sheet-3s-later")
-
-        // Done is available only after advancing through all four steps.
-        for _ in 0..<3 {
-            XCTAssertFalse(app.buttons["export-done"].exists)
-            let next = app.buttons["export-next"]
-            XCTAssertTrue(next.waitForExistence(timeout: 5))
-            next.click()
-        }
-        XCTAssertTrue(app.buttons["export-done"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["export-next"].exists)
-        // A previous run may have persisted support. Explicitly opt in again.
-        let donateAgain = app.buttons["export-donate-again"]
-        if donateAgain.waitForExistence(timeout: 2) { donateAgain.click() }
-        // Thank-you step: the tip jar loaded the SKTestSession's products.
+        // A free export: the support step explains itself, then is passed by.
+        openExportFlow(app)
         let coffee = app.buttons["export-tip-coffee"]
         XCTAssertTrue(coffee.waitForExistence(timeout: 15),
                       "export-tip-coffee never appeared — tip jar products did not load")
@@ -154,24 +119,98 @@ final class TipJarSmokeTests: XCTestCase {
         for tier in ["burger", "steak", "bbq", "brisket", "feast"] {
             XCTAssertTrue(app.buttons["export-tip-\(tier)"].exists, "Missing tip button for \(tier)")
         }
+        attachScreenshot(named: "support-step")
+        app.buttons["export-support-continue"].click()
 
+        let freeURL = exportFolder.appendingPathComponent("free.pdf")
+        try exportAndFinish(app, to: freeURL)
+        let free = try XCTUnwrap(CGPDFDocument(freeURL as CFURL))
+        XCTAssertTrue(free.isEncrypted, "Exports must be locked against changes")
+        XCTAssertTrue(free.isUnlocked, "Exports must open without a password")
+        attachPage(2, of: free, named: "sponsor-page")
+
+        // Tip on the next run: the same export comes out without the pages.
+        openExportFlow(app)
+        XCTAssertTrue(coffee.waitForExistence(timeout: 15))
         coffee.click()
-
-        // macOS SwiftUI text lands in the AX value, not the label.
-        let thanks = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS 'Thank you for your support!' OR value CONTAINS 'Thank you for your support!'")).firstMatch
+        let thanks = app.descendants(matching: .any)["export-supporter-thanks"]
         XCTAssertTrue(thanks.waitForExistence(timeout: 15), "Thank-you confirmation never appeared")
         XCTAssertFalse(coffee.exists)
-        XCTAssertTrue(donateAgain.exists)
-        attachScreenshot(named: "thank-you-after-tip")
-        donateAgain.click()
-        XCTAssertTrue(coffee.waitForExistence(timeout: 5))
-        coffee.click()
-        XCTAssertTrue(thanks.waitForExistence(timeout: 15))
+        attachScreenshot(named: "support-step-after-tip")
+        app.buttons["export-support-continue"].click()
+
+        let paidURL = exportFolder.appendingPathComponent("paid.pdf")
+        try exportAndFinish(app, to: paidURL)
+        let paid = try XCTUnwrap(CGPDFDocument(paidURL as CFURL))
+        XCTAssertEqual(free.numberOfPages, paid.numberOfPages + 2, "Digital export adds exactly two sponsor pages")
+        XCTAssertTrue(paid.isEncrypted, "Donors' exports stay locked too")
+
+        // From now on the support step never appears.
+        openExportFlow(app)
+        XCTAssertTrue(app.buttons["export-single-file"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["export-support-continue"].exists)
 
         let transactions = session.allTransactions()
-        XCTAssertEqual(transactions.count, 2, "Expected both initial and repeat tip transactions")
+        XCTAssertEqual(transactions.count, 1)
         XCTAssertEqual(transactions.first?.productIdentifier, "com.graphicMeat.PhotoBooks.tip.coffee")
+    }
+
+    /// File → Export… (Unicode ellipsis, so match by prefix), past preflight.
+    /// Digital PDF is the default selection.
+    @MainActor
+    private func openExportFlow(_ app: XCUIApplication) {
+        app.menuBars.menuBarItems["File"].click()
+        let exportItem = app.menuBars.menuItems
+            .matching(NSPredicate(format: "title BEGINSWITH 'Export'")).firstMatch
+        XCTAssertTrue(exportItem.waitForExistence(timeout: 5), "No Export menu item")
+        exportItem.click()
+
+        let cont = app.buttons["preflight-continue"]
+        XCTAssertTrue(cont.waitForExistence(timeout: 10), "Preflight step never appeared")
+        cont.click()
+    }
+
+    /// Destination step → save panel → through the three thank-you steps.
+    @MainActor
+    private func exportAndFinish(_ app: XCUIApplication, to url: URL) throws {
+        let exportButton = app.buttons["export-single-file"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 10), "Destination step never appeared")
+        exportButton.click()
+
+        try saveInPanel(at: url)
+
+        XCTAssertTrue(app.buttons["export-open-file"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["export-share"].exists)
+        XCTAssertFalse(app.windows["Export — PhotoBooks"].exists,
+                       "Thank-you content should stay inside the main window")
+        attachScreenshot(named: "thank-you-\(url.lastPathComponent)")
+
+        for _ in 0..<2 {
+            XCTAssertFalse(app.buttons["export-done"].exists)
+            let next = app.buttons["export-next"]
+            XCTAssertTrue(next.waitForExistence(timeout: 5))
+            next.click()
+        }
+        let done = app.buttons["export-done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["export-next"].exists)
+        done.click()
+    }
+
+    /// The page as exported, for eyeballing.
+    private func attachPage(_ number: Int, of document: CGPDFDocument, named name: String) {
+        guard let page = document.page(at: number),
+              let context = CGContext(data: nil, width: 1000, height: 1000, bitsPerComponent: 8,
+                                      bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return }
+        let box = page.getBoxRect(.mediaBox)
+        context.scaleBy(x: 1000 / box.width, y: 1000 / box.height)
+        context.drawPDFPage(page)
+        guard let image = context.makeImage() else { return }
+        let attachment = XCTAttachment(image: NSImage(cgImage: image, size: .zero))
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     private func attachScreenshot(named name: String) {

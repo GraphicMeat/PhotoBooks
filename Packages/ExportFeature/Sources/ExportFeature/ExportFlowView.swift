@@ -5,16 +5,17 @@ import PhotoBookRender
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The export overlay: preflight list → destination → progress → done/failed,
+/// The export overlay: preflight list → support → destination → progress → done/failed,
 /// driven entirely by `ExportModel.phase`.
 public struct ExportFlowView: View {
     let model: ExportModel
     let editor: BookEditorModel
 
     @State private var showFolderPicker = false
-    // Owned here, not by ThankYouView, so the loaded products and any
-    // in-flight purchase survive re-renders of the finished step.
+    // Owned here, not by SupportOfferView, so the loaded products and any
+    // in-flight purchase survive re-renders of the support step.
     @State private var tipJar = TipJar()
+    @AppStorage(SupporterStatus.defaultsKey) private var hasDonated = false
 
     public init(model: ExportModel, editor: BookEditorModel) {
         self.model = model
@@ -38,6 +39,8 @@ public struct ExportFlowView: View {
                 EmptyView()
             case .preflight:
                 preflightStep
+            case .support:
+                supportStep
             case .choosingDestination:
                 destinationStep
             case .exporting(let value):
@@ -45,11 +48,11 @@ public struct ExportFlowView: View {
             case .failed(let message, let retryIDs):
                 failureStep(message: message, retryIDs: retryIDs)
             case .finished(let urls):
-                ThankYouView(urls: urls, tipJar: tipJar) { model.dismissFlow() }
+                ThankYouView(urls: urls) { model.dismissFlow() }
             }
         }
         .frame(maxWidth: isFinished ? .infinity : 640,
-               maxHeight: isFinished ? .infinity : 480)
+               maxHeight: isFinished ? .infinity : (model.phase == .support ? 640 : 480))
         .padding(isFinished ? 0 : 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .nativeImporter(isPresented: $showFolderPicker) { folder in
@@ -86,11 +89,13 @@ public struct ExportFlowView: View {
     }
 
     private var exportStep: Int {
-        switch model.phase {
+        let support = model.showsSupportStep ? 1 : 0
+        return switch model.phase {
         case .idle, .preflight: 0
-        case .choosingDestination: 1
-        case .exporting, .failed: 2
-        case .finished: 3
+        case .support: 1
+        case .choosingDestination: 1 + support
+        case .exporting, .failed: 2 + support
+        case .finished: 3 + support
         }
     }
 
@@ -105,12 +110,12 @@ public struct ExportFlowView: View {
         @ViewBuilder actions: () -> Actions
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            ExportStepTracker(titles: [
-                String(localized: "Check", bundle: .module),
-                String(localized: "Setup", bundle: .module),
-                String(localized: "Export", bundle: .module),
-                String(localized: "Saved", bundle: .module)
-            ], current: exportStep, failed: exportFailed)
+            ExportStepTracker(titles: [String(localized: "Check", bundle: .module)]
+                + (model.showsSupportStep ? [String(localized: "Support", bundle: .module)] : [])
+                + [String(localized: "Setup", bundle: .module),
+                   String(localized: "Export", bundle: .module),
+                   String(localized: "Saved", bundle: .module)],
+                current: exportStep, failed: exportFailed)
             .padding(.bottom, 24)
             Text(title)
                 .font(.title2.weight(.semibold))
@@ -217,7 +222,27 @@ public struct ExportFlowView: View {
         }
     }
 
-    // MARK: 2 — destination
+    // MARK: 2 — support
+
+    private var supportStep: some View {
+        stepLayout(title: hasDonated
+                   ? String(localized: "Thank you for your support!", bundle: .module)
+                   : String(localized: "Remove the sponsor pages", bundle: .module)) {
+            SupportOfferView(tipJar: tipJar)
+        } actions: {
+            cancelButton
+            Button(hasDonated
+                   ? String(localized: "Continue", bundle: .module)
+                   : String(localized: "Continue with sponsor pages", bundle: .module)) {
+                model.continueFromSupport()
+            }
+            .buttonStyle(.borderedProminent)
+            .keyboardShortcut(.defaultAction)
+            .accessibilityIdentifier("export-support-continue")
+        }
+    }
+
+    // MARK: 3 — destination
 
     private var destinationStep: some View {
         stepLayout(title: String(localized: "Choose export type", bundle: .module)) {
@@ -266,7 +291,7 @@ public struct ExportFlowView: View {
         }
     }
 
-    // MARK: 3 — progress
+    // MARK: 4 — progress
 
     private func progressStep(_ value: Double) -> some View {
         stepLayout(title: targetTitle) {
@@ -296,7 +321,7 @@ public struct ExportFlowView: View {
         }
     }
 
-    // MARK: 4 — failure (success lives in ThankYouView)
+    // MARK: 5 — failure (success lives in ThankYouView)
 
     private func failureStep(message: String, retryIDs: [PhotoID]) -> some View {
         stepLayout(title: String(localized: "Export failed", bundle: .module)) {

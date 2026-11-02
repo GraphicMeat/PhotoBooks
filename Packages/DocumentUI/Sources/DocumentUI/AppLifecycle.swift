@@ -1,3 +1,4 @@
+import AppSupport
 import SwiftUI
 import ModelLayer
 
@@ -17,6 +18,25 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         // Open panel, so the first thing the user sees is the welcome screen.
         UserDefaults.standard.register(
             defaults: ["NSShowAppCentricOpenPanelInsteadOfUntitledFile": false])
+        #if DEBUG
+        // UITests start from a known state: `-resetSupporterStatus YES`.
+        if UserDefaults.standard.bool(forKey: "resetSupporterStatus") {
+            UserDefaults.standard.removeObject(forKey: SupporterStatus.defaultsKey)
+        }
+        #endif
+        // An Apple Event handler, not `.onOpenURL`: Stripe's return link must
+        // count even when no document window is open to receive it. Only the
+        // Developer ID build registers the scheme.
+        NSAppleEventManager.shared().setEventHandler(
+            self, andSelector: #selector(handleOpenURL(_:withReplyEvent:)),
+            forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
+    }
+
+    @objc private func handleOpenURL(_ event: NSAppleEventDescriptor,
+                                     withReplyEvent reply: NSAppleEventDescriptor) {
+        guard let link = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
+              let url = URL(string: link) else { return }
+        SupporterStatus.handle(url)
     }
 
     public func applicationShouldOpenUntitledFile(_ sender: NSApplication) -> Bool { true }

@@ -51,6 +51,8 @@
 	<string>$(PHOTOBOOKS_REVIEW_ENDPOINT)</string>
 	<key>PhotoBooksReviewEventsEndpoint</key>
 	<string>$(PHOTOBOOKS_REVIEW_EVENTS_ENDPOINT)</string>
+	<key>SKIncludeConsumableInAppPurchaseHistory</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

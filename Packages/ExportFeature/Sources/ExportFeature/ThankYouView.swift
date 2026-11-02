@@ -3,25 +3,20 @@ import PDFKit
 #if os(iOS)
 import QuickLook
 #endif
-import StoreKit
 import SwiftUI
 
-/// A four-step celebration. Export actions come first, followed by community
-/// and optional support. Done appears on the final step; no scrolling is needed.
+/// A three-step celebration. Export actions come first, followed by feedback
+/// and community. Done appears on the final step; no scrolling is needed.
 struct ThankYouView: View {
     let urls: [URL]
-    let tipJar: TipJar
     let onDone: () -> Void
 
     @Environment(\.supportOffer) private var supportOffer
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
     @FocusState private var doneFocused: Bool
-    @AppStorage("photobooks.hasDonated") private var hasDonated = false
-    @AppStorage("photobooks.hideDonationRequests") private var hideDonationRequests = false
-    @State private var steps = [0, 1, 2, 3]
+    private let steps = [0, 1, 2]
     @State private var step = 0
-    @State private var wantsToDonateAgain = false
     @State private var reviewSelection = ReviewRatingSelection()
     @State private var reviewDraft = ReviewDraft()
     @State private var revealed = false
@@ -39,7 +34,7 @@ struct ThankYouView: View {
             VStack(spacing: compact ? 8 : 16) {
                 let layout = compact ? AnyLayout(HStackLayout(spacing: 20)) : AnyLayout(VStackLayout(spacing: 16))
                 layout {
-                    if !typeSize.isAccessibilitySize && step != 3 && step != 1 {
+                    if !typeSize.isAccessibilitySize && step != 1 {
                         logo(side: compact ? 144 : (step == 0 ? 176 : 144))
                     }
                     stepContent(compact: compact)
@@ -73,14 +68,7 @@ struct ThankYouView: View {
         #if os(iOS)
         .quickLookPreview($selectedFile)
         #endif
-        .task {
-            if supportOffer == .tipJar { await tipJar.load() }
-        }
-        .onChange(of: tipJar.state) { _, state in
-            if case .thanked = state { wantsToDonateAgain = false }
-        }
         .onAppear {
-            if supportOffer == .tipJar && hasDonated && hideDonationRequests { steps = [0, 1, 2] }
             celebrationStart = .now
             withAnimation(reduceMotion ? nil : .spring(duration: 0.85, bounce: 0.5)) {
                 revealed = true
@@ -154,7 +142,7 @@ struct ThankYouView: View {
             }
         case 1:
             FeedbackReviewView(appStoreBuild: supportOffer == .tipJar, compact: compact, selection: $reviewSelection, draft: reviewDraft)
-        case 2:
+        default:
             VStack(spacing: 16) {
                 heading("Share work meant to be public")
                 Text("Printed a book for a public or commercial project? Share only work you have permission to make public. Keep family albums and private photos private.", bundle: .module)
@@ -163,73 +151,7 @@ struct ThankYouView: View {
                 actionLink("Share a public project via email", url: GraphicMeatBrand.shareProjectEmailURL, id: "export-email-album")
             }
             .multilineTextAlignment(.center)
-        default:
-            VStack(spacing: compact ? 12 : 20) {
-                if supportOffer == .tipJar && hasDonated && !wantsToDonateAgain {
-                    supporterThanks(compact: compact)
-                } else {
-                    heading("Thank you for making a book with PhotoBooks")
-                    if !compact {
-                        Text("Enjoy your book. If you’d like to support PhotoBooks, you can fuel the next chapter.", bundle: .module)
-                            .foregroundStyle(.primary.opacity(0.85))
-                    }
-                    switch supportOffer {
-                    case .tipJar:
-                        TipJarView(jar: tipJar, compact: compact)
-
-                    case .donate(let url):
-                        Link(destination: url) {
-                            HStack(spacing: 16) {
-                                GraphicMeatBrand.donate
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: compact ? 96 : 160, height: compact ? 96 : 160)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                                    .accessibilityHidden(true)
-                                Text("Buy Graphic Meat a steak", bundle: .module)
-                                    .font(.headline)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 80)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                        }
-                        .buttonStyle(DonationButtonStyle(color: TipTier.steak.donationColor))
-                        .accessibilityIdentifier("export-donate")
-                    }
-                }
-                if supportOffer == .tipJar && hasDonated {
-                    Toggle(String(localized: "Don’t show donation requests again", bundle: .module), isOn: $hideDonationRequests)
-                        .font(.callout)
-                        .accessibilityIdentifier("export-hide-donations")
-                }
-            }
-            .multilineTextAlignment(.center)
         }
-    }
-
-    private func supporterThanks(compact: Bool) -> some View {
-        VStack(spacing: compact ? 8 : 16) {
-            if !compact && !typeSize.isAccessibilitySize {
-                GraphicMeatBrand.supportThanks
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 220)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .accessibilityHidden(true)
-            }
-            heading("Thank you for your support!")
-            Text("You’ve already supported PhotoBooks. Thank you for helping fuel the next chapter.", bundle: .module)
-                .foregroundStyle(.primary.opacity(0.85))
-            Text("Would you like to donate again?", bundle: .module)
-            Button(String(localized: "Donate again", bundle: .module)) {
-                tipJar.prepareForAnotherDonation()
-                wantsToDonateAgain = true
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .accessibilityIdentifier("export-donate-again")
-        }
-        .accessibilityIdentifier("export-supporter-thanks")
     }
 
     private func heading(_ text: String.LocalizationValue) -> some View {
@@ -255,8 +177,7 @@ struct ThankYouView: View {
         switch step {
         case 0: String(localized: "Files", bundle: .module)
         case 1: String(localized: "Feedback", bundle: .module)
-        case 2: String(localized: "Share", bundle: .module)
-        default: String(localized: "Support", bundle: .module)
+        default: String(localized: "Share", bundle: .module)
         }
     }
 
@@ -603,140 +524,5 @@ private extension AnyTransition {
         .asymmetric(
             insertion: .modifier(active: PageFlip(angle: 90), identity: PageFlip(angle: 0)),
             removal: .modifier(active: PageFlip(angle: -90), identity: PageFlip(angle: 0)))
-    }
-}
-
-// MARK: - Tip jar
-
-/// The App Store build's tip jar. Silent about failure: if StoreKit has nothing
-/// for us (products not live yet, offline, purchases disabled) the whole block
-/// disappears rather than showing an error nobody can act on.
-private struct TipJarView: View {
-    let jar: TipJar
-    let compact: Bool
-
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 3)
-
-    var body: some View {
-        VStack(spacing: 8) {
-            switch jar.state {
-            case .idle, .loading:
-                ProgressView().controlSize(.small)
-            case .unavailable:
-                EmptyView()
-            case .thanked(let tier):
-                HStack(spacing: 10) {
-                    TipArtwork(tier: tier, size: 56)
-                    Text("Meat acquired. Thank you!", bundle: .module)
-                        .font(.callout.weight(.semibold))
-                        .foregroundStyle(.green)
-                }
-                .transition(.scale(scale: 0.6).combined(with: .opacity))
-            case .ready, .purchasing:
-                Text("Fuel the grill at Graphic Meat", bundle: .module)
-                    .font(.caption)
-                    .foregroundStyle(.primary.opacity(0.85))
-                LazyVGrid(columns: columns, spacing: 10) {
-                    ForEach(jar.products) { product in
-                        tipButton(product)
-                    }
-                }
-                .frame(maxWidth: 500)
-            }
-        }
-        .animation(.spring(duration: 0.5, bounce: 0.3), value: jar.state)
-        .task { await jar.load() }
-    }
-
-    @ViewBuilder
-    private func tipButton(_ product: Product) -> some View {
-        if let tier = TipTier.tier(for: product.id) {
-            let isPurchasing = jar.state == .purchasing(tier)
-            Button {
-                Task { await jar.purchase(product) }
-            } label: {
-                DonationButtonLabel(tier: tier, price: product.displayPrice, compact: compact)
-                    .opacity(isPurchasing ? 0 : 1)
-                    .overlay {
-                        if isPurchasing { ProgressView().controlSize(.small).tint(.black) }
-                    }
-            }
-            .buttonStyle(DonationButtonStyle(color: tier.donationColor))
-            .disabled(jar.state != .ready)
-            .help(Text("Send a tip to Graphic Meat", bundle: .module))
-            .accessibilityIdentifier("export-tip-\(tier.rawValue)")
-        }
-    }
-}
-
-
-private struct TipArtwork: View {
-    let tier: TipTier
-    let size: CGFloat
-
-    var body: some View {
-        Image(tier.artworkName, bundle: .module)
-            .resizable()
-            .interpolation(.none)
-            .scaledToFit()
-            .frame(width: size, height: size)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .accessibilityHidden(true)
-    }
-}
-
-private struct DonationButtonLabel: View {
-    let tier: TipTier
-    let price: String
-    let compact: Bool
-
-    var body: some View {
-        let layout = compact ? AnyLayout(HStackLayout(spacing: 6)) : AnyLayout(VStackLayout(spacing: 6))
-        layout {
-            TipArtwork(tier: tier, size: compact ? 40 : 64)
-            VStack(spacing: 4) {
-                Text(verbatim: tier.title)
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(verbatim: price)
-                    .font(compact ? .callout.bold() : .headline)
-            }
-        }
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .frame(minHeight: compact ? 64 : 112)
-        .padding(.horizontal, 8)
-        .padding(.vertical, compact ? 4 : 8)
-        .contentShape(RoundedRectangle(cornerRadius: 14))
-    }
-}
-
-private struct DonationButtonStyle: ButtonStyle {
-    let color: Color
-    @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundStyle(Color(red: 0.16, green: 0.10, blue: 0.12))
-            .background(color, in: RoundedRectangle(cornerRadius: 14))
-            .brightness(configuration.isPressed ? -0.06 : 0)
-            .opacity(isEnabled ? 1 : 0.65)
-            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
-            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
-    }
-}
-
-private extension TipTier {
-    var donationColor: Color {
-        switch self {
-        case .coffee: Color(red: 1, green: 0.82, blue: 0.48)
-        case .burger: Color(red: 1, green: 0.70, blue: 0.44)
-        case .steak: Color(red: 1, green: 0.63, blue: 0.66)
-        case .bbq: Color(red: 0.82, green: 0.72, blue: 1)
-        case .brisket: Color(red: 0.65, green: 0.83, blue: 1)
-        case .feast: Color(red: 0.65, green: 0.88, blue: 0.73)
-        }
     }
 }

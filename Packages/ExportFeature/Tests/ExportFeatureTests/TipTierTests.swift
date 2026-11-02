@@ -41,3 +41,28 @@ import Testing
         #expect(products.compactMap { $0["productID"] as? String } == TipTier.allProductIDs)
     }
 }
+
+@Suite struct SupportInfoPlistTests {
+    private func plist(_ name: String) throws -> [String: Any] {
+        let url = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("App/\(name)")
+        let object = try PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil)
+        return try #require(object as? [String: Any])
+    }
+
+    private func schemes(_ plist: [String: Any]) -> [String] {
+        (plist["CFBundleURLTypes"] as? [[String: Any]] ?? [])
+            .flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
+    }
+
+    @Test func appStoreBuildKeepsFinishedTipsInTransactionHistory() throws {
+        #expect(try plist("Info.plist")["SKIncludeConsumableInAppPurchaseHistory"] as? Bool == true)
+    }
+
+    @Test func onlyTheDirectBuildAcceptsTheDonationLink() throws {
+        #expect(schemes(try plist("Info-Direct.plist")) == ["photobooks"])
+        #expect(schemes(try plist("Info.plist")).isEmpty)
+    }
+}

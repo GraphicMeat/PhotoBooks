@@ -23,18 +23,27 @@ public struct ExportPlan {
     enum Job {
         case page(Page)
         case coverSheet
+        case sponsor
+        case blank
     }
     var mediaSize: CGSize
     var contentRect: CGRect          // top-left-origin; trim rect for bleed targets
     var jobs: [Job]
     var maxDPI: Double
     var uniquePhotoIDs: [PhotoID]    // every placed photo this export renders, sorted
+    var spineWidth: Double = 0       // blurbCover only
 
-    init(book: Book, preset: PrintPreset, target: PDFTarget) {
+    init(book: Book, preset: PrintPreset, target: PDFTarget, sponsored: Bool = false) {
         let trimW = preset.trimSize.width * PDFExporter.pointsPerInch
         let trimH = preset.trimSize.height * PDFExporter.pointsPerInch
         let bleedPt = preset.bleed * PDFExporter.pointsPerInch
         let standardPages = book.pages.filter { $0.role == .standard }
+        // Print keeps facing pages facing, and the Blurb spine must count every
+        // page the interior PDF actually prints.
+        let printInterior = ExportPlan.interiorJobs(standardPages, sponsored: sponsored,
+                                                    keepingFacingPages: true)
+        let coverPages = Array(book.pages.prefix { $0.role == .cover })
+        let otherPages = Array(book.pages.dropFirst(coverPages.count))
 
         switch target {
         case .blurbInterior:
@@ -42,12 +51,13 @@ public struct ExportPlan {
             // media box = (trim + 2×bleed) × pointsPerInch, content offset by bleed.
             mediaSize = CGSize(width: trimW + 2 * bleedPt, height: trimH + 2 * bleedPt)
             contentRect = CGRect(x: bleedPt, y: bleedPt, width: trimW, height: trimH)
-            jobs = standardPages.map { .page($0) }
+            jobs = printInterior
             maxDPI = PDFExporter.printDPI
         case .blurbCover:
             // One sheet: back + spine + front, plus bleed all around.
             let spinePt = ExportPlan.spineWidthInches(preset: preset,
-                                                      standardPageCount: standardPages.count) * PDFExporter.pointsPerInch
+                                                      standardPageCount: printInterior.count) * PDFExporter.pointsPerInch
+            spineWidth = spinePt
             mediaSize = CGSize(width: 2 * trimW + spinePt + 2 * bleedPt,
                                height: trimH + 2 * bleedPt)
             contentRect = CGRect(origin: .zero, size: mediaSize)   // unused for cover — front/spine/back panels computed locally in drawCoverSheet
@@ -61,12 +71,16 @@ public struct ExportPlan {
                 mediaSize = CGSize(width: trimW, height: trimH)
                 contentRect = CGRect(origin: .zero, size: mediaSize)
             }
-            jobs = book.pages.map { .page($0) }    // all pages, cover first
+            // all pages, cover first
+            jobs = coverPages.map { .page($0) }
+                + ExportPlan.interiorJobs(otherPages, sponsored: sponsored, keepingFacingPages: true)
             maxDPI = PDFExporter.printDPI
         case .digital:
             mediaSize = CGSize(width: trimW, height: trimH)
             contentRect = CGRect(origin: .zero, size: mediaSize)
-            jobs = book.pages.map { .page($0) }    // all pages, cover first
+            // all pages, cover first
+            jobs = coverPages.map { .page($0) }
+                + ExportPlan.interiorJobs(otherPages, sponsored: sponsored, keepingFacingPages: false)
             maxDPI = PDFExporter.digitalDPI
         }
 
@@ -75,6 +89,8 @@ public struct ExportPlan {
             switch job {
             case .page(let page):
                 for slot in page.photoSlots { if let id = slot.photoID { ids.insert(id) } }
+            case .sponsor, .blank:
+                break
             case .coverSheet:
                 if let cover = book.pages.first, cover.role == .cover {
                     for slot in cover.photoSlots { if let id = slot.photoID { ids.insert(id) } }
@@ -85,6 +101,22 @@ public struct ExportPlan {
             }
         }
         uniquePhotoIDs = ids.sorted { $0.rawValue < $1.rawValue }
+    }
+
+    /// A sponsor page opens the interior and another precedes its last page (or
+    /// its closing spread, which is never split). One page alone would flip
+    /// every following page left↔right in print and tear spreads apart, so
+    /// print pairs each with a blank; `Sponsorship.printedPageCount` counts them.
+    private static func interiorJobs(_ pages: [Page], sponsored: Bool,
+                                     keepingFacingPages: Bool) -> [Job] {
+        var jobs: [Job] = pages.map { .page($0) }
+        guard sponsored else { return jobs }
+        let lastRow = pages.last?.half == .right ? pages.count - 2 : pages.count - 1
+        if lastRow > 0 {
+            jobs.insert(contentsOf: keepingFacingPages ? [.blank, .sponsor] : [.sponsor], at: lastRow)
+        }
+        jobs.insert(contentsOf: keepingFacingPages ? [.sponsor, .blank] : [.sponsor], at: 0)
+        return jobs
     }
 
     /// spine inches = spineBase + spinePerPage × standardPageCount (contract).
@@ -133,12 +165,14 @@ public struct PDFExporter: Sendable {
 
     public func export(_ book: Book, preset: PrintPreset, target: PDFTarget,
                        imageStore: any ImageStore, to url: URL,
+                       sponsorship: Sponsorship? = nil,
                        progress: @Sendable @escaping (Double) -> Void) async throws {
         // 1. Preflight gate (D8): never render placeholders into a print file.
         let blocking = Preflight.check(book, preset: preset).filter(\.isBlocking)
         guard blocking.isEmpty else { throw PDFExportError.preflightBlocked(blocking) }
 
-        let plan = ExportPlan(book: book, preset: preset, target: target)
+        let plan = ExportPlan(book: book, preset: preset, target: target,
+                              sponsored: sponsorship != nil)
 
         // 2. Fetch pass, progress 0 → 0.5 (D2): fetch-and-discard every
         // unique photo to trigger downloads and collect failures BEFORE the
@@ -175,6 +209,13 @@ public struct PDFExporter: Sendable {
             kCGPDFContextCreator: "PhotoBooks",
             kCGPDFContextTitle: book.title,
             kCGPDFContextOutputIntent: outputIntent,
+            // Opens without a password but refuses edits, so sponsor pages are
+            // not one click from deletion. Random per export: no shared secret
+            // ships in the binary, and nothing here ever needs to unlock it.
+            kCGPDFContextOwnerPassword: UUID().uuidString,
+            kCGPDFContextEncryptionKeyLength: 128,
+            kCGPDFContextAccessPermissions: ([.allowsHighQualityPrinting, .allowsLowQualityPrinting,
+                                              .allowsContentAccessibility] as CGPDFAccessPermissions).rawValue,
         ]
         guard let context = CGContext(url as CFURL, mediaBox: &mediaBox,
                                       auxiliaryInfo as CFDictionary) else {
@@ -195,8 +236,20 @@ public struct PDFExporter: Sendable {
                                             contentRect: plan.contentRect,
                                             imageStore: imageStore)
                 case .coverSheet:
-                    try await drawCoverSheet(book: book, preset: preset, in: context,
-                                             mediaSize: plan.mediaSize, imageStore: imageStore)
+                    try await drawCoverSheet(book: book, preset: preset, spinePt: plan.spineWidth,
+                                             in: context, mediaSize: plan.mediaSize, imageStore: imageStore)
+                case .sponsor:
+                    guard let sponsorship else { break }
+                    let links = sponsorship.draw(in: context, mediaSize: plan.mediaSize,
+                                                 contentRect: plan.contentRect, maxDPI: plan.maxDPI)
+                    // Only a screen PDF can be clicked; print files stay free of annotations.
+                    if case .digital = target {
+                        for link in links { context.setURL(link.url as CFURL, for: link.rect) }
+                    }
+                case .blank:
+                    try await renderer.draw(page: Page(role: .standard, origin: .template(id: "blank")),
+                                            in: context, mediaSize: plan.mediaSize,
+                                            contentRect: plan.contentRect, imageStore: imageStore)
                 }
                 context.endPDFPage()
                 pageIsOpen = false
@@ -227,14 +280,11 @@ public struct PDFExporter: Sendable {
     /// (which also fills the whole sheet with the book background — the back
     /// panel and bleed are exactly that fill). The spine carries the title,
     /// rotated to read top-to-bottom (D7).
-    private func drawCoverSheet(book: Book, preset: PrintPreset, in context: CGContext,
+    private func drawCoverSheet(book: Book, preset: PrintPreset, spinePt: Double, in context: CGContext,
                                 mediaSize: CGSize, imageStore: any ImageStore) async throws {
         let trimW = preset.trimSize.width * Self.pointsPerInch
         let trimH = preset.trimSize.height * Self.pointsPerInch
         let bleedPt = preset.bleed * Self.pointsPerInch
-        let standardCount = book.pages.count(where: { $0.role == .standard })
-        let spinePt = ExportPlan.spineWidthInches(preset: preset,
-                                                  standardPageCount: standardCount) * Self.pointsPerInch
 
         let backRect = CGRect(x: bleedPt, y: bleedPt, width: trimW, height: trimH)
         let spineRect = CGRect(x: bleedPt + trimW, y: bleedPt, width: spinePt, height: trimH)

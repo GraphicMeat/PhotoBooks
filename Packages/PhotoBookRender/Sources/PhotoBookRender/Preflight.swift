@@ -27,16 +27,20 @@ public enum Preflight {
     /// Warn when a placement renders below this effective DPI.
     static let minimumDPI = 200
 
-    public static func check(_ book: Book, preset: PrintPreset) -> [PreflightIssue] {
+    public static func check(_ book: Book, preset: PrintPreset,
+                             sponsorPages: Int = 0) -> [PreflightIssue] {
         var issues: [PreflightIssue] = []
 
         // Page count counts STANDARD pages only — the cover is a separate
         // physical product (its own sheet for Blurb) and never counts
         // toward the interior page limits.
+        // Sponsor pages only count against the upper limit: a donation can
+        // still remove them, so they never satisfy the minimum.
         let standardCount = book.pages.count(where: { $0.role == .standard })
-        if standardCount < preset.minPages || standardCount > preset.maxPages {
+        let printedCount = standardCount + sponsorPages
+        if standardCount < preset.minPages || printedCount > preset.maxPages {
             issues.append(PreflightIssue(
-                kind: .pageCountOutOfRange(actual: standardCount,
+                kind: .pageCountOutOfRange(actual: standardCount < preset.minPages ? standardCount : printedCount,
                                            min: preset.minPages, max: preset.maxPages),
                 pageIndex: nil,
                 isBlocking: false))

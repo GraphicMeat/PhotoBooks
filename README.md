@@ -138,8 +138,12 @@ reviewed” button. StoreKit cannot
 confirm actual submission. Website feedback remains available for every rating,
 including after an App Store invitation or an earlier website submission.
 This five-star routing risks rejection under Apple's filtered-review rules.
-Verified tips persist donor status locally and unlock “Don’t show donation requests
-again” for future exports.
+
+Every exported PDF opens without a password but refuses edits. Free exports also
+carry a sponsor page after the cover and before the last page (print adds a blank
+beside each, so facing pages and spreads stay aligned, and the Blurb spine counts
+them). One donation removes them for good: a verified tip in the App Store build,
+or `photobooks://donated` from the Stripe success page in the Developer ID build.
 
 Website feedback is disabled until `PHOTOBOOKS_REVIEW_ENDPOINT` is configured with
 an HTTPS URL. The client proposes a JSON POST contract with `id` (UUID), `rating`

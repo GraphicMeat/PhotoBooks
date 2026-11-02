@@ -65,6 +65,7 @@ public final class ExportModel {
     public enum Phase: Equatable {
         case idle
         case preflight
+        case support
         case choosingDestination
         case exporting(Double)
         case failed(message: String, retryIDs: [PhotoID])
@@ -80,6 +81,7 @@ public final class ExportModel {
 
     @ObservationIgnored private let document: BookDocument
     @ObservationIgnored private let imageStore: any ImageStore
+    @ObservationIgnored private let isSupporter: @MainActor () -> Bool
     @ObservationIgnored private var exportTask: Task<Void, Never>?
     @ObservationIgnored private var lastDestination: Destination?
     @ObservationIgnored private var destinationAccess: DestinationAccess?
@@ -87,14 +89,17 @@ public final class ExportModel {
     public private(set) var phase: Phase = .idle
     public private(set) var target: ExportTarget = .digital
     public private(set) var issues: [PreflightIssue] = []
+    public private(set) var showsSupportStep = false
 
     /// Set by the single-file path once rendering succeeds; the flow view
     /// hands it to `.fileExporter`.
     public var renderedDocument: PDFExportDocument?
 
-    public init(document: BookDocument, imageStore: any ImageStore) {
+    public init(document: BookDocument, imageStore: any ImageStore,
+                isSupporter: @escaping @MainActor () -> Bool = { SupporterStatus.isSupporter() }) {
         self.document = document
         self.imageStore = imageStore
+        self.isSupporter = isSupporter
     }
 
     var preset: PrintPreset {
@@ -132,14 +137,22 @@ public final class ExportModel {
         renderedDocument = nil
         lastDestination = nil
         destinationAccess = nil
-        issues = Preflight.check(document.book, preset: preset)
+        showsSupportStep = !isSupporter()
+        issues = Preflight.check(document.book, preset: preset,
+                                 sponsorPages: showsSupportStep ? Sponsorship.printedPageCount : 0)
         phase = .preflight
     }
 
-    /// Preflight → destination. Blocked while blocking issues exist (the
-    /// button is also disabled — this is the model-side guarantee).
+    /// Preflight → support (free users) → destination. Blocked while blocking
+    /// issues exist (the button is also disabled — this is the model-side
+    /// guarantee).
     public func continueFromPreflight() {
         guard !summary.hasBlockingIssues else { return }
+        phase = showsSupportStep ? .support : .choosingDestination
+    }
+
+    public func continueFromSupport() {
+        guard phase == .support else { return }
         phase = .choosingDestination
     }
 
@@ -173,6 +186,7 @@ public final class ExportModel {
         let store = imageStore
         let interiorURL = folder.appendingPathComponent(ExportFilenames.interior(title: book.title))
         let coverURL = folder.appendingPathComponent(ExportFilenames.cover(title: book.title))
+        let sponsorship = currentSponsorship
         let combined = BlurbProgress(
             interiorSheets: Double(book.pages.count(where: { $0.role == .standard })))
         destinationAccess = DestinationAccess(folder)
@@ -180,13 +194,15 @@ public final class ExportModel {
         exportTask = Task {
             do {
                 try await PDFExporter().export(book, preset: preset, target: .blurbInterior,
-                                               imageStore: store, to: interiorURL) { value in
+                                               imageStore: store, to: interiorURL,
+                                               sponsorship: sponsorship) { value in
                     Task { @MainActor [weak self] in
                         self?.noteProgress(combined.duringInterior(value))
                     }
                 }
                 try await PDFExporter().export(book, preset: preset, target: .blurbCover,
-                                               imageStore: store, to: coverURL) { value in
+                                               imageStore: store, to: coverURL,
+                                               sponsorship: sponsorship) { value in
                     Task { @MainActor [weak self] in
                         self?.noteProgress(combined.duringCover(value))
                     }
@@ -206,6 +222,7 @@ public final class ExportModel {
         let book = document.book
         let preset = preset
         let store = imageStore
+        let sponsorship = currentSponsorship
         let temporaryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("PhotoBooks-export-\(UUID().uuidString).pdf")
         phase = .exporting(0)
@@ -213,7 +230,8 @@ public final class ExportModel {
             defer { try? FileManager.default.removeItem(at: temporaryURL) }
             do {
                 try await PDFExporter().export(book, preset: preset, target: pdfTarget,
-                                               imageStore: store, to: temporaryURL) { value in
+                                               imageStore: store, to: temporaryURL,
+                                               sponsorship: sponsorship) { value in
                     Task { @MainActor [weak self] in self?.noteProgress(value) }
                 }
                 renderedDocument = PDFExportDocument(data: try Data(contentsOf: temporaryURL))
@@ -236,6 +254,12 @@ public final class ExportModel {
     }
 
     // MARK: Internals
+
+    /// Read when rendering starts, not in `begin`: a donation on the support
+    /// step has to take effect on the very next export.
+    private var currentSponsorship: Sponsorship? {
+        isSupporter() ? nil : .standard
+    }
 
     private func noteProgress(_ value: Double) {
         if case .exporting = phase { phase = .exporting(value) }

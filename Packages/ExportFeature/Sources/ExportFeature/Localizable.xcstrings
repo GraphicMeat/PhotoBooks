@@ -113,6 +113,412 @@
         }
       }
     },
+    "After donating, you’ll come back here and the sponsor pages will be gone." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach der Spende kommst du hierher zurück und die Sponsorenseiten sind weg."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After donating, you’ll come back here and the sponsor pages will be gone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de donar, volverás aquí y las páginas de patrocinio habrán desaparecido."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après votre don, vous reviendrez ici et les pages de sponsor auront disparu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo la donazione tornerai qui e le pagine sponsor saranno sparite."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "寄付後はこの画面に戻り、スポンサーページはなくなります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기부 후 이 화면으로 돌아오면 후원 페이지가 사라집니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depois de doar, você voltará para cá e as páginas de patrocínio terão sumido."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "捐助后你会回到这里，赞助页也将被移除。"
+          }
+        }
+      }
+    },
+    "Continue with sponsor pages" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Sponsorenseiten fortfahren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue with sponsor pages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar con páginas de patrocinio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer avec les pages de sponsor"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua con le pagine sponsor"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スポンサーページありで続ける"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "후원 페이지 포함하여 계속"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar com páginas de patrocínio"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留赞助页并继续"
+          }
+        }
+      }
+    },
+    "Donations aren’t available right now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spenden sind derzeit nicht verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donations aren’t available right now."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las donaciones no están disponibles en este momento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les dons ne sont pas disponibles pour le moment."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le donazioni non sono disponibili al momento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在、寄付はご利用いただけません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 기부할 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As doações não estão disponíveis no momento."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前无法捐助。"
+          }
+        }
+      }
+    },
+    "Exports include a page saying the album is sponsored by mailvaultapp.com, after the cover and before the last page. Printed books also get a blank page beside each one to keep your spreads together." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporte enthalten nach dem Cover und vor der letzten Seite eine Seite mit dem Hinweis, dass das Album von mailvaultapp.com gesponsert wird. Gedruckte Bücher erhalten daneben zusätzlich je eine leere Seite, damit deine Doppelseiten zusammenbleiben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exports include a page saying the album is sponsored by mailvaultapp.com, after the cover and before the last page. Printed books also get a blank page beside each one to keep your spreads together."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las exportaciones incluyen una página que indica que el álbum está patrocinado por mailvaultapp.com, después de la portada y antes de la última página. Los libros impresos también llevan una página en blanco junto a cada una para mantener unidas tus páginas dobles."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les exports incluent une page indiquant que l’album est sponsorisé par mailvaultapp.com, après la couverture et avant la dernière page. Les livres imprimés reçoivent aussi une page vierge à côté de chacune pour garder vos doubles pages intactes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le esportazioni includono una pagina che indica che l’album è sponsorizzato da mailvaultapp.com, dopo la copertina e prima dell’ultima pagina. I libri stampati hanno anche una pagina bianca accanto a ciascuna per tenere unite le doppie pagine."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "書き出したファイルには、表紙の後と最終ページの前に、このアルバムのスポンサーが mailvaultapp.com であることを示すページが入ります。印刷する本では、見開きが崩れないよう、それぞれの隣に白紙ページも入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내보낸 파일에는 표지 다음과 마지막 페이지 앞에 이 앨범을 mailvaultapp.com이 후원한다는 페이지가 포함됩니다. 인쇄용 책에는 펼침면이 유지되도록 각 페이지 옆에 빈 페이지도 추가됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As exportações incluem uma página informando que o álbum é patrocinado por mailvaultapp.com, depois da capa e antes da última página. Livros impressos também recebem uma página em branco ao lado de cada uma para manter suas páginas duplas juntas."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出文件会在封面之后和最后一页之前加入一页，说明本相册由 mailvaultapp.com 赞助。印刷书籍还会在每个赞助页旁加入一张空白页，以保持跨页完整。"
+          }
+        }
+      }
+    },
+    "One donation removes these pages from all your exports for good." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine einzige Spende entfernt diese Seiten dauerhaft aus all deinen Exporten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One donation removes these pages from all your exports for good."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una sola donación elimina estas páginas de todas tus exportaciones para siempre."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un seul don retire définitivement ces pages de tous vos exports."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una sola donazione rimuove per sempre queste pagine da tutte le tue esportazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一度寄付すると、今後のすべての書き出しからこれらのページがなくなります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "한 번만 기부하면 모든 내보내기에서 이 페이지가 영구히 사라집니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma única doação remove essas páginas de todas as suas exportações para sempre."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只需捐助一次，所有导出文件都将永久移除这些页面。"
+          }
+        }
+      }
+    },
+    "Remove the sponsor pages" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sponsorenseiten entfernen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove the sponsor pages"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar las páginas de patrocinio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer les pages de sponsor"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi le pagine sponsor"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スポンサーページを削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "후원 페이지 제거"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover as páginas de patrocínio"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除赞助页"
+          }
+        }
+      }
+    },
+    "Your exports no longer include sponsor pages." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Exporte enthalten keine Sponsorenseiten mehr."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your exports no longer include sponsor pages."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus exportaciones ya no incluyen páginas de patrocinio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos exports n’incluent plus de pages de sponsor."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue esportazioni non includono più pagine sponsor."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "書き出したファイルにスポンサーページは入らなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이제 내보내기에 후원 페이지가 포함되지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suas exportações não incluem mais páginas de patrocínio."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的导出文件将不再包含赞助页。"
+          }
+        }
+      }
+    },
     "🥩 Buy Graphic Meat a steak" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1489,122 +1895,6 @@
         }
       }
     },
-    "Don’t show donation requests again" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spendenbitten nicht mehr anzeigen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Don’t show donation requests again"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No volver a mostrar solicitudes de donación"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ne plus afficher les demandes de don"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non mostrare più le richieste di donazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "寄付のお願いを今後表示しない"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "후원 요청 다시 보지 않기"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não mostrar mais pedidos de doação"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不再显示捐赠请求"
-          }
-        }
-      }
-    },
-    "Donate again" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erneut spenden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Donate again"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Donar de nuevo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faire un nouveau don"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dona di nuovo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "もう一度寄付する"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다시 후원하기"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Doar novamente"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "再次捐赠"
-          }
-        }
-      }
-    },
     "Done" : {
       "localizations" : {
         "de" : {
@@ -1659,64 +1949,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "完成"
-          }
-        }
-      }
-    },
-    "Enjoy your book. If you’d like to support PhotoBooks, you can fuel the next chapter." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Viel Freude mit deinem Buch. Wenn du PhotoBooks unterstützen möchtest, kannst du das nächste Kapitel befeuern."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enjoy your book. If you’d like to support PhotoBooks, you can fuel the next chapter."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disfruta de tu libro. Si quieres apoyar PhotoBooks, puedes impulsar el próximo capítulo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profitez bien de votre livre. Pour soutenir PhotoBooks, vous pouvez alimenter le prochain chapitre."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Goditi il tuo libro. Se vuoi sostenere PhotoBooks, puoi alimentare il prossimo capitolo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ブックをお楽しみください。PhotoBooks を応援していただけるなら、次の章を後押しできます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "책을 즐겨 주세요. PhotoBooks를 응원하고 싶다면 다음 장을 함께 만들어 주세요."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aproveite seu livro. Se quiser apoiar o PhotoBooks, você pode impulsionar o próximo capítulo."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "好好享受你的照片书吧。如果想支持 PhotoBooks，可以为下一章加油。"
           }
         }
       }
@@ -2985,64 +3217,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "传奇盛宴"
-          }
-        }
-      }
-    },
-    "Meat acquired. Thank you!" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fleisch gesichert. Danke!"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meat acquired. Thank you!"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carne conseguida. ¡Gracias!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Viande acquise. Merci !"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carne acquisita. Grazie!"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "肉、確保。ありがとう！"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "고기 확보. 감사합니다!"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carne garantida. Obrigado!"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "肉到手了。谢谢！"
           }
         }
       }
@@ -6044,64 +6218,6 @@
         }
       }
     },
-    "Thank you for making a book with PhotoBooks" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Danke, dass du ein Buch mit PhotoBooks gemacht hast"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thank you for making a book with PhotoBooks"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gracias por crear un libro con PhotoBooks"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merci d’avoir créé un livre avec PhotoBooks"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Grazie per aver creato un libro con PhotoBooks"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PhotoBooks でブックを作ってくれてありがとう"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PhotoBooks로 책을 만들어 주셔서 감사합니다"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Obrigado por criar um livro com o PhotoBooks"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "感谢你用 PhotoBooks 做了一本书"
-          }
-        }
-      }
-    },
     "Thank you for your feedback." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -6804,64 +6920,6 @@
         }
       }
     },
-    "Would you like to donate again?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Möchtest du erneut spenden?"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Would you like to donate again?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Quieres donar de nuevo?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Souhaitez-vous faire un nouveau don ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vuoi donare di nuovo?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "もう一度寄付しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다시 후원하시겠어요?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gostaria de doar novamente?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要再次捐赠吗？"
-          }
-        }
-      }
-    },
     "Write a review" : {
       "localizations" : {
         "de" : {
@@ -7034,64 +7092,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "撰写网站反馈"
-          }
-        }
-      }
-    },
-    "You’ve already supported PhotoBooks. Thank you for helping fuel the next chapter." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du hast PhotoBooks bereits unterstützt. Danke, dass du das nächste Kapitel möglich machst."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You’ve already supported PhotoBooks. Thank you for helping fuel the next chapter."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ya has apoyado PhotoBooks. Gracias por ayudar a impulsar el próximo capítulo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous avez déjà soutenu PhotoBooks. Merci d’aider à écrire le prochain chapitre."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hai già sostenuto PhotoBooks. Grazie per aiutarci a scrivere il prossimo capitolo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すでに PhotoBooks を応援してくださいました。次の章を後押ししてくれてありがとうございます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이미 PhotoBooks를 후원해 주셨어요. 다음 장을 함께 만들어 주셔서 감사합니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Você já apoiou o PhotoBooks. Obrigado por ajudar a impulsionar o próximo capítulo."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你已经支持过 PhotoBooks。感谢你为下一章助力。"
           }
         }
       }

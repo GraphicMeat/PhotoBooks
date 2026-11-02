@@ -186,6 +186,10 @@ targets:
           "ENABLE_HARDENED_RUNTIME[sdk=macosx*]": true
     info:
       path: App/Info.plist
+      properties:
+        # Keeps finished tips in Transaction.all, so a reinstall still knows
+        # this person donated and exports stay free of sponsor pages.
+        SKIncludeConsumableInAppPurchaseHistory: true
 
   # Developer ID / notarized DMG flavor with the Sparkle auto-updater.
   PhotoBooks-Direct:
@@ -235,6 +239,11 @@ targets:
         # exceptions in the entitlements). Without this, install fails with
         # "An error occurred while launching the installer."
         SUEnableInstallerLauncherService: true
+        # Stripe's post-donation page opens photobooks://donated, which removes
+        # the sponsor pages. This build has no StoreKit to confirm a donation.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.graphicMeat.PhotoBooks.donation
+            CFBundleURLSchemes: [photobooks]
 
   PhotoBooksUITests:
     type: bundle.ui-testing
