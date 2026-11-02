@@ -61,7 +61,9 @@ final class MarketingCaptureMacUITests: XCTestCase {
             "-ApplePersistenceIgnoreState", "YES",
             "-AppleInterfaceStyle", "Light",
             "-AppleLanguages", "(\(Self.language))", "-AppleLocale", Self.region,
-            "-editor-canvas-background-mode", "white"
+            "-editor-canvas-background-mode", "white",
+            // As a supporter: no sponsor pages in the finished preview, no support step.
+            "-photobooks.hasDonated", "YES"
         ]
         app.launch()
         if !app.windows.firstMatch.waitForExistence(timeout: 10) {

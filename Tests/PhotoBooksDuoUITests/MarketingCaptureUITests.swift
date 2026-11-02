@@ -216,6 +216,8 @@ final class MarketingCaptureUITests: XCTestCase {
         app = XCUIApplication()
         app.launchArguments = arguments + [
             "-AppleLanguages", "(\(Self.language))", "-AppleLocale", Self.region,
+            // As a supporter: no sponsor pages in the finished preview, no support step.
+            "-photobooks.hasDonated", "YES",
             "-editor-canvas-background-mode", "white"
         ]
         app.launch()
